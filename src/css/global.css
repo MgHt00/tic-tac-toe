@@ -1,0 +1,57 @@
+:root {
+  --body-background: #1B2235;
+  --body-height: 100vh;
+  --body-width: 260px;
+  --body-margin: 0 auto;
+  --text-color: snow;
+  --block-background: rgba(255, 255, 255, 0.285);
+  --block-box-shadow: 0px 0px 15px 3px rgba(0, 0, 0, 0.4);
+  --block-border-radius: 10px;
+  --block-padding: 10px;
+  --block-margin: 0 0 10px;
+  --player-background: rgba(255, 255, 255, 0.3);
+  --player-box-shadow: 0px 0px 15px 2px rgba(0, 0, 0, 0.3);
+  --player-border-radius: 3px;
+  --player-padding: 3px;
+  --player-width: 30px;
+
+}
+
+/*@layer debug {
+  :root {
+    --debug-background: rgba(240, 248, 255, 0.35);
+    --debug-background: none;
+  }
+
+  #main-container > div {
+    background: var(--debug-background);
+  }
+}*/
+
+body {
+  height: var(--body-height, 100vh);
+  width: var(--body-width, 260px);
+  margin: var(--body-margin, 0 auto);
+  background: var(--body-background, #1B2235);
+  color: var(--text-color, snow)
+}
+
+#main-container > div:not(#game-title, #game-info) {
+  background-color: var(--block-background, none);
+  border-radius: var(--block-border-radius, 10px);
+  padding: var(--block-padding, 10px);
+  box-shadow: var(--block-box-shadow, none);
+  margin: var(--block-margin, 0 0 10px);
+}
+
+#game-scores > div {
+  padding: var(--player-padding, 3px);
+}
+
+#game-scores > div:not([id*='-score']) {
+  background-color: var(--player-background, none);
+  border-radius: var(--player-border-radius, 10px);
+  box-shadow: var(--player-box-shadow, none);
+  width: var(--player-width, 30px);
+  text-align: center;
+}

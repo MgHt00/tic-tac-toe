@@ -8,6 +8,10 @@ body {
   font-size: 16px;
 }
 
+#game-info {
+  font-style: italic;
+}
+
 h3 {
   font-family: "Bangers", system-ui;
   font-weight: 400;

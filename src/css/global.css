@@ -44,7 +44,7 @@ div[id|="game"] {
   margin: var(--block-margin, 0 0 10px);
 }
 
-#game-title, #game-info {
+#game-title, #game-info, #game-restart-button {
   background: none;
   box-shadow: none;
 }

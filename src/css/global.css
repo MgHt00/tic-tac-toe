@@ -9,12 +9,12 @@
   --block-border-radius: 10px;
   --block-padding: 10px;
   --block-margin: 0 0 10px;
-  --player-background: rgba(255, 255, 255, 0.3);
+  --player-background: rgba(83, 83, 83, 0.7);
   --player-box-shadow: 0px 0px 15px 2px rgba(0, 0, 0, 0.3);
   --player-border-radius: 3px;
   --player-padding: 3px;
   --player-width: 30px;
-
+  --tic-tac-toe-border-color: rgba(83, 83, 83, 0.645);
 }
 
 /*@layer debug {
@@ -33,7 +33,7 @@ body {
   width: var(--body-width, 260px);
   margin: var(--body-margin, 0 auto);
   background: var(--body-background, #1B2235);
-  color: var(--text-color, snow)
+  color: var(--text-color, snow);
 }
 
 div[id|="game"] {
@@ -61,16 +61,27 @@ div[id|="game"] {
   text-align: center;
 }
 
-#game-board {
+#game-wrapper {
   width: 100%;
   padding: 20px;
 }
 
-#game-board > div {
+#tic-tac-toe-board {
   width: 180px;
 }
 
-#game-board > div > div {
+#tic-tac-toe-board > div {
   width: 60px;
   height: 60px;
+  border: 1px solid var(--tic-tac-toe-border-color, #000000);
+  border-left: none;
+  border-top: none;
+}
+
+#tic-tac-toe-board > div:nth-child(3n) {
+  border-right: none;
+}
+
+#tic-tac-toe-board > div:nth-child(n+7) {
+  border-bottom: none;
 }

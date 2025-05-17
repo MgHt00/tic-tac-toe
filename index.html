@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tic-tac-toe with the minimax algorithm</title>
+  <link rel="stylesheet" href="src/css/index.css">
+</head>
+<body>
+  <div id="main-container" class="d-flex flex-column justify-content-center align-items-center h-100">
+    <div id="game-title" class="w-100 p-1"><h3>Tic Tac Toe</h3></div>
+    <div id="game-settings" class="w-100">
+      <div class="d-flex">
+        <label for="game-settings-difficulty" class="form-label">Opponent:&nbsp;</label>
+        <span id="game-settings-difficulty-value">Smart</span>
+      </div>
+      <input type="range" class="form-range" id="game-settings-difficulty">
+    </div>
+    <div id="game-scores" class="d-flex w-100 justify-content-evenly">
+      <div id="player-x">X</div>
+      <div id="player-x-score">0</div>
+      <div id="player-score-divider">:</div>
+      <div id="player-o">O</div>
+      <div id="player-o-score">0</div>
+    </div>
+    <div id="game-info">Start game or select player</div>
+    <div id="game-wrapper" class="d-flex align-items-center justify-content-center">
+      <div id="tic-tac-toe-board" class="d-flex flex-wrap">
+        <div class="d-flex justify-content-center align-items-center winning-square">X</div>
+        <div class="d-flex justify-content-center align-items-center">O</div>
+        <div class="d-flex justify-content-center align-items-center">X</div>
+        <div class="d-flex justify-content-center align-items-center">0</div>
+        <div class="d-flex justify-content-center align-items-center winning-square">X</div>
+        <div class="d-flex justify-content-center align-items-center">O</div>
+        <div class="d-flex justify-content-center align-items-center">O</div>
+        <div class="d-flex justify-content-center align-items-center">X</div>
+        <div class="d-flex justify-content-center align-items-center winning-square">X</div>
+      </div>
+    </div>
+    <div id="game-restart-button">
+      <button type="button" class="btn btn-outline-primary">Restart</button>
+    </div>
+  </div>
+  <script type="module" src="src/js/index.js"></script>
+</body>
+</html>

@@ -15,6 +15,7 @@
   --player-padding: 3px;
   --player-width: 30px;
   --tic-tac-toe-border-color: rgba(83, 83, 83, 0.645);
+  --winning-strike-color: snow;
 }
 
 /*@layer debug {
@@ -85,3 +86,56 @@ div[id|="game"] {
 #tic-tac-toe-board > div:nth-child(n+7) {
   border-bottom: none;
 }
+
+.winning-square {
+  position: relative;
+  overflow: visible;
+}
+
+/* For left to right strike-through: */
+/*.winning-square::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 105%;
+  height: 2px;
+  background-color: var(--winning-strike-color, snow);
+  transform: translateY(-50%);
+}*/
+
+/* For top to bottom strike-through: */
+/*.winning-square::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 105%;
+  height: 2px;
+  background-color: var(--winning-strike-color, snow);
+  transform: translateX(-3%) rotate(90deg);
+}*/
+
+/* For 45deg diagonal strike-through: */
+.winning-square::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 145%;
+  height: 2px;
+  background-color: var(--winning-strike-color, snow);
+  transform: translate(-10%, -10%) rotate(45deg);
+}
+
+/* For -45deg diagonal strike-through: */
+/*.winning-square::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 145%;
+  height: 2px;
+  background-color: var(--winning-strike-color, snow);
+  transform: translate(-15%, -15%) rotate(-45deg);
+}*/

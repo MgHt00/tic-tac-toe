@@ -6,5 +6,5 @@ export const AI_LEVELS = {
 };
 
 export const INTERACTIONS = {
-  SQUARE_GENERAL_ID: '[id|="square"]',
+  SQUARES_GENERAL_ID: '[id|="square"]',
 }

@@ -2,17 +2,21 @@ import { selectors } from "../services/selectors.js";
 import { INTERACTIONS } from "../constants/appConstants.js";
 
 export function interactionManager() {
-  function _addSquareListeners() {
-    const TTTBoard = selectors.TTTBoard
+  function _hightlightSquare() {
+    
+  }
 
-    TTTBoard.addEventListener("mouseover", (event) => {
-      if(event.target.matches(INTERACTIONS.SQUARE_GENERAL_ID)) {
-        console.info(event.target);
+  function _addSquareListeners() {
+    const gameBoard = selectors.TTTBoard;
+    const matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
+
+    gameBoard.addEventListener("mouseover", (event) => {
+      if(event.target.matches(matchingID)) {
       }
     });
 
-    TTTBoard.addEventListener("click", (event) => {
-      if(event.target.matches(INTERACTIONS.SQUARE_GENERAL_ID)) {
+    gameBoard.addEventListener("click", (event) => {
+      if(event.target.matches(matchingID)) {
         console.info(event.target);
       }
     });

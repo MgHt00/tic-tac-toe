@@ -161,3 +161,7 @@ div[id|="game"] {
   background-color: var(--winning-strike-color, snow);
   transform: translate(-15%, -15%) rotate(-45deg);
 }
+
+.highlight {
+  background-color: var(--tic-tac-toe-border-color);
+}

@@ -1,14 +1,15 @@
 import { selectors } from "../services/selectors.js";
+import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 
 export function loadingManager(initializeInput) {
   function _showLoadingSpinner() {
-    selectors.overlay.classList.remove("invisible");
-    selectors.loadingWrapper.classList.remove("invisible");
+    selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+    selectors.loadingWrapper.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
   }
 
   function _hideLoadingSpinner() {
-    selectors.overlay.classList.add("invisible");
-    selectors.loadingWrapper.classList.add("invisible");
+    selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+    selectors.loadingWrapper.classList.add(CSS_CLASS_NAMES.INVISIBLE);
   }
 
   function _asyncWrapper(fn) {

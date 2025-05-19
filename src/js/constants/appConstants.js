@@ -1,6 +1,6 @@
 export const AI_LEVELS = {
-  LEVEL_0: 'Dull',
-  LEVEL_1: 'Smart',
-  LEVEL_2: 'Brilliant',
-  LEVEL_3: '2 Player Mode',
+  0: 'Dull',
+  1: 'Smart',
+  2: 'Brilliant',
+  3: '2 Player Mode',
 }

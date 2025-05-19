@@ -24,4 +24,7 @@ export const selectors = {
   Square_3_3: document.querySelector(`#${ELEMENT_IDS.SQUARE_3_3}`),
 
   restartButton: document.querySelector(`#${ELEMENT_IDS.RESTART_BUTTON}`),
-}
+
+  overlay: document.querySelector(`#${ELEMENT_IDS.OVERLAY}`),
+  loadingWrapper: document.querySelector(`#${ELEMENT_IDS.LOADING_WRAPPER}`),
+};

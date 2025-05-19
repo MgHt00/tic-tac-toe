@@ -22,4 +22,7 @@ export const ELEMENT_IDS = {
   SQUARE_3_3: "sq-3-3",
 
   RESTART_BUTTON: "restart-button",
+
+  OVERLAY: "overlay",
+  LOADING_WRAPPER: "loading-wrapper",
 };

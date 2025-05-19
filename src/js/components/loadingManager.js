@@ -22,7 +22,7 @@ export function loadingManager(initializeInput) {
   }
 
 
-  async function start(){
+  async function preLoad(){
     const _initializeInput = _asyncWrapper(initializeInput);
 
     _showLoadingSpinner();
@@ -32,7 +32,7 @@ export function loadingManager(initializeInput) {
   }
 
   return {
-    start,
+    preLoad,
   };
 
 }

@@ -115,7 +115,7 @@ div[id|="game"] {
 }
 
 /* For left to right strike-through: */
-/*.winning-square::before {
+.winning-square-0::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -124,10 +124,10 @@ div[id|="game"] {
   height: 2px;
   background-color: var(--winning-strike-color, snow);
   transform: translateY(-50%);
-}*/
+}
 
 /* For top to bottom strike-through: */
-/*.winning-square::before {
+.winning-square-90::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -136,10 +136,10 @@ div[id|="game"] {
   height: 2px;
   background-color: var(--winning-strike-color, snow);
   transform: translateX(-3%) rotate(90deg);
-}*/
+}
 
 /* For 45deg diagonal strike-through: */
-.winning-square::before {
+.winning-square-plus45::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -151,7 +151,7 @@ div[id|="game"] {
 }
 
 /* For -45deg diagonal strike-through: */
-/*.winning-square::before {
+.winning-square-minus45::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -160,4 +160,4 @@ div[id|="game"] {
   height: 2px;
   background-color: var(--winning-strike-color, snow);
   transform: translate(-15%, -15%) rotate(-45deg);
-}*/
+}

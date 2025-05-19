@@ -5,6 +5,11 @@ export const AI_LEVELS = {
   3: '2 Player Mode',
 };
 
+export const PLAYERS = {
+  PLAYER_X: 'X',
+  PLAYER_O: 'O',
+};
+
 export const INTERACTIONS = {
   SQUARES_GENERAL_ID: '[id|="square"]',
 }

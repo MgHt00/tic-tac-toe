@@ -1,8 +1,8 @@
 import { selectors } from "../services/selectors.js";
-import { AI_LEVELS } from "../constants/appConstants.js";
+import { AI_LEVELS, PLAYERS } from "../constants/appConstants.js";
 
 export function inputManager() {
-  function _setHTMLAttributes_AILevelRange() {
+  function _setAIRange() {
   const minRange = 0;
   const maxRange = Object.entries(AI_LEVELS).length-1;
   
@@ -10,23 +10,29 @@ export function inputManager() {
   selectors.AILevelInput.setAttribute('max', maxRange);
   }
 
-  function _setDefaultAILevel() {
+  function _setDefaultAI() {
     selectors.AILevelInput.value = 1;
   }
 
-  function _setAILevelLabel() {
+  function _nameAI() {
     const selectedLevel = selectors.AILevelInput.value;
     selectors.AILevelLabel.innerHTML = AI_LEVELS[selectedLevel];
   }
 
+  function _namePlayers() {
+    selectors.playerXButton.innerHTML = PLAYERS.PLAYER_X;
+    selectors.playerOButton.innerHTML = PLAYERS.PLAYER_O;
+  }
+
   function _addAILevelListener() {
-    selectors.AILevelInput.addEventListener('input', _setAILevelLabel);
+    selectors.AILevelInput.addEventListener('input', _nameAI);
   }
 
   function initializeInput() {
-    _setHTMLAttributes_AILevelRange();
-    _setDefaultAILevel();
-    _setAILevelLabel();
+    _setAIRange();
+    _setDefaultAI();
+    _nameAI();
+    _namePlayers();
     _addAILevelListener();
   }
 

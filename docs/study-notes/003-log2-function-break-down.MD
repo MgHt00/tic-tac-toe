@@ -1,5 +1,7 @@
 Ref: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-1-introduction/
 
+https://www.geeksforgeeks.org/finding-optimal-move-in-tic-tac-toe-using-minimax-algorithm-in-game-theory/
+
 [G] You're very observant! Yes, the `log2` function provided in the code is indeed implemented recursively. It's a neat way to calculate logarithms in base 2 without using `Math.log2()` or `Math.log(n) / Math.log(2)`.
 
 Let's break down its recursive logic:

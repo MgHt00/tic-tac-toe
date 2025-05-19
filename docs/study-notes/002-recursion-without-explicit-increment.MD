@@ -1,5 +1,7 @@
 Ref: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-1-introduction/
 
+https://www.geeksforgeeks.org/finding-optimal-move-in-tic-tac-toe-using-minimax-algorithm-in-game-theory/
+
 [G] You've hit upon a very important distinction about how recursion works! You are absolutely right that there isn't a line like `nodeIndex++` inside the `minimax` function.
 
 The `nodeIndex` doesn't get incremented in a loop. Instead, its value for the *next* level of recursion is **calculated** and passed as a new argument in the recursive call.

@@ -30,6 +30,7 @@ export function interactionManager() {
   }
 
   function _areAllSquaresFilled() {
+    console.info("_areAllSquaresFilled()");
     return globals.appState.filledSquares.length === INTERACTIONS.TOTAL_SQUARES;
   }
 
@@ -43,40 +44,55 @@ export function interactionManager() {
     return targetElement;
   }
 
+  function _handleAITurn() {
+    if (_areAllSquaresFilled()) {
+      return; // No more moves if the board is full
+    }
+    setTimeout(() => {
+        _playAI();
+      }, 1000);
+  }
+
   function _playAI() {
     let targetElement;
-    
-    if (_areAllSquaresFilled()) {
-      return;
-    }
 
     switch (globals.appState.opponentLevel) {
       case 0:
         targetElement = _findRandomEmptySquare();
         break;
-
       case 1:
         break;
-    
       default:
         break;
     }
+
     _fillSquare(targetElement, globals.appState.currentPlayer);
     _markSquareAsFilled(targetElement);
     _flipPlayer();
     _displayCurrentPlayer();
   }
 
+  function _handleGameOver() {
+    console.info("ALL FILLED");
+    // Add game over decorations/logic here (e.g., display message, disable clicks)
+  }
+
   function _handleSquareClick(targetElement) {
-    if (!_isSquareFilled(targetElement)) {
-      _fillSquare(targetElement, globals.appState.currentPlayer);
-      _markSquareAsFilled(targetElement);
-      _flipPlayer();
-      _displayCurrentPlayer();
-      setTimeout(() => { // to give time to show _displayCurrentPlayer() on screen
-        _playAI();
-      }, 1000);
-    } 
+    if (_areAllSquaresFilled()) {
+      _handleGameOver();
+      return;
+    }
+
+    if (_isSquareFilled(targetElement)) {
+      console.info("Square is already filled");
+      return; // Square is already filled, do nothing
+    }
+
+    _fillSquare(targetElement, globals.appState.currentPlayer);
+    _markSquareAsFilled(targetElement);
+    _flipPlayer();
+    _displayCurrentPlayer();
+    _handleAITurn();
   }
 
   function _addSquareListeners() {

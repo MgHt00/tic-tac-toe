@@ -2,6 +2,7 @@ import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { generateRandomNumber } from "../utils/mathHelpers.js";
 
 export function interactionManager() {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
@@ -28,6 +29,7 @@ export function interactionManager() {
 
   function _markSquareAsFilled(targetElement) {
     globals.appState.filledSquares.push(targetElement.id.replace("square-", "")); 
+    console.info(globals.appState.currentPlayer, globals.appState.filledSquares);
   }
 
   function _displayCurrentPlayer(){
@@ -36,7 +38,39 @@ export function interactionManager() {
 
   function _flipPlayer() {
     globals.appState.currentPlayer = globals.appState.currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
-    console.info(globals.appState.currentPlayer);
+  }
+
+  function _areAllSquaresFilled() {
+    return globals.appState.filledSquares.length === INTERACTIONS.TOTAL_SQUARES;
+  }
+
+  function _findRandomEmptySquare() {
+    let targetElement;
+    do {
+      const row = generateRandomNumber(1, 3);
+      const col = generateRandomNumber(1, 3);
+      targetElement = document.getElementById(`square-${row}-${col}`);
+    } while (!_areAllSquaresFilled() && _isSquareFilled(targetElement)); // loop as long as the board is not full AND the square is filled
+    return targetElement;
+  }
+
+  function _playAI() {
+    switch (globals.appState.opponentLevel) {
+      case 0:
+        const targetElement = _findRandomEmptySquare();
+        _fillSquare(targetElement, globals.appState.currentPlayer);
+        _markSquareAsFilled(targetElement);
+        _flipPlayer();
+        _displayCurrentPlayer();
+        break;
+
+      case 1:
+        break;
+    
+      default:
+        break;
+    }
+
   }
 
   function _handleSquareClick(targetElement) {
@@ -45,9 +79,10 @@ export function interactionManager() {
       _markSquareAsFilled(targetElement);
       _flipPlayer();
       _displayCurrentPlayer();
-      //_playAI();
-    }
-    // new game မဟုတ်ရင် ကိုယ့်အလှည့်လား ၊ အလှည့်ဆိုရင် အကွက်လွတ်လား ၊ စသဖြင့်
+      setTimeout(() => { // to give time to show _displayCurrentPlayer() on screen
+        _playAI();
+      }, 1000);
+    } 
   }
 
   function _addSquareListeners() {

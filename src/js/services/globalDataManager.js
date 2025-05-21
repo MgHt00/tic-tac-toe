@@ -3,6 +3,10 @@ export function globalDataManager(globals) {
     Object.assign(globals.appState, globals.defaults);
   }
 
+  function pushToFilledSquare(squareID) {
+    globals.appState.filledSquares.push(squareID);
+  }
+
   return {
     restoreDefaults,
   }

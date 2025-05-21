@@ -13,4 +13,5 @@ export const PLAYERS = {
 export const INTERACTIONS = {
   SQUARES_GENERAL_ID: '[id|="square"]',
   PLAYER_TURN: 'Turn',
-}
+  TOTAL_SQUARES: 9,
+};

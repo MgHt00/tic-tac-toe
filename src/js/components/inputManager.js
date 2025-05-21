@@ -1,8 +1,9 @@
 import { selectors } from "../services/selectors.js";
+import { globals } from "../services/globals.js";
 import { AI_LEVELS, PLAYERS } from "../constants/appConstants.js";
 
 export function inputManager() {
-  function _setAIRange() {
+  function _setOpponetRange() {
   const minRange = 0;
   const maxRange = Object.entries(AI_LEVELS).length-1;
   
@@ -10,30 +11,34 @@ export function inputManager() {
   selectors.AILevelInput.setAttribute('max', maxRange);
   }
 
-  function _setDefaultAI() {
-    selectors.AILevelInput.value = 1;
+  function _changeOpponentLabel() {
+    selectors.AILevelLabel.innerHTML = AI_LEVELS[selectors.AILevelInput.value];
   }
 
-  function _nameAI() {
-    const selectedLevel = selectors.AILevelInput.value;
-    selectors.AILevelLabel.innerHTML = AI_LEVELS[selectedLevel];
+  function _setDefaultOpponent() {
+    selectors.AILevelInput.value = globals.appState.opponentLevel;
+    _changeOpponentLabel();
+  }
+
+  function _handleOpponentChange() {
+    globals.appState.opponentLevel = selectors.AILevelInput.value;
+    _changeOpponentLabel();
   }
 
   function _namePlayers() {
-    selectors.playerXButton.innerHTML = PLAYERS.PLAYER_X;
-    selectors.playerOButton.innerHTML = PLAYERS.PLAYER_O;
+    selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
+    selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
   }
 
-  function _addAILevelListener() {
-    selectors.AILevelInput.addEventListener('input', _nameAI);
+  function _addRangeListener() {
+    selectors.AILevelInput.addEventListener('input', _handleOpponentChange);
   }
 
   function initializeInput() {
-    _setAIRange();
-    _setDefaultAI();
-    _nameAI();
+    _setOpponetRange();
+    _setDefaultOpponent();
     _namePlayers();
-    _addAILevelListener();
+    _addRangeListener();
   }
 
   return {

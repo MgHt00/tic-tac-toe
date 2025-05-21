@@ -18,15 +18,8 @@ export function interactionManager() {
     targetElement.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
   }
 
-  function _isNewGame() {
-    const nodeList = document.querySelectorAll(_matchingID);
-    for (let i = 0; i < nodeList.length; i++) {
-      const element = nodeList[i];
-      if (element.textContent.trim() !== "") { 
-        return false; 
-      }
-    }
-    return true; 
+  function _isSquareFilled(targetElement) {
+    return globals.appState.filledSquares.includes(targetElement.id.replace("square-", "")); // to remove the "square-" prefix from targetElement.id 
   }
 
   function _fillSquare(targetElement, player) {
@@ -34,7 +27,7 @@ export function interactionManager() {
   }
 
   function _markSquareAsFilled(targetElement) {
-    globals.appState.filledSquares.push(targetElement.id.replace("square-", "")); // to remove the "square-" prefix from targetElement.id 
+    globals.appState.filledSquares.push(targetElement.id.replace("square-", "")); 
   }
 
   function _displayCurrentPlayer(){
@@ -47,7 +40,7 @@ export function interactionManager() {
   }
 
   function _handleSquareClick(targetElement) {
-    if (_isNewGame()) {
+    if (!_isSquareFilled(targetElement)) {
       _fillSquare(targetElement, globals.appState.currentPlayer);
       _markSquareAsFilled(targetElement);
       _flipPlayer();

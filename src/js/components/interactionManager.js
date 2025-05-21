@@ -1,23 +1,12 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
+import { addHighlight, removeHighlight } from "../utils/domHelpers.js";
 
 export function interactionManager() {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
-
-  function _playAI() {
-  }
-
-  function _addHighlight(targetElement) {
-    targetElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
-  }
-
-  function _removeHighlight(targetElement) {
-    targetElement.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
-  }
 
   function _isSquareFilled(targetElement) {
     return globals.appState.filledSquares.includes(targetElement.id.replace("square-", "")); // to remove the "square-" prefix from targetElement.id 
@@ -95,13 +84,13 @@ export function interactionManager() {
 
     gameBoard.addEventListener("mouseover", (event) => {
       if(event.target.matches(_matchingID)) {
-        _addHighlight(event.target);
+        addHighlight(event.target);
       }
     });
 
     gameBoard.addEventListener("mouseout", (event) => {
       if(event.target.matches(_matchingID)) {
-        _removeHighlight(event.target);
+        removeHighlight(event.target);
       }
     });
 

@@ -50,18 +50,20 @@ export function interactionManager() {
       const row = generateRandomNumber(1, 3);
       const col = generateRandomNumber(1, 3);
       targetElement = document.getElementById(`square-${row}-${col}`);
-    } while (!_areAllSquaresFilled() && _isSquareFilled(targetElement)); // loop as long as the board is not full AND the square is filled
+    } while (_isSquareFilled(targetElement)); // loop as long as the square is filled
     return targetElement;
   }
 
   function _playAI() {
+    let targetElement;
+    
+    if (_areAllSquaresFilled()) {
+      return;
+    }
+
     switch (globals.appState.opponentLevel) {
       case 0:
-        const targetElement = _findRandomEmptySquare();
-        _fillSquare(targetElement, globals.appState.currentPlayer);
-        _markSquareAsFilled(targetElement);
-        _flipPlayer();
-        _displayCurrentPlayer();
+        targetElement = _findRandomEmptySquare();
         break;
 
       case 1:
@@ -70,7 +72,10 @@ export function interactionManager() {
       default:
         break;
     }
-
+    _fillSquare(targetElement, globals.appState.currentPlayer);
+    _markSquareAsFilled(targetElement);
+    _flipPlayer();
+    _displayCurrentPlayer();
   }
 
   function _handleSquareClick(targetElement) {

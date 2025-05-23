@@ -53,9 +53,6 @@ export function interactionManager() {
   }
 
   function _handleAITurn() {
-    if (_areAllSquaresFilled()) {
-      return; // No more moves if the board is full
-    }
     setTimeout(() => {
         _playAI();
       }, 1000);
@@ -86,6 +83,14 @@ export function interactionManager() {
     // Add game over decorations/logic here (e.g., display message, disable clicks)
   }
 
+  function _handleWin() {
+    // Add win logic here
+  }
+
+  function _checkWinCondition(currentPlayer) {
+    // Add win condition checking logic here
+  }
+
   function _handleSquareClick(targetElement) {
     if (_areAllSquaresFilled()) {
       _handleGameOver();
@@ -99,9 +104,22 @@ export function interactionManager() {
 
     _fillSquare(targetElement, globals.appState.currentPlayer);
     _markSquareAsFilled(targetElement);
+
+    if(_checkWinCondition(globals.appState.currentPlayer)) {
+      _handleWin();
+      return;
+    }
+
     _flipPlayer();
     _displayCurrentPlayer();
     _highlightCurrentPlayer();
+    _flipPlayer()
+
+    if (_areAllSquaresFilled()) { // No more moves if the board is full
+      _handleGameOver();
+      return;
+    }
+
     _handleAITurn();
   }
 

@@ -25,6 +25,14 @@ export function interactionManager() {
     selectors.gameInfo.textContent = `${globals.appState.currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
   }
 
+  function _highlightCurrentPlayer() {
+    const currentPlayerButton = globals.appState.currentPlayer === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
+    const otherPlayerButton = globals.appState.currentPlayer === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
+
+    removeHighlight(otherPlayerButton);
+    addHighlight(currentPlayerButton);
+  }
+
   function _flipPlayer() {
     globals.appState.currentPlayer = globals.appState.currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
   }
@@ -70,6 +78,7 @@ export function interactionManager() {
     _markSquareAsFilled(targetElement);
     _flipPlayer();
     _displayCurrentPlayer();
+    _highlightCurrentPlayer();
   }
 
   function _handleGameOver() {
@@ -92,6 +101,7 @@ export function interactionManager() {
     _markSquareAsFilled(targetElement);
     _flipPlayer();
     _displayCurrentPlayer();
+    _highlightCurrentPlayer();
     _handleAITurn();
   }
 

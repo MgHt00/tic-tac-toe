@@ -52,23 +52,39 @@ export function interactionManager() {
     return targetElement;
   }
 
-  const winningCombinations = [
+  const _winningCombinations = [
     // Rows
-    ["1-1", "1-2", "1-3"],
-    ["2-1", "2-2", "2-3"],
-    ["3-1", "3-2", "3-3"],
+    { combinationType: "row-1", cells: ["1-1", "1-2", "1-3"] },
+    { combinationType: "row-2", cells: ["2-1", "2-2", "2-3"] },
+    { combinationType: "row-3", cells: ["3-1", "3-2", "3-3"] },
     // Columns
-    ["1-1", "2-1", "3-1"],
-    ["1-2", "2-2", "3-2"],
-    ["1-3", "2-3", "3-3"],
+    { combinationType: "col-1", cells: ["1-1", "2-1", "3-1"] },
+    { combinationType: "col-2", cells: ["1-2", "2-2", "3-2"] },
+    { combinationType: "col-3", cells: ["1-3", "2-3", "3-3"] },
     // Diagonals
-    ["1-1", "2-2", "3-3"],
-    ["1-3", "2-2", "3-1"],
+    { combinationType: "diag-1", cells: ["1-1", "2-2", "3-3"] }, // Top-left to bottom-right
+    { combinationType: "diag-2", cells: ["1-3", "2-2", "3-1"] }, // Top-right to bottom-left
   ];
 
+  function _strikeThroughCells(winningCombo) {
+    if (winningCombo && winningCombo.combinationType) {
+      // Add a class to the TTTBoard to draw the strike-through line via CSS
+      // selectors.TTTBoard.classList.add(`strike-${winningCombo.combinationType}`);
+      
+
+      // Optionally, add a class to the individual winning cells for styling (e.g., background color)
+      winningCombo.cells.forEach(cellId => {
+        const cellElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${cellId}`);
+        if (cellElement) {
+          cellElement.classList.add('winning-cell'); // You'll need to define this CSS class
+        }
+      });
+    }
+  }
+
   function _checkWinCondition(currentPlayer) {
-    for (const combination of winningCombinations) {
-      const [a, b, c] = combination;
+    for (const combo of _winningCombinations) {
+      const [a, b, c] = combo.cells;
       const squareA = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${a}`);
       const squareB = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${b}`);
       const squareC = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${c}`);
@@ -77,18 +93,18 @@ export function interactionManager() {
           squareA.textContent === currentPlayer &&
           squareB.textContent === currentPlayer &&
           squareC.textContent === currentPlayer) {
-        // strike-through the cells?
-        return true; // Player has won
+        return combo; // Return the winning combination object { combinationType: "...", cells: [...] }
       }
     }
-    return false; // No win
+    return null; // No win
   }
 
-  function _handleWin(winningPlayer) {
+  function _handleWin(winningPlayer, winningCombo) {
     console.info(`Player ${winningPlayer} wins!`);
     globals.appState.gameOver = true;
     globals.appState.winner = winningPlayer;
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
+    _strikeThroughCells(winningCombo);
     // Consider disabling board interactions here or by checking globals.appState.gameOver in listeners
   }
 
@@ -126,8 +142,9 @@ export function interactionManager() {
     _fillSquare(targetElement, aiPlayer);
     _markSquareAsFilled(targetElement);
 
-    if (_checkWinCondition(aiPlayer)) {
-      _handleWin(aiPlayer);
+    const winningComboAI = _checkWinCondition(aiPlayer);
+    if (winningComboAI) {
+      _handleWin(aiPlayer, winningComboAI);
       return;
     }
 
@@ -156,8 +173,9 @@ export function interactionManager() {
     _fillSquare(targetElement, playerMakingMove);
     _markSquareAsFilled(targetElement);
 
-    if (_checkWinCondition(playerMakingMove)) {
-      _handleWin(playerMakingMove);
+    const winningComboPlayer = _checkWinCondition(playerMakingMove);
+    if (winningComboPlayer) {
+      _handleWin(playerMakingMove, winningComboPlayer);
       return;
     }
 

@@ -8,10 +8,14 @@ export const AI_LEVELS = {
 export const PLAYERS = {
   PLAYER_X: 'X',
   PLAYER_O: 'O',
+  PLAYER_DRAW: 'draw',
 };
 
 export const INTERACTIONS = {
-  SQUARES_GENERAL_ID: '[id|="square"]',
-  PLAYER_TURN: 'Turn',
   TOTAL_SQUARES: 9,
+  SQUARES_GENERAL_ID: '[id|="square"]',
+  SQUARES_ID_INITIAL: 'square-',
+  PLAYER_TURN: 'Turn',
+  PLAYER_WIN: 'wins!',
+  PLAYER_DRAW: 'It\'s a draw!'
 };

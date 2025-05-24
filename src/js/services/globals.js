@@ -6,6 +6,8 @@ const defaults = {
   currentPlayer : PLAYERS.PLAYER_X,
   opponentLevel: 0, // should be 1
   filledSquares : [],
+  gameOver: false, 
+  winner: null,    
 }
 
 const appState = {
@@ -13,6 +15,8 @@ const appState = {
   currentPlayer : PLAYERS.PLAYER_X,
   opponentLevel: 0,
   filledSquares : [],
+  gameOver: false, 
+  winner: null,    
 }
 
 export const globals = {

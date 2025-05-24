@@ -18,6 +18,7 @@
   --player-width: 30px;
   --tic-tac-toe-border-color: rgba(83, 83, 83, 0.645);
   --winning-strike-color: snow;
+  --strike-line-thickness: 2px;
 }
 
 /*@layer debug {
@@ -110,56 +111,48 @@ div[id|="game"] {
   display: flex; /* Use Flexbox to align columns side by side */
 }
 
-.winning-square {
+.winning-square-row, /* Row */
+.winning-square-column, /* Column */
+.winning-square-diagonal-main, /* Top-left to bottom-right */
+.winning-square-diagonal-anti { /* Top-right to bottom-left */
   position: relative;
   overflow: visible;
 }
 
-/* For left to right strike-through: */
-.winning-square-0::before {
+.winning-square-row::before,
+.winning-square-column::before,
+.winning-square-diagonal-main::before,
+.winning-square-diagonal-anti::before {
   content: "";
   position: absolute;
   top: 50%;
   left: 0;
-  width: 105%;
-  height: 2px;
+  height: var(--strike-line-thickness, 2px);
   background-color: var(--winning-strike-color, snow);
+}
+
+/* For left to right strike-through: */
+.winning-square-row::before {
+  width: 105%;
   transform: translateY(-50%);
 }
 
 /* For top to bottom strike-through: */
-.winning-square-90::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
+.winning-square-column::before {
   width: 105%;
-  height: 2px;
-  background-color: var(--winning-strike-color, snow);
   transform: translateX(-3%) rotate(90deg);
 }
 
 /* For 45deg diagonal strike-through: */
-.winning-square-plus45::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
+.winning-square-diagonal-main::before {
   width: 145%;
-  height: 2px;
-  background-color: var(--winning-strike-color, snow);
   transform: translate(-10%, -10%) rotate(45deg);
 }
 
 /* For -45deg diagonal strike-through: */
-.winning-square-minus45::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
+.winning-square-diagonal-anti::before {
   width: 145%;
   height: 2px;
-  background-color: var(--winning-strike-color, snow);
   transform: translate(-15%, -15%) rotate(-45deg);
 }
 

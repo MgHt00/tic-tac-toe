@@ -6,6 +6,7 @@ export const AI_LEVELS = {
 };
 
 export const PLAYERS = {
+  INITIAL_MESSAGE: 'Start game or select player',
   PLAYER_X: 'X',
   PLAYER_O: 'O',
   PLAYER_DRAW: 'draw',
@@ -17,5 +18,5 @@ export const INTERACTIONS = {
   SQUARES_ID_INITIAL: 'square-',
   PLAYER_TURN: 'Turn',
   PLAYER_WIN: 'wins!',
-  PLAYER_DRAW: 'It\'s a draw!'
+  PLAYER_DRAW: 'Game is a draw!',
 };

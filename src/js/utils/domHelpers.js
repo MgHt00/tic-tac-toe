@@ -1,4 +1,5 @@
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { selectors } from "../services/selectors.js";
 
 export function addHighlight(targetElement) {
   targetElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
@@ -14,4 +15,23 @@ export function showRecentMove(targetElement) {
   setTimeout(() => {
       removeHighlight(targetElement);
     }, 1000);
+}
+
+export function makeRestartButtonFilled() {
+  selectors.restartButton.classList.remove(CSS_CLASS_NAMES.OUTLINED_BUTTON);
+  selectors.restartButton.classList.add(CSS_CLASS_NAMES.FILLED_BUTTON);
+}
+
+export function makeRestartButtonOutlined() {
+  selectors.restartButton.classList.remove(CSS_CLASS_NAMES.FILLED_BUTTON);
+  selectors.restartButton.classList.add(CSS_CLASS_NAMES.OUTLINED_BUTTON);
+}
+
+export function removeWinningLineStyles(squareElement) {
+  squareElement.classList.remove(
+    CSS_CLASS_NAMES.WIN_ROW,
+    CSS_CLASS_NAMES.WIN_COLUMN,
+    CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN,
+    CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY
+  );
 }

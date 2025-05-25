@@ -8,4 +8,7 @@ export const CSS_CLASS_NAMES = {
   WIN_DIAGONAL_SECONDARY: "winning-square-diagonal-secondary", // Top-right to bottom-left (e.g., /)
 
   BOARD_DISABLED: "board-disabled",
+
+  OUTLINED_BUTTON: "btn-outline-primary",
+  FILLED_BUTTON: "btn-primary",
 }

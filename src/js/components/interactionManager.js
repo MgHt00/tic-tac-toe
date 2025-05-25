@@ -3,9 +3,9 @@ import { globals } from "../services/globals.js";
 import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
-import { addHighlight, removeHighlight } from "../utils/domHelpers.js";
+import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
 
-export function interactionManager() {
+export function interactionManager(restoreDefaults) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
@@ -39,6 +39,18 @@ export function interactionManager() {
 
   function _areAllSquaresFilled() {
     return globals.appState.filledSquares.length === INTERACTIONS.TOTAL_SQUARES;
+  }
+
+  function _disableBoardInteractions() {
+    if (selectors.TTTBoard) {
+      selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+    }
+  }
+
+  function _enableBoardInteractions() {
+    if (selectors.TTTBoard) {
+      selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+    }
   }
 
   function _findRandomEmptySquare() {
@@ -114,26 +126,16 @@ export function interactionManager() {
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
     _strikeThroughCells(winningCombo);
     _disableBoardInteractions();
+    makeRestartButtonFilled();
   }
 
-  function _handleDraw() { // Specifically for draws
+  function _handleDraw() { 
     console.info("Game is a draw!");
     _disableBoardInteractions();
     globals.appState.gameOver = true;
     globals.appState.winner = PLAYERS.PLAYER_DRAW;
     selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
-  }
-
-  function _disableBoardInteractions() {
-    if (selectors.TTTBoard) {
-      selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
-    }
-  }
-
-  function _enableBoardInteractions() {
-    if (selectors.TTTBoard) {
-      selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
-    }
+    makeRestartButtonFilled();
   }
 
   function _handleAITurn() {
@@ -172,7 +174,7 @@ export function interactionManager() {
     }
 
     if (_areAllSquaresFilled()) {
-      _handleDraw(); // Draw
+      _handleDraw(); 
       return;
     }
 
@@ -203,7 +205,7 @@ export function interactionManager() {
     }
 
     if (_areAllSquaresFilled()) {
-      _handleDraw(); // Draw
+      _handleDraw(); 
       return;
     }
 
@@ -214,7 +216,25 @@ export function interactionManager() {
 
     _handleAITurn();
   }
+  
+  function _resetGameBoard() {
+    
+    restoreDefaults(); // reset global's appState
 
+    selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
+    
+    const squaresNodeList = document.querySelectorAll(_matchingID);
+    squaresNodeList.forEach(square => {
+      square.textContent = "";
+      removeWinningLineStyles(square);
+    });
+
+    selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
+    selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
+
+    makeRestartButtonOutlined();
+    _enableBoardInteractions(); 
+  }
 
   function _addSquareListeners() {
     const gameBoard = selectors.TTTBoard;
@@ -234,16 +254,21 @@ export function interactionManager() {
     gameBoard.addEventListener("click", (event) => {
       if(event.target.matches(_matchingID)) {
         _handleSquareClick(event.target);
+        _highlightCurrentPlayer();
       }
+    });
+  }
+
+  function _addRestartButtonListener() {
+    selectors.restartButton.addEventListener("click", () => {
+      _resetGameBoard();
     });
   }
   
   function initializeGameInteraction() {
     _addSquareListeners();
-    // You might want to call _displayCurrentPlayer() and _highlightCurrentPlayer() here
-    // if the game starts immediately without a "start game" button,
-    // or after globals.appState is reset for a new game.
-    _displayCurrentPlayer();
+    _addRestartButtonListener();
+    _resetGameBoard();
     _highlightCurrentPlayer();
   }
 

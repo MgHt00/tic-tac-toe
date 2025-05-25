@@ -15,7 +15,7 @@ const { initializeInput } = input;
 const load = loadingManager(initializeInput, restoreDefaults);
 const { preLoad } = load;
 
-const interaction = interactionManager();
+const interaction = interactionManager(restoreDefaults);
 const { initializeGameInteraction } = interaction;
 
 (async function() {

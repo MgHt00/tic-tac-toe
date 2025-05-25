@@ -19,6 +19,7 @@
   --tic-tac-toe-border-color: rgba(83, 83, 83, 0.645);
   --winning-strike-color: snow;
   --strike-line-thickness: 2px;
+  --board-disabled-opacity: 0.3;
 }
 
 /*@layer debug {
@@ -166,5 +167,5 @@ div[id|="game"] {
 
 .board-disabled {
   pointer-events: none;
-   opacity: 0.6; 
+  opacity: var(--board-disabled-opacity, 0.6); 
 }

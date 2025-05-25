@@ -53,6 +53,25 @@ export function interactionManager(restoreDefaults) {
     }
   }
 
+  function _resetGameBoard() {
+    
+    restoreDefaults(); // reset global's appState
+
+    selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
+    
+    const squaresNodeList = document.querySelectorAll(_matchingID);
+    squaresNodeList.forEach(square => {
+      square.textContent = "";
+      removeWinningLineStyles(square);
+    });
+
+    selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
+    selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
+
+    makeRestartButtonOutlined();
+    _enableBoardInteractions(); 
+  }
+
   function _findRandomEmptySquare() {
     let targetElement;
     do {
@@ -63,19 +82,38 @@ export function interactionManager(restoreDefaults) {
     return targetElement;
   }
 
-  const _winningCombinations = [
-    // Rows
-    { combinationType: "row-1", cells: ["1-1", "1-2", "1-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
-    { combinationType: "row-2", cells: ["2-1", "2-2", "2-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
-    { combinationType: "row-3", cells: ["3-1", "3-2", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
-    // Columns
-    { combinationType: "col-1", cells: ["1-1", "2-1", "3-1"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
-    { combinationType: "col-2", cells: ["1-2", "2-2", "3-2"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
-    { combinationType: "col-3", cells: ["1-3", "2-3", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
-    // Diagonals
-    { combinationType: "diag-1", cells: ["1-1", "2-2", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN }, // Top-left to bottom-right
-    { combinationType: "diag-2", cells: ["1-3", "2-2", "3-1"], cssClass: CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY }, // Top-right to bottom-left
-  ];
+  function _getEmptySquares() {
+    const emptySquares = [];
+    for (let row = 1; row <= 3; row++) {
+      for (let col = 1; col <= 3; col++) {
+        const squareId = `${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`;
+        if (!_isSquareFilled(document.getElementById(squareId))) {
+          emptySquares.push(squareId.replace(INTERACTIONS.SQUARES_ID_INITIAL, ""));
+        }
+      }
+    }
+    //console.info("Empty squares:", emptySquares);
+    return emptySquares;
+  }
+
+  function _handleWin(winningPlayer, winningCombo) {
+    console.info(`Player ${winningPlayer} wins!`);
+    globals.appState.gameOver = true;
+    globals.appState.winner = winningPlayer;
+    selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
+    _strikeThroughCells(winningCombo);
+    _disableBoardInteractions();
+    makeRestartButtonFilled();
+  }
+
+  function _handleDraw() { 
+    console.info("Game is a draw!");
+    _disableBoardInteractions();
+    globals.appState.gameOver = true;
+    globals.appState.winner = PLAYERS.PLAYER_DRAW;
+    selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
+    makeRestartButtonFilled();
+  }
 
   function _strikeThroughCells(winningCombo) {
     // Guard clause if no winning combo is passed or if it's malformed
@@ -100,7 +138,21 @@ export function interactionManager(restoreDefaults) {
           }
         }
       });
-    }
+  }
+
+  const _winningCombinations = [
+    // Rows
+    { combinationType: "row-1", cells: ["1-1", "1-2", "1-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
+    { combinationType: "row-2", cells: ["2-1", "2-2", "2-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
+    { combinationType: "row-3", cells: ["3-1", "3-2", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
+    // Columns
+    { combinationType: "col-1", cells: ["1-1", "2-1", "3-1"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
+    { combinationType: "col-2", cells: ["1-2", "2-2", "3-2"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
+    { combinationType: "col-3", cells: ["1-3", "2-3", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
+    // Diagonals
+    { combinationType: "diag-1", cells: ["1-1", "2-2", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN }, // Top-left to bottom-right
+    { combinationType: "diag-2", cells: ["1-3", "2-2", "3-1"], cssClass: CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY }, // Top-right to bottom-left
+  ];
 
   function _checkWinCondition(currentPlayer) {
     for (const combo of _winningCombinations) {
@@ -119,23 +171,12 @@ export function interactionManager(restoreDefaults) {
     return null; // No win
   }
 
-  function _handleWin(winningPlayer, winningCombo) {
-    console.info(`Player ${winningPlayer} wins!`);
-    globals.appState.gameOver = true;
-    globals.appState.winner = winningPlayer;
-    selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
-    _strikeThroughCells(winningCombo);
-    _disableBoardInteractions();
-    makeRestartButtonFilled();
-  }
-
-  function _handleDraw() { 
-    console.info("Game is a draw!");
-    _disableBoardInteractions();
-    globals.appState.gameOver = true;
-    globals.appState.winner = PLAYERS.PLAYER_DRAW;
-    selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
-    makeRestartButtonFilled();
+  function _isNextMoveWinable(currentPlayer) {
+    const emptySquares = _getEmptySquares();
+    for (const squareId of emptySquares) {
+      
+    }
+    return false;
   }
 
   function _handleAITurn() {
@@ -217,25 +258,6 @@ export function interactionManager(restoreDefaults) {
     _handleAITurn();
   }
   
-  function _resetGameBoard() {
-    
-    restoreDefaults(); // reset global's appState
-
-    selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
-    
-    const squaresNodeList = document.querySelectorAll(_matchingID);
-    squaresNodeList.forEach(square => {
-      square.textContent = "";
-      removeWinningLineStyles(square);
-    });
-
-    selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
-    selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
-
-    makeRestartButtonOutlined();
-    _enableBoardInteractions(); 
-  }
-
   function _addSquareListeners() {
     const gameBoard = selectors.TTTBoard;
 

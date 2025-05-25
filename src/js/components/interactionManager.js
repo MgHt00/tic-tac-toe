@@ -1,6 +1,7 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { addHighlight, removeHighlight } from "../utils/domHelpers.js";
 
@@ -54,33 +55,42 @@ export function interactionManager() {
 
   const _winningCombinations = [
     // Rows
-    { combinationType: "row-1", cells: ["1-1", "1-2", "1-3"] },
-    { combinationType: "row-2", cells: ["2-1", "2-2", "2-3"] },
-    { combinationType: "row-3", cells: ["3-1", "3-2", "3-3"] },
+    { combinationType: "row-1", cells: ["1-1", "1-2", "1-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
+    { combinationType: "row-2", cells: ["2-1", "2-2", "2-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
+    { combinationType: "row-3", cells: ["3-1", "3-2", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
     // Columns
-    { combinationType: "col-1", cells: ["1-1", "2-1", "3-1"] },
-    { combinationType: "col-2", cells: ["1-2", "2-2", "3-2"] },
-    { combinationType: "col-3", cells: ["1-3", "2-3", "3-3"] },
+    { combinationType: "col-1", cells: ["1-1", "2-1", "3-1"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
+    { combinationType: "col-2", cells: ["1-2", "2-2", "3-2"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
+    { combinationType: "col-3", cells: ["1-3", "2-3", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
     // Diagonals
-    { combinationType: "diag-1", cells: ["1-1", "2-2", "3-3"] }, // Top-left to bottom-right
-    { combinationType: "diag-2", cells: ["1-3", "2-2", "3-1"] }, // Top-right to bottom-left
+    { combinationType: "diag-1", cells: ["1-1", "2-2", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN }, // Top-left to bottom-right
+    { combinationType: "diag-2", cells: ["1-3", "2-2", "3-1"], cssClass: CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY }, // Top-right to bottom-left
   ];
 
   function _strikeThroughCells(winningCombo) {
-    if (winningCombo && winningCombo.combinationType) {
-      // Add a class to the TTTBoard to draw the strike-through line via CSS
-      // selectors.TTTBoard.classList.add(`strike-${winningCombo.combinationType}`);
-      
+    // Guard clause if no winning combo is passed or if it's malformed
+    if (!winningCombo || !winningCombo.cssClass || !winningCombo.cells || winningCombo.cells.length === 0) {
+      if (winningCombo) { // Log error only if winningCombo exists but is malformed
+        console.error(
+          `Cannot apply strike-through: winningCombo is malformed or missing essential properties. Type: ${winningCombo.combinationType || 'unknown'}`,
+          winningCombo
+        );
+      }
+      return;
+    }
 
-      // Optionally, add a class to the individual winning cells for styling (e.g., background color)
-      winningCombo.cells.forEach(cellId => {
-        const cellElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${cellId}`);
-        if (cellElement) {
-          cellElement.classList.add('winning-cell'); // You'll need to define this CSS class
+    const { cssClass, cells } = winningCombo;
+
+    cells.forEach(cellId => {
+      // It's good practice to ensure cellId is a string if there's any doubt, though here it should be.
+      if (typeof cellId === 'string') {
+          const cellElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${cellId}`);
+          if (cellElement) {
+            cellElement.classList.add(cssClass);
+          }
         }
       });
     }
-  }
 
   function _checkWinCondition(currentPlayer) {
     for (const combo of _winningCombinations) {

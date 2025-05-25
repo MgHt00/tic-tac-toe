@@ -19,7 +19,6 @@ export function interactionManager() {
 
   function _markSquareAsFilled(targetElement) {
     globals.appState.filledSquares.push(targetElement.id.replace(INTERACTIONS.SQUARES_ID_INITIAL, "")); 
-    console.info(globals.appState.currentPlayer, globals.appState.filledSquares);
   }
 
   function _displayCurrentPlayer(){
@@ -39,7 +38,6 @@ export function interactionManager() {
   }
 
   function _areAllSquaresFilled() {
-    console.info("_areAllSquaresFilled()");
     return globals.appState.filledSquares.length === INTERACTIONS.TOTAL_SQUARES;
   }
 
@@ -115,20 +113,35 @@ export function interactionManager() {
     globals.appState.winner = winningPlayer;
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
     _strikeThroughCells(winningCombo);
-    // Consider disabling board interactions here or by checking globals.appState.gameOver in listeners
+    _disableBoardInteractions();
   }
 
   function _handleDraw() { // Specifically for draws
     console.info("Game is a draw!");
+    _disableBoardInteractions();
     globals.appState.gameOver = true;
     globals.appState.winner = PLAYERS.PLAYER_DRAW;
     selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
   }
 
+  function _disableBoardInteractions() {
+    if (selectors.TTTBoard) {
+      selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+    }
+  }
+
+  function _enableBoardInteractions() {
+    if (selectors.TTTBoard) {
+      selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+    }
+  }
+
   function _handleAITurn() {
     if (globals.appState.gameOver) return; // Don't proceed if game is over
+    _disableBoardInteractions();
     setTimeout(() => {
         _playAI();
+        _enableBoardInteractions();
       }, 1000);
   }
 

@@ -163,3 +163,8 @@ div[id|="game"] {
 #game-scores > div[id|="player"].highlight {
   box-shadow: var(--current-player-box-shadow);
 }
+
+.board-disabled {
+  pointer-events: none;
+   opacity: 0.6; 
+}

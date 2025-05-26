@@ -179,6 +179,26 @@ export function interactionManager(restoreDefaults) {
     return null; // No win
   }
 
+  const _winningCombinationsByBoard = {
+    row1: [0, 1, 2],
+    row2: [3, 4, 5],
+    row3: [6, 7, 8],
+    col1: [0, 3, 6],
+    col2: [1, 4, 7],
+    col3: [2, 5, 8],
+    diag1: [0, 4, 8],
+    diag2: [2, 4, 6],
+  };
+
+  function _checkWinConditionByBoard(currentPlayer) {
+    const _flatGameBoard = globals.appState.gameBoard.flat();
+    for (const key in _winningCombinationsByBoard) {
+      const indices = _winningCombinationsByBoard[key];
+      return indices.every(index => _flatGameBoard[index] === currentPlayer);
+    }
+    return false;
+  }
+
   function _isNextMoveWinable(currentPlayer) {
     const emptySquares = _getEmptySquares();
     for (const squareId of emptySquares) {
@@ -248,6 +268,7 @@ export function interactionManager(restoreDefaults) {
     _fillSquare(targetElement, playerMakingMove);
     _markSquareAsFilled(targetElement);
     _updateBoard(targetElement, playerMakingMove);
+    _checkWinConditionByBoard(playerMakingMove);
 
     const winningComboPlayer = _checkWinCondition(playerMakingMove);
     if (winningComboPlayer) {

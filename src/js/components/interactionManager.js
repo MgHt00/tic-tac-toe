@@ -129,16 +129,49 @@ export function interactionManager(restoreDefaults) {
       });
   }*/
 
-  function _strikeThroughCells(winningCombo) {
+  function _strikeThroughCells(winningCombinationDetails) {
+    if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
+      console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
+      return;
+    }
 
+    const { key, indices } = winningCombinationDetails;
+    let cssClass;
+
+    if (key.startsWith("row")) {
+      cssClass = CSS_CLASS_NAMES.WIN_ROW;
+    } else if (key.startsWith("col")) {
+      cssClass = CSS_CLASS_NAMES.WIN_COLUMN;
+    } else if (key === "diag1") {
+      cssClass = CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN;
+    } else if (key === "diag2") {
+      cssClass = CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY;
+    } else {
+      console.error("Unknown winning combination key:", key);
+      return;
+    }
+
+    indices.forEach(index => {
+      // Convert flat index (0-8) to DOM row and column (1-3)
+      const domRow = Math.floor(index / 3) + 1;
+      const domCol = (index % 3) + 1;
+      const cellId = `${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`;
+      const cellElement = document.getElementById(cellId);
+
+      if (cellElement) {
+        cellElement.classList.add(cssClass);
+      } else {
+        console.error(`Cell element not found for ID: ${cellId}`);
+      }
+    });
   }
 
-  function _handleWin(winningPlayer, winningCombo) {
+  function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
     globals.appState.gameOver = true;
     globals.appState.winner = winningPlayer;
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
-    _strikeThroughCells(winningCombo);
+    _strikeThroughCells(winningCombinationDetails);
     _disableBoardInteractions();
     makeRestartButtonFilled();
   }
@@ -168,8 +201,8 @@ export function interactionManager(restoreDefaults) {
     for (const key in _winningCombinationsByBoard) {
       const indices = _winningCombinationsByBoard[key];
       if (indices.every(index => _flatGameBoard[index] === currentPlayer)) {
-        // console.info(`Win detected on board for ${currentPlayer} with combination ${key}`); // For debugging
-        return indices; // A win is found, returning indices for strike-through decorations.
+        // console.info(`Win detected on board for ${currentPlayer} with combination ${key}`);
+        return { key, indices }; // Return key and indices for strike-through
       }
     }
     return false; // No win after checking all combinations
@@ -206,10 +239,10 @@ export function interactionManager(restoreDefaults) {
     _updateBoard(targetElement, aiPlayer);
 
     // Check for win using the AI's move
-    const boardWinningIndices = _checkWinConditionByBoard(aiPlayer);
+    const winningBoardCombination = _checkWinConditionByBoard(aiPlayer);
     
-    if (boardWinningIndices) {
-      _handleWin(aiPlayer, boardWinningIndices); // Note: _handleWin needs adjustment for this data type
+    if (winningBoardCombination) {
+      _handleWin(aiPlayer, winningBoardCombination);
       return;
     }
     
@@ -240,10 +273,10 @@ export function interactionManager(restoreDefaults) {
     _updateBoard(targetElement, playerMakingMove);
 
     // Check for win using the player's move
-    const boardWinningIndices = _checkWinConditionByBoard(playerMakingMove);
+    const winningBoardCombination = _checkWinConditionByBoard(playerMakingMove);
 
-    if (boardWinningIndices) {
-      _handleWin(playerMakingMove, boardWinningIndices); 
+    if (winningBoardCombination) {
+      _handleWin(playerMakingMove, winningBoardCombination); 
       return;
     }
 

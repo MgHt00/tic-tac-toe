@@ -27,9 +27,10 @@ export function interactionManager(restoreDefaults) {
     return true;
   }
 
-  function _updateBoard(targetElement, player) {
-    const row = targetElement.dataset.row;
-    const col = targetElement.dataset.col;
+  function _updateGameBoardState(targetElement, player) {
+    // data-row and data-col are 0-indexed strings, parse them to integers.
+    const row = parseInt(targetElement.dataset.row, 10);
+    const col = parseInt(targetElement.dataset.col, 10);
     
     globals.appState.gameBoard[row][col] = player;
   }
@@ -63,7 +64,6 @@ export function interactionManager(restoreDefaults) {
   }
 
   function _resetGameBoard() {
-
     restoreDefaults(); // reset global's appState
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
@@ -211,7 +211,7 @@ export function interactionManager(restoreDefaults) {
 
     const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
     _fillSquare(targetElement, aiPlayer);
-    _updateBoard(targetElement, aiPlayer);
+    _updateGameBoardState(targetElement, aiPlayer);
 
     // Check for win using the AI's move
     const winningBoardCombination = _checkWinConditionByBoard(aiPlayer);
@@ -244,7 +244,7 @@ export function interactionManager(restoreDefaults) {
 
     const playerMakingMove = globals.appState.currentPlayer;
     _fillSquare(targetElement, playerMakingMove);
-    _updateBoard(targetElement, playerMakingMove);
+    _updateGameBoardState(targetElement, playerMakingMove);
 
     // Check for win using the player's move
     const winningBoardCombination = _checkWinConditionByBoard(playerMakingMove);

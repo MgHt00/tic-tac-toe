@@ -21,6 +21,14 @@ export function interactionManager(restoreDefaults) {
     globals.appState.filledSquares.push(targetElement.id.replace(INTERACTIONS.SQUARES_ID_INITIAL, "")); 
   }
 
+  function _updateBoard(targetElement, player) {
+    const row = targetElement.dataset.row;
+    const col = targetElement.dataset.col;
+    
+    globals.appState.gameBoard[row][col] = player;
+    console.info(globals.appState.gameBoard);
+  }
+
   function _displayCurrentPlayer(){
     selectors.gameInfo.textContent = `${globals.appState.currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
   }
@@ -207,6 +215,7 @@ export function interactionManager(restoreDefaults) {
     const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
     _fillSquare(targetElement, aiPlayer);
     _markSquareAsFilled(targetElement);
+    _updateBoard(targetElement, aiPlayer);
 
     const winningComboAI = _checkWinCondition(aiPlayer);
     if (winningComboAI) {
@@ -238,6 +247,7 @@ export function interactionManager(restoreDefaults) {
     const playerMakingMove = globals.appState.currentPlayer;
     _fillSquare(targetElement, playerMakingMove);
     _markSquareAsFilled(targetElement);
+    _updateBoard(targetElement, playerMakingMove);
 
     const winningComboPlayer = _checkWinCondition(playerMakingMove);
     if (winningComboPlayer) {

@@ -189,11 +189,11 @@ export function interactionManager(restoreDefaults) {
     _disableBoardInteractions();
     setTimeout(() => {
         _playAI();
-        _enableBoardInteractions();
       }, 1000);
   }
 
   function _playAI() {
+    _enableBoardInteractions();
     let targetElement;
 
     switch (globals.appState.opponentLevel) {

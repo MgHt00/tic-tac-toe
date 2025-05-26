@@ -9,16 +9,22 @@ export function interactionManager(restoreDefaults) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
-  function _isSquareFilled(targetElement) {
-    return globals.appState.filledSquares.includes(targetElement.id.replace(INTERACTIONS.SQUARES_ID_INITIAL, "")); 
-  }
-
   function _fillSquare(targetElement, player) {
     targetElement.textContent = player;
   }
 
-  function _markSquareAsFilled(targetElement) {
-    globals.appState.filledSquares.push(targetElement.id.replace(INTERACTIONS.SQUARES_ID_INITIAL, "")); 
+  function _isSquareFilled(targetElement) {
+    return targetElement.textContent !== "";
+  }
+
+  function _areAllSquaresFilled() {
+    const squaresNodeList = document.querySelectorAll(_matchingID);
+    for (const square of squaresNodeList) {
+      if (square.textContent === "") {
+        return false;
+      }
+    }
+    return true;
   }
 
   function _updateBoard(targetElement, player) {
@@ -26,7 +32,6 @@ export function interactionManager(restoreDefaults) {
     const col = targetElement.dataset.col;
     
     globals.appState.gameBoard[row][col] = player;
-    console.info(globals.appState.gameBoard);
   }
 
   function _displayCurrentPlayer(){
@@ -45,10 +50,6 @@ export function interactionManager(restoreDefaults) {
     globals.appState.currentPlayer = globals.appState.currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
   }
 
-  function _areAllSquaresFilled() {
-    return globals.appState.filledSquares.length === INTERACTIONS.TOTAL_SQUARES;
-  }
-
   function _disableBoardInteractions() {
     if (selectors.TTTBoard) {
       selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
@@ -62,7 +63,7 @@ export function interactionManager(restoreDefaults) {
   }
 
   function _resetGameBoard() {
-    
+
     restoreDefaults(); // reset global's appState
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
@@ -103,31 +104,6 @@ export function interactionManager(restoreDefaults) {
     //console.info("Empty squares:", emptySquares);
     return emptySquares;
   }
-
-  /*function _strikeThroughCells(winningCombo) {
-    // Guard clause if no winning combo is passed or if it's malformed
-    if (!winningCombo || !winningCombo.cssClass || !winningCombo.cells || winningCombo.cells.length === 0) {
-      if (winningCombo) { // Log error only if winningCombo exists but is malformed
-        console.error(
-          `Cannot apply strike-through: winningCombo is malformed or missing essential properties. Type: ${winningCombo.combinationType || 'unknown'}`,
-          winningCombo
-        );
-      }
-      return;
-    }
-
-    const { cssClass, cells } = winningCombo;
-
-    cells.forEach(cellId => {
-      // It's good practice to ensure cellId is a string if there's any doubt, though here it should be.
-      if (typeof cellId === 'string') {
-          const cellElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${cellId}`);
-          if (cellElement) {
-            cellElement.classList.add(cssClass);
-          }
-        }
-      });
-  }*/
 
   function _strikeThroughCells(winningCombinationDetails) {
     if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
@@ -235,7 +211,6 @@ export function interactionManager(restoreDefaults) {
 
     const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
     _fillSquare(targetElement, aiPlayer);
-    _markSquareAsFilled(targetElement);
     _updateBoard(targetElement, aiPlayer);
 
     // Check for win using the AI's move
@@ -269,7 +244,6 @@ export function interactionManager(restoreDefaults) {
 
     const playerMakingMove = globals.appState.currentPlayer;
     _fillSquare(targetElement, playerMakingMove);
-    _markSquareAsFilled(targetElement);
     _updateBoard(targetElement, playerMakingMove);
 
     // Check for win using the player's move

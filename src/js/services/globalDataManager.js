@@ -7,11 +7,13 @@ export function globalDataManager(globals) {
       if (Object.prototype.hasOwnProperty.call(globals.defaults, key)) { // [le002]
         const defaultValue = globals.defaults[key];
         if (Array.isArray(defaultValue)) {
-          // For gameBoard, we need a deep copy to prevent mutating defaults
-          if (key === 'gameBoard') {
+          // Check if it's an array of arrays (e.g., a 2D array like `gameBoard`)
+          // by seeing if its first element is also an array.
+          if (defaultValue.length > 0 && Array.isArray(defaultValue[0])) { // [le003]
+            // Perform a deep copy for 2D arrays
             globals.appState[key] = defaultValue.map(row => [...row]);
           } else {
-            // For other arrays (like filledSquares), a shallow copy is sufficient
+            // For 1D arrays (like filledSquares or empty arrays), a shallow copy is sufficient
             globals.appState[key] = [...defaultValue];
           }
         } else {

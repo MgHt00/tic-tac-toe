@@ -21,7 +21,7 @@ export function inputManager() {
   }
 
   function _handleOpponentChange() {
-    globals.appState.opponentLevel = selectors.AILevelInput.value;
+    globals.appState.opponentLevel = parseInt(selectors.AILevelInput.value, 10);
     _changeOpponentLabel();
   }
 

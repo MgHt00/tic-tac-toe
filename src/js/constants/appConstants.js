@@ -14,6 +14,7 @@ export const PLAYERS = {
 
 export const INTERACTIONS = {
   TOTAL_SQUARES: 9,
+  AI_THINKING_TIME_MS: 1000,
   SQUARES_GENERAL_ID: '[id|="square"]',
   SQUARES_ID_INITIAL: 'square-',
   PLAYER_TURN: 'Turn',

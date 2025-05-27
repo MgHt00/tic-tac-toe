@@ -251,7 +251,7 @@ export function interactionManager(restoreDefaults) {
     _disableBoardInteractions();
     setTimeout(() => {
         _playAI();
-      }, 1000);
+      }, INTERACTIONS.AI_THINKING_TIME_MS);
   }
 
   function _playAI() {
@@ -263,13 +263,25 @@ export function interactionManager(restoreDefaults) {
         targetElement = _getAILevel0Move();
         break;
       case 1:
-        // Smarter AI will be here.
         targetElement = _getAILevel1Move();
         break;
       case 2: 
         // Minimax will be here.
+        console.warn("AI Level 2 (Minimax) not yet implemented. AI will not move.");
+        // For now, AI Level 2 will do nothing, or you could make it fall back to a simpler AI.
+        // Re-enable interactions if AI isn't going to move.
+        _enableBoardInteractions(); 
+        return; 
       default:
-        break;
+        console.error("Unknown AI opponent level:", globals.appState.opponentLevel, "AI will not move.");
+        _enableBoardInteractions();
+        return;
+    }
+
+    if (!targetElement) {
+      console.error("AI failed to select a square. Target element is undefined. Re-enabling board.");
+      _enableBoardInteractions();
+      return;
     }
 
     const aiPlayer = globals.appState.currentPlayer; // AI is the current player here

@@ -200,6 +200,7 @@ export function interactionManager(restoreDefaults) {
   function _getAILevel1Move() {
     const emptySquares = _getEmptySquaresByBoard(); // Gets array of [row, col] which are 0-indexed
     const aiPlayer = globals.appState.currentPlayer;
+    const opponentPlayer = aiPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
 
     // 1. Check if AI can win in the next move
     for (const squareCoords of emptySquares) {
@@ -216,8 +217,24 @@ export function interactionManager(restoreDefaults) {
       }
     }
 
-    // 2. Fallback: If no immediate winning move, pick a random empty square
-    // More advanced logic (like blocking opponent) can be added here later.
+    // 2. Check if opponent can win in the next move, and block them
+    for (const squareCoords of emptySquares) {
+      const [row, col] = squareCoords; // 0-indexed row and col
+      // Simulate opponent making a move in this empty square
+      const virtualGameBoard = _constructVirtualGameBoard(row, col, opponentPlayer);
+      const opponentWinningCombination = _checkWinConditionByBoard(opponentPlayer, virtualGameBoard);
+
+      if (opponentWinningCombination) {
+        console.warn(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
+        // AI should play in this square to block
+        const domRow = row + 1;
+        const domCol = col + 1;
+        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`);
+      }
+    }
+
+    // 3. Fallback: If no immediate winning move for AI and no immediate blocking move needed,
+    // pick a random empty square.
     console.warn("AI Level 1: No immediate winning move. Picking a random empty square.");
     if (emptySquares.length > 0) {
       return _findRandomEmptySquare();

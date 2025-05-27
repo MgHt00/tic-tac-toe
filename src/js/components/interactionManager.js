@@ -9,16 +9,30 @@ export function interactionManager(restoreDefaults) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
-  function _isSquareFilled(targetElement) {
-    return globals.appState.filledSquares.includes(targetElement.id.replace(INTERACTIONS.SQUARES_ID_INITIAL, "")); 
-  }
-
   function _fillSquare(targetElement, player) {
     targetElement.textContent = player;
   }
 
-  function _markSquareAsFilled(targetElement) {
-    globals.appState.filledSquares.push(targetElement.id.replace(INTERACTIONS.SQUARES_ID_INITIAL, "")); 
+  function _isSquareFilled(targetElement) {
+    return targetElement.textContent !== "";
+  }
+
+  function _areAllSquaresFilled() {
+    const squaresNodeList = document.querySelectorAll(_matchingID);
+    for (const square of squaresNodeList) {
+      if (square.textContent === "") {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function _updateGameBoardState(targetElement, player) {
+    // data-row and data-col are 0-indexed strings, parse them to integers.
+    const row = parseInt(targetElement.dataset.row, 10);
+    const col = parseInt(targetElement.dataset.col, 10);
+    
+    globals.appState.gameBoard[row][col] = player;
   }
 
   function _displayCurrentPlayer(){
@@ -37,10 +51,6 @@ export function interactionManager(restoreDefaults) {
     globals.appState.currentPlayer = globals.appState.currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
   }
 
-  function _areAllSquaresFilled() {
-    return globals.appState.filledSquares.length === INTERACTIONS.TOTAL_SQUARES;
-  }
-
   function _disableBoardInteractions() {
     if (selectors.TTTBoard) {
       selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
@@ -54,7 +64,6 @@ export function interactionManager(restoreDefaults) {
   }
 
   function _resetGameBoard() {
-    
     restoreDefaults(); // reset global's appState
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
@@ -96,12 +105,49 @@ export function interactionManager(restoreDefaults) {
     return emptySquares;
   }
 
-  function _handleWin(winningPlayer, winningCombo) {
+  function _strikeThroughCells(winningCombinationDetails) {
+    if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
+      console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
+      return;
+    }
+
+    const { key, indices } = winningCombinationDetails;
+    let cssClass;
+
+    if (key.startsWith("row")) {
+      cssClass = CSS_CLASS_NAMES.WIN_ROW;
+    } else if (key.startsWith("col")) {
+      cssClass = CSS_CLASS_NAMES.WIN_COLUMN;
+    } else if (key === "diag1") {
+      cssClass = CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN;
+    } else if (key === "diag2") {
+      cssClass = CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY;
+    } else {
+      console.error("Unknown winning combination key:", key);
+      return;
+    }
+
+    indices.forEach(index => {
+      // Convert flat index (0-8) to DOM row and column (1-3)
+      const domRow = Math.floor(index / 3) + 1;
+      const domCol = (index % 3) + 1;
+      const cellId = `${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`;
+      const cellElement = document.getElementById(cellId);
+
+      if (cellElement) {
+        cellElement.classList.add(cssClass);
+      } else {
+        console.error(`Cell element not found for ID: ${cellId}`);
+      }
+    });
+  }
+
+  function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
     globals.appState.gameOver = true;
     globals.appState.winner = winningPlayer;
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
-    _strikeThroughCells(winningCombo);
+    _strikeThroughCells(winningCombinationDetails);
     _disableBoardInteractions();
     makeRestartButtonFilled();
   }
@@ -115,68 +161,27 @@ export function interactionManager(restoreDefaults) {
     makeRestartButtonFilled();
   }
 
-  function _strikeThroughCells(winningCombo) {
-    // Guard clause if no winning combo is passed or if it's malformed
-    if (!winningCombo || !winningCombo.cssClass || !winningCombo.cells || winningCombo.cells.length === 0) {
-      if (winningCombo) { // Log error only if winningCombo exists but is malformed
-        console.error(
-          `Cannot apply strike-through: winningCombo is malformed or missing essential properties. Type: ${winningCombo.combinationType || 'unknown'}`,
-          winningCombo
-        );
-      }
-      return;
-    }
+  const _winningCombinationsByBoard = {
+    row1: [0, 1, 2],
+    row2: [3, 4, 5],
+    row3: [6, 7, 8],
+    col1: [0, 3, 6],
+    col2: [1, 4, 7],
+    col3: [2, 5, 8],
+    diag1: [0, 4, 8],
+    diag2: [2, 4, 6],
+  };
 
-    const { cssClass, cells } = winningCombo;
-
-    cells.forEach(cellId => {
-      // It's good practice to ensure cellId is a string if there's any doubt, though here it should be.
-      if (typeof cellId === 'string') {
-          const cellElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${cellId}`);
-          if (cellElement) {
-            cellElement.classList.add(cssClass);
-          }
-        }
-      });
-  }
-
-  const _winningCombinations = [
-    // Rows
-    { combinationType: "row-1", cells: ["1-1", "1-2", "1-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
-    { combinationType: "row-2", cells: ["2-1", "2-2", "2-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
-    { combinationType: "row-3", cells: ["3-1", "3-2", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_ROW },
-    // Columns
-    { combinationType: "col-1", cells: ["1-1", "2-1", "3-1"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
-    { combinationType: "col-2", cells: ["1-2", "2-2", "3-2"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
-    { combinationType: "col-3", cells: ["1-3", "2-3", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_COLUMN },
-    // Diagonals
-    { combinationType: "diag-1", cells: ["1-1", "2-2", "3-3"], cssClass: CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN }, // Top-left to bottom-right
-    { combinationType: "diag-2", cells: ["1-3", "2-2", "3-1"], cssClass: CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY }, // Top-right to bottom-left
-  ];
-
-  function _checkWinCondition(currentPlayer) {
-    for (const combo of _winningCombinations) {
-      const [a, b, c] = combo.cells;
-      const squareA = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${a}`);
-      const squareB = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${b}`);
-      const squareC = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${c}`);
-
-      if (squareA && squareB && squareC && // Ensure elements exist
-          squareA.textContent === currentPlayer &&
-          squareB.textContent === currentPlayer &&
-          squareC.textContent === currentPlayer) {
-        return combo; // Return the winning combination object { combinationType: "...", cells: [...] }
+  function _checkWinConditionByBoard(currentPlayer) {
+    const _flatGameBoard = globals.appState.gameBoard.flat();
+    for (const key in _winningCombinationsByBoard) {
+      const indices = _winningCombinationsByBoard[key];
+      if (indices.every(index => _flatGameBoard[index] === currentPlayer)) {
+        // console.info(`Win detected on board for ${currentPlayer} with combination ${key}`);
+        return { key, indices }; // Return key and indices for strike-through
       }
     }
-    return null; // No win
-  }
-
-  function _isNextMoveWinable(currentPlayer) {
-    const emptySquares = _getEmptySquares();
-    for (const squareId of emptySquares) {
-      
-    }
-    return false;
+    return false; // No win after checking all combinations
   }
 
   function _handleAITurn() {
@@ -184,11 +189,11 @@ export function interactionManager(restoreDefaults) {
     _disableBoardInteractions();
     setTimeout(() => {
         _playAI();
-        _enableBoardInteractions();
       }, 1000);
   }
 
   function _playAI() {
+    _enableBoardInteractions();
     let targetElement;
 
     switch (globals.appState.opponentLevel) {
@@ -206,14 +211,16 @@ export function interactionManager(restoreDefaults) {
 
     const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
     _fillSquare(targetElement, aiPlayer);
-    _markSquareAsFilled(targetElement);
+    _updateGameBoardState(targetElement, aiPlayer);
 
-    const winningComboAI = _checkWinCondition(aiPlayer);
-    if (winningComboAI) {
-      _handleWin(aiPlayer, winningComboAI);
+    // Check for win using the AI's move
+    const winningBoardCombination = _checkWinConditionByBoard(aiPlayer);
+    
+    if (winningBoardCombination) {
+      _handleWin(aiPlayer, winningBoardCombination);
       return;
     }
-
+    
     if (_areAllSquaresFilled()) {
       _handleDraw(); 
       return;
@@ -237,11 +244,13 @@ export function interactionManager(restoreDefaults) {
 
     const playerMakingMove = globals.appState.currentPlayer;
     _fillSquare(targetElement, playerMakingMove);
-    _markSquareAsFilled(targetElement);
+    _updateGameBoardState(targetElement, playerMakingMove);
 
-    const winningComboPlayer = _checkWinCondition(playerMakingMove);
-    if (winningComboPlayer) {
-      _handleWin(playerMakingMove, winningComboPlayer);
+    // Check for win using the player's move
+    const winningBoardCombination = _checkWinConditionByBoard(playerMakingMove);
+
+    if (winningBoardCombination) {
+      _handleWin(playerMakingMove, winningBoardCombination); 
       return;
     }
 

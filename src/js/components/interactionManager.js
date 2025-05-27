@@ -91,20 +91,6 @@ export function interactionManager(restoreDefaults) {
     return targetElement;
   }
 
-  function _getEmptySquares() {
-    const emptySquares = [];
-    for (let row = 1; row <= 3; row++) {
-      for (let col = 1; col <= 3; col++) {
-        const squareId = `${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`;
-        if (!_isSquareFilled(document.getElementById(squareId))) {
-          emptySquares.push(squareId.replace(INTERACTIONS.SQUARES_ID_INITIAL, ""));
-        }
-      }
-    }
-    //console.info("Empty squares:", emptySquares);
-    return emptySquares;
-  }
-
   function _strikeThroughCells(winningCombinationDetails) {
     if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
       console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
@@ -172,18 +158,37 @@ export function interactionManager(restoreDefaults) {
     diag2: [2, 4, 6],
   };
 
-  function _checkWinConditionByBoard(currentPlayer) {
+  function _checkWinConditionByBoard(currentPlayer, flatGameBoard) {
     const _flatGameBoard = globals.appState.gameBoard.flat();
     for (const key in _winningCombinationsByBoard) {
       const indices = _winningCombinationsByBoard[key];
       if (indices.every(index => _flatGameBoard[index] === currentPlayer)) {
-        // console.info(`Win detected on board for ${currentPlayer} with combination ${key}`);
         return { key, indices }; // Return key and indices for strike-through
       }
     }
     return false; // No win after checking all combinations
   }
 
+  function _getEmptySquaresByBoard() {
+    const _flatGameBoard = globals.appState.gameBoard.flat();
+    let emptySquares = [];
+    _flatGameBoard.forEach((cell, index) => {
+      if (cell === null) {
+        emptySquares.push(index);
+      }
+    });
+    return emptySquares;
+  }
+
+  function _getAILevel0Move() {
+    return _findRandomEmptySquare();
+  }
+
+  function _getAILevel1Move() {
+    const emptySquares = _getEmptySquaresByBoard();
+    console.info(emptySquares);
+  }
+    
   function _handleAITurn() {
     if (globals.appState.gameOver) return; // Don't proceed if game is over
     _disableBoardInteractions();
@@ -198,10 +203,11 @@ export function interactionManager(restoreDefaults) {
 
     switch (globals.appState.opponentLevel) {
       case 0:
-        targetElement = _findRandomEmptySquare();
+        targetElement = _getAILevel0Move();
         break;
       case 1:
         // Smarter AI will be here.
+        targetElement = _getAILevel1Move();
         break;
       case 2: 
         // Minimax will be here.
@@ -209,7 +215,7 @@ export function interactionManager(restoreDefaults) {
         break;
     }
 
-    const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
+    /*const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
     _fillSquare(targetElement, aiPlayer);
     _updateGameBoardState(targetElement, aiPlayer);
 
@@ -228,7 +234,7 @@ export function interactionManager(restoreDefaults) {
 
     _flipPlayer(); // Switch back to human player
     _displayCurrentPlayer();
-    _highlightCurrentPlayer();
+    _highlightCurrentPlayer();*/
   }
 
   function _handleSquareClick(targetElement) {

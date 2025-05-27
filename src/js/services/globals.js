@@ -4,7 +4,7 @@ import { PLAYERS } from "../constants/appConstants.js";
 const defaults = {
   startingPlayer : PLAYERS.PLAYER_X,
   currentPlayer : PLAYERS.PLAYER_X,
-  opponentLevel: 0, // should be 1
+  opponentLevel: 1, // should be 1
   gameBoard: [[null, null, null], [null, null, null], [null, null, null]],
   gameOver: false, 
   winner: null,    

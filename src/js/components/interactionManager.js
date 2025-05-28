@@ -3,6 +3,7 @@ import { globals } from "../services/globals.js";
 import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
+import { getEmptySquares, checkWinCondition } from "../utils/boardUtils.js"; 
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
 
 export function interactionManager(restoreDefaults) {
@@ -17,22 +18,20 @@ export function interactionManager(restoreDefaults) {
     return targetElement.textContent !== "";
   }
 
-  function _areAllSquaresFilled() {
-    const squaresNodeList = document.querySelectorAll(_matchingID);
-    for (const square of squaresNodeList) {
-      if (square.textContent === "") {
-        return false;
-      }
+  function _disableBoardInteractions() {
+    if (selectors.TTTBoard) {
+      selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
     }
-    return true;
   }
 
-  function _updateGameBoardState(targetElement, player) {
-    // data-row and data-col are 0-indexed strings, parse them to integers.
-    const row = parseInt(targetElement.dataset.row, 10);
-    const col = parseInt(targetElement.dataset.col, 10);
-    
-    globals.appState.gameBoard[row][col] = player;
+  function _enableBoardInteractions() {
+    if (selectors.TTTBoard) {
+      selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+    }
+  }
+
+  function _flipPlayer() {
+    globals.appState.currentPlayer = globals.appState.currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
   }
 
   function _displayCurrentPlayer(){
@@ -47,20 +46,14 @@ export function interactionManager(restoreDefaults) {
     addHighlight(currentPlayerButton);
   }
 
-  function _flipPlayer() {
-    globals.appState.currentPlayer = globals.appState.currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
-  }
-
-  function _disableBoardInteractions() {
-    if (selectors.TTTBoard) {
-      selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+  function _areAllSquaresFilled() {
+    const squaresNodeList = document.querySelectorAll(_matchingID);
+    for (const square of squaresNodeList) {
+      if (square.textContent === "") {
+        return false;
+      }
     }
-  }
-
-  function _enableBoardInteractions() {
-    if (selectors.TTTBoard) {
-      selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
-    }
+    return true;
   }
 
   function _resetGameBoard() {
@@ -146,7 +139,15 @@ export function interactionManager(restoreDefaults) {
     makeRestartButtonFilled();
   }
 
-  const _winningCombinationsByBoard = {
+  function _updateGameBoardState(targetElement, player) {
+    // data-row and data-col are 0-indexed strings, parse them to integers.
+    const row = parseInt(targetElement.dataset.row, 10);
+    const col = parseInt(targetElement.dataset.col, 10);
+    
+    globals.appState.gameBoard[row][col] = player;
+  }
+
+  /*const _winningCombinationsByBoard = {
     row1: [0, 1, 2],
     row2: [3, 4, 5],
     row3: [6, 7, 8],
@@ -155,9 +156,9 @@ export function interactionManager(restoreDefaults) {
     col3: [2, 5, 8],
     diag1: [0, 4, 8],
     diag2: [2, 4, 6],
-  };
+  };*/
 
-  function _checkWinConditionByBoard(currentPlayer, gameBoard) {
+  /*function _checkWinConditionByBoard(currentPlayer, gameBoard) {
     const _flatGameBoard = gameBoard.flat();
     for (const key in _winningCombinationsByBoard) {
       const indices = _winningCombinationsByBoard[key];
@@ -166,20 +167,7 @@ export function interactionManager(restoreDefaults) {
       }
     }
     return false; // No win after checking all combinations
-  }
-
-  function _getEmptySquaresByBoard() {
-    const gameBoard = globals.appState.gameBoard;
-    let emptySquares = [];
-    gameBoard.forEach((row, rowIndex) => {
-      row.forEach((cell, colIndex) => {
-        if (cell === null) {
-          emptySquares.push([rowIndex, colIndex]);
-        }
-      });
-    });
-    return emptySquares;
-  }
+  }*/
 
   function _constructVirtualGameBoard(row, col, player) {
     // 1. Deep clone globals.appState.gameBoard
@@ -196,7 +184,7 @@ export function interactionManager(restoreDefaults) {
   }
 
   function _getAILevel1Move() {
-    const emptySquares = _getEmptySquaresByBoard(); // Gets array of [row, col] which are 0-indexed
+    const emptySquares = getEmptySquares(globals.appState.gameBoard); // Gets array of [row, col] which are 0-indexed
     const aiPlayer = globals.appState.currentPlayer;
     const opponentPlayer = aiPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
 
@@ -204,7 +192,7 @@ export function interactionManager(restoreDefaults) {
     for (const squareCoords of emptySquares) {
       const [row, col] = squareCoords; // 0-indexed row and col
       const virtualGameBoard = _constructVirtualGameBoard(row, col, aiPlayer);
-      const winningCombinationDetails = _checkWinConditionByBoard(aiPlayer, virtualGameBoard);
+      const winningCombinationDetails = checkWinCondition(aiPlayer, virtualGameBoard);
       
       if (winningCombinationDetails) {
         console.warn(`AI Level 1: Found winning move at [${row}, ${col}]`);
@@ -217,7 +205,7 @@ export function interactionManager(restoreDefaults) {
       const [row, col] = squareCoords; // 0-indexed row and col
       // Simulate opponent making a move in this empty square
       const virtualGameBoard = _constructVirtualGameBoard(row, col, opponentPlayer);
-      const opponentWinningCombination = _checkWinConditionByBoard(opponentPlayer, virtualGameBoard);
+      const opponentWinningCombination = checkWinCondition(opponentPlayer, virtualGameBoard);
 
       if (opponentWinningCombination) {
         console.warn(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
@@ -237,6 +225,10 @@ export function interactionManager(restoreDefaults) {
     // As a last resort, fall back to level 0 logic if something unexpected happened.
     console.error("AI Level 1: No empty squares available or unexpected issue. Falling back to Level 0 move.");
     return _getAILevel0Move();
+  }
+
+  function _getAILevel2Move() {
+
   }
     
   function _handleAITurn() {
@@ -282,7 +274,7 @@ export function interactionManager(restoreDefaults) {
     _updateGameBoardState(targetElement, aiPlayer);
 
     // Check for win using the AI's move
-    const winningBoardCombination = _checkWinConditionByBoard(aiPlayer, globals.appState.gameBoard);
+    const winningBoardCombination = checkWinCondition(aiPlayer, globals.appState.gameBoard);
     
     if (winningBoardCombination) {
       _handleWin(aiPlayer, winningBoardCombination);
@@ -315,7 +307,7 @@ export function interactionManager(restoreDefaults) {
     _updateGameBoardState(targetElement, playerMakingMove);
 
     // Check for win using the player's move
-    const winningBoardCombination = _checkWinConditionByBoard(playerMakingMove, globals.appState.gameBoard);
+    const winningBoardCombination = checkWinCondition(playerMakingMove, globals.appState.gameBoard);
 
     if (winningBoardCombination) {
       _handleWin(playerMakingMove, winningBoardCombination); 

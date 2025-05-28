@@ -3,9 +3,9 @@ import { restoreDefaults, updateGameBoardState } from "../services/globalDataMan
 import { selectors } from "../services/selectors.js";
 import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
-import { generateRandomNumber } from "../utils/mathHelpers.js";
-import { getEmptySquares, checkWinCondition, constructVirtualGameBoard } from "../utils/boardUtils.js"; 
+import { checkWinCondition } from "../utils/boardUtils.js";
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
+import { getAILevel0Move, getAILevel1Move } from "../ai/aiStrategies.js"; 
 
 export function interactionManager() {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
@@ -75,16 +75,6 @@ export function interactionManager() {
     _enableBoardInteractions(); 
   }
 
-  function _findRandomEmptySquare() {
-    let targetElement;
-    do {
-      const row = generateRandomNumber(0, 2); 
-      const col = generateRandomNumber(0, 2); 
-      targetElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
-    } while (_isSquareFilled(targetElement)); // loop as long as the square is filled
-    return targetElement;
-  }
-
   function _strikeThroughCells(winningCombinationDetails) {
     if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
       console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
@@ -139,58 +129,6 @@ export function interactionManager() {
     selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
     makeRestartButtonFilled();
   }
-
-  function _getAILevel0Move() {
-    return _findRandomEmptySquare();
-  }
-
-  function _getAILevel1Move() {
-    const emptySquares = getEmptySquares(globals.appState.gameBoard); // Gets array of [row, col] which are 0-indexed
-    const aiPlayer = globals.appState.currentPlayer;
-    const opponentPlayer = aiPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
-
-    // 1. Check if AI can win in the next move
-    for (const squareCoords of emptySquares) {
-      const [row, col] = squareCoords; // 0-indexed row and col
-      const virtualGameBoard = constructVirtualGameBoard(globals.appState.gameBoard, row, col, aiPlayer);
-      const winningCombinationDetails = checkWinCondition(aiPlayer, virtualGameBoard);
-      
-      if (winningCombinationDetails) {
-        console.warn(`AI Level 1: Found winning move at [${row}, ${col}]`);
-        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
-      }
-    }
-
-    // 2. Check if opponent can win in the next move, and block them
-    for (const squareCoords of emptySquares) {
-      const [row, col] = squareCoords; // 0-indexed row and col
-      // Simulate opponent making a move in this empty square
-      const virtualGameBoard = constructVirtualGameBoard(globals.appState.gameBoard, row, col, opponentPlayer);
-      const opponentWinningCombination = checkWinCondition(opponentPlayer, virtualGameBoard);
-
-      if (opponentWinningCombination) {
-        console.warn(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
-        // AI should play in this square to block
-        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
-      }
-    }
-
-    // 3. Fallback: If no immediate winning move for AI and no immediate blocking move needed,
-    // pick a random empty square.
-    console.warn("AI Level 1: No immediate winning move. Picking a random empty square.");
-    if (emptySquares.length > 0) {
-      return _findRandomEmptySquare();
-    }
-
-    // Should ideally not be reached if game is not over and emptySquares were found.
-    // As a last resort, fall back to level 0 logic if something unexpected happened.
-    console.error("AI Level 1: No empty squares available or unexpected issue. Falling back to Level 0 move.");
-    return _getAILevel0Move();
-  }
-
-  function _getAILevel2Move() {
-
-  }
     
   function _handleAITurn() {
     if (globals.appState.gameOver) return; // Don't proceed if game is over
@@ -202,17 +140,20 @@ export function interactionManager() {
 
   function _playAI() {
     _enableBoardInteractions();
-    let targetElement;
+    let moveCoordinates; // Will be {row, col} or null
+    const aiPlayerSymbol = globals.appState.currentPlayer;
+    const opponentPlayerSymbol = aiPlayerSymbol === PLAYER_X ? PLAYER_O : PLAYER_X;
 
     switch (globals.appState.opponentLevel) {
       case 0:
-        targetElement = _getAILevel0Move();
+        moveCoordinates = getAILevel0Move(globals.appState.gameBoard);
         break;
       case 1:
-        targetElement = _getAILevel1Move();
+        moveCoordinates = getAILevel1Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
         break;
       case 2: 
         // Minimax will be here.
+        // moveCoordinates = getAILevel2Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
         console.warn("AI Level 2 (Minimax) not yet implemented. AI will not move.");
         // For now, AI Level 2 will do nothing, or you could make it fall back to a simpler AI.
         // Re-enable interactions if AI isn't going to move.
@@ -224,21 +165,23 @@ export function interactionManager() {
         return;
     }
 
-    if (!targetElement) {
-      console.error("AI failed to select a square. Target element is undefined. Re-enabling board.");
+    if (!moveCoordinates) {
+      console.error("AI failed to select a move (no coordinates returned). Re-enabling board.");
       _enableBoardInteractions();
       return;
     }
 
-    const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
-    _fillSquare(targetElement, aiPlayer);
-    updateGameBoardState(targetElement, aiPlayer);
+    const targetElementId = `${INTERACTIONS.SQUARES_ID_INITIAL}${moveCoordinates.row}-${moveCoordinates.col}`;
+    const targetElement = document.getElementById(targetElementId);
+
+    _fillSquare(targetElement, aiPlayerSymbol);
+    updateGameBoardState(targetElement, aiPlayerSymbol);
 
     // Check for win using the AI's move
-    const winningBoardCombination = checkWinCondition(aiPlayer, globals.appState.gameBoard);
+    const winningBoardCombination = checkWinCondition(aiPlayerSymbol, globals.appState.gameBoard);
     
     if (winningBoardCombination) {
-      _handleWin(aiPlayer, winningBoardCombination);
+      _handleWin(aiPlayerSymbol, winningBoardCombination);
       return;
     }
     

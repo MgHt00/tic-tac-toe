@@ -84,8 +84,8 @@ export function interactionManager(restoreDefaults) {
   function _findRandomEmptySquare() {
     let targetElement;
     do {
-      const row = generateRandomNumber(1, 3);
-      const col = generateRandomNumber(1, 3);
+      const row = generateRandomNumber(0, 2); 
+      const col = generateRandomNumber(0, 2); 
       targetElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
     } while (_isSquareFilled(targetElement)); // loop as long as the square is filled
     return targetElement;
@@ -114,10 +114,9 @@ export function interactionManager(restoreDefaults) {
     }
 
     indices.forEach(index => {
-      // Convert flat index (0-8) to DOM row and column (1-3)
-      const domRow = Math.floor(index / 3) + 1;
-      const domCol = (index % 3) + 1;
-      const cellId = `${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`;
+      const domRow = Math.floor(index / 3); // Result is 0, 1, or 2
+      const domCol = (index % 3);      // Result is 0, 1, or 2
+      const cellId = `${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`; 
       const cellElement = document.getElementById(cellId);
 
       if (cellElement) {
@@ -159,7 +158,6 @@ export function interactionManager(restoreDefaults) {
   };
 
   function _checkWinConditionByBoard(currentPlayer, gameBoard) {
-    //const _flatGameBoard = globals.appState.gameBoard.flat();
     const _flatGameBoard = gameBoard.flat();
     for (const key in _winningCombinationsByBoard) {
       const indices = _winningCombinationsByBoard[key];
@@ -210,10 +208,7 @@ export function interactionManager(restoreDefaults) {
       
       if (winningCombinationDetails) {
         console.warn(`AI Level 1: Found winning move at [${row}, ${col}]`);
-        // Convert 0-indexed [row, col] to 1-indexed for DOM ID
-        const domRow = row + 1;
-        const domCol = col + 1;
-        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`);
+        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
       }
     }
 
@@ -227,9 +222,7 @@ export function interactionManager(restoreDefaults) {
       if (opponentWinningCombination) {
         console.warn(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
         // AI should play in this square to block
-        const domRow = row + 1;
-        const domCol = col + 1;
-        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`);
+        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
       }
     }
 

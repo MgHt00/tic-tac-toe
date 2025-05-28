@@ -41,14 +41,14 @@ export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer) {
 
   for (const [row, col] of emptySquares) { // Check for AI win
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, aiPlayer);
-    if (checkWinCondition(aiPlayer, virtualGameBoard)) {
+    if (checkWinCondition(virtualGameBoard, aiPlayer)) {
       console.warn(`AI Level 1: Found winning move at [${row}, ${col}]`);
       return { row, col };
     }
   }
   for (const [row, col] of emptySquares) { // Check for opponent win to block
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, opponentPlayer);
-    if (checkWinCondition(opponentPlayer, virtualGameBoard)) {
+    if (checkWinCondition(virtualGameBoard, opponentPlayer)) {
       console.warn(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
       return { row, col };
     }

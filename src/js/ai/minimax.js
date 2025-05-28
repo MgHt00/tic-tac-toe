@@ -1,4 +1,4 @@
-import { checkWinCondition, getEmptySquares } from "../utils/boardUtils.js";
+import { checkWinCondition, getEmptySquares, deepCopyGameBoard } from "../utils/boardUtils.js";
 
 function _evaluateBoard(board, aiPlayerSymbol, opponentPlayerSymbol) {
   if (checkWinCondition(board, aiPlayerSymbol)) {
@@ -55,4 +55,34 @@ function _minimax(board, depth, isMaximizingPlayer, aiPlayerSymbol, opponentPlay
 
     return bestScore;
   }
+}
+
+export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol) {
+  let bestScore = -Infinity;
+  let isMaximizingPlayer = true;
+  let depth = 1;
+  let bestNextMove = null;
+
+  const gameBoard = deepCopyGameBoard(initialBoard); // Create a mutable copy, so the original isn't changed.
+
+  const emptySquares = getEmptySquares(gameBoard);
+  if (emptySquares.length === 0) {
+    return null;
+  }
+
+  for (const coordinates of emptySquares) {
+    const [row, col] = coordinates;
+
+    gameBoard[row][col] = aiPlayerSymbol;
+    const score = _minimax(gameBoard, depth, !isMaximizingPlayer, aiPlayerSymbol, opponentPlayerSymbol);
+
+    gameBoard[row][col] = null; // Undo the move
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestNextMove = {row, col};
+    }
+  }
+
+  return bestNextMove;
 }

@@ -34,9 +34,13 @@ export function checkWinCondition(gameBoard, currentPlayer) {
   return false; // No win after checking all combinations
 }
 
+export function deepCopyGameBoard(gameBoard) {
+  return gameBoard.map(innerRow => [...innerRow]);
+}
+
 export function constructVirtualGameBoard(gameBoard, row, col, player) {
   // 1. Deep clone gameBoard
-  const virtualGameBoard = gameBoard.map(innerRow => [...innerRow]);
+  const virtualGameBoard = deepCopyGameBoard(gameBoard);
 
   // 2. Apply the hypothetical move to the virtual board
   virtualGameBoard[row][col] = player;

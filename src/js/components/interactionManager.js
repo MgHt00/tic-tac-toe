@@ -178,7 +178,7 @@ export function interactionManager() {
     updateGameBoardState(targetElement, aiPlayerSymbol);
 
     // Check for win using the AI's move
-    const winningBoardCombination = checkWinCondition(aiPlayerSymbol, globals.appState.gameBoard);
+    const winningBoardCombination = checkWinCondition(globals.appState.gameBoard, aiPlayerSymbol);
     
     if (winningBoardCombination) {
       _handleWin(aiPlayerSymbol, winningBoardCombination);
@@ -211,7 +211,7 @@ export function interactionManager() {
     updateGameBoardState(targetElement, playerMakingMove);
 
     // Check for win using the player's move
-    const winningBoardCombination = checkWinCondition(playerMakingMove, globals.appState.gameBoard);
+    const winningBoardCombination = checkWinCondition(globals.appState.gameBoard, playerMakingMove);
 
     if (winningBoardCombination) {
       _handleWin(playerMakingMove, winningBoardCombination); 

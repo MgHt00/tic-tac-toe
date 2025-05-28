@@ -3,7 +3,7 @@ import { globals } from "../services/globals.js";
 import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
-import { getEmptySquares, checkWinCondition } from "../utils/boardUtils.js"; 
+import { getEmptySquares, checkWinCondition, constructVirtualGameBoard } from "../utils/boardUtils.js"; 
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
 
 export function interactionManager(restoreDefaults) {
@@ -147,38 +147,6 @@ export function interactionManager(restoreDefaults) {
     globals.appState.gameBoard[row][col] = player;
   }
 
-  /*const _winningCombinationsByBoard = {
-    row1: [0, 1, 2],
-    row2: [3, 4, 5],
-    row3: [6, 7, 8],
-    col1: [0, 3, 6],
-    col2: [1, 4, 7],
-    col3: [2, 5, 8],
-    diag1: [0, 4, 8],
-    diag2: [2, 4, 6],
-  };*/
-
-  /*function _checkWinConditionByBoard(currentPlayer, gameBoard) {
-    const _flatGameBoard = gameBoard.flat();
-    for (const key in _winningCombinationsByBoard) {
-      const indices = _winningCombinationsByBoard[key];
-      if (indices.every(index => _flatGameBoard[index] === currentPlayer)) {
-        return { key, indices }; // Return key and indices for strike-through
-      }
-    }
-    return false; // No win after checking all combinations
-  }*/
-
-  function _constructVirtualGameBoard(row, col, player) {
-    // 1. Deep clone globals.appState.gameBoard
-    const virtualGameBoard = globals.appState.gameBoard.map(innerRow => [...innerRow]);
-
-    // 2. Apply the hypothetical move to the virtual board
-    virtualGameBoard[row][col] = player;
-
-    return virtualGameBoard;
-  }
-
   function _getAILevel0Move() {
     return _findRandomEmptySquare();
   }
@@ -191,7 +159,7 @@ export function interactionManager(restoreDefaults) {
     // 1. Check if AI can win in the next move
     for (const squareCoords of emptySquares) {
       const [row, col] = squareCoords; // 0-indexed row and col
-      const virtualGameBoard = _constructVirtualGameBoard(row, col, aiPlayer);
+      const virtualGameBoard = constructVirtualGameBoard(globals.appState.gameBoard, row, col, aiPlayer);
       const winningCombinationDetails = checkWinCondition(aiPlayer, virtualGameBoard);
       
       if (winningCombinationDetails) {
@@ -204,7 +172,7 @@ export function interactionManager(restoreDefaults) {
     for (const squareCoords of emptySquares) {
       const [row, col] = squareCoords; // 0-indexed row and col
       // Simulate opponent making a move in this empty square
-      const virtualGameBoard = _constructVirtualGameBoard(row, col, opponentPlayer);
+      const virtualGameBoard = constructVirtualGameBoard(globals.appState.gameBoard, row, col, opponentPlayer);
       const opponentWinningCombination = checkWinCondition(opponentPlayer, virtualGameBoard);
 
       if (opponentWinningCombination) {

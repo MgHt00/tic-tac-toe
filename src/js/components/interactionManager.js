@@ -1,12 +1,13 @@
-import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
+import { restoreDefaults, updateGameBoardState } from "../services/globalDataManager.js";
+import { selectors } from "../services/selectors.js";
 import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { getEmptySquares, checkWinCondition, constructVirtualGameBoard } from "../utils/boardUtils.js"; 
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
 
-export function interactionManager(restoreDefaults) {
+export function interactionManager() {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 

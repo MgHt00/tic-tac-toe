@@ -140,14 +140,6 @@ export function interactionManager() {
     makeRestartButtonFilled();
   }
 
-  function _updateGameBoardState(targetElement, player) {
-    // data-row and data-col are 0-indexed strings, parse them to integers.
-    const row = parseInt(targetElement.dataset.row, 10);
-    const col = parseInt(targetElement.dataset.col, 10);
-    
-    globals.appState.gameBoard[row][col] = player;
-  }
-
   function _getAILevel0Move() {
     return _findRandomEmptySquare();
   }
@@ -240,7 +232,7 @@ export function interactionManager() {
 
     const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
     _fillSquare(targetElement, aiPlayer);
-    _updateGameBoardState(targetElement, aiPlayer);
+    updateGameBoardState(targetElement, aiPlayer);
 
     // Check for win using the AI's move
     const winningBoardCombination = checkWinCondition(aiPlayer, globals.appState.gameBoard);
@@ -273,7 +265,7 @@ export function interactionManager() {
 
     const playerMakingMove = globals.appState.currentPlayer;
     _fillSquare(targetElement, playerMakingMove);
-    _updateGameBoardState(targetElement, playerMakingMove);
+    updateGameBoardState(targetElement, playerMakingMove);
 
     // Check for win using the player's move
     const winningBoardCombination = checkWinCondition(playerMakingMove, globals.appState.gameBoard);

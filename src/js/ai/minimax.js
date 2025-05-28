@@ -1,32 +1,58 @@
-import { getEmptySquares } from "../utils/boardUtils.js";
-import { PLAYERS } from "../constants/appConstants.js";
+import { checkWinCondition, getEmptySquares } from "../utils/boardUtils.js";
 
-function minimax(board, depth, isMaximizingPlayer) {
-  // Pre-checks will be here
+function _evaluateBoard(board, aiPlayerSymbol, opponentPlayerSymbol) {
+  if (checkWinCondition(board, aiPlayerSymbol)) {
+    return 10;
+  }
 
-  // If Maximizer or Minimizer has won the game
-  if (score === 10) return score - depth; // Prioritize faster wins
-  if (score === -10) return score + depth; // Prioritize delaying losses
+  if (checkWinCondition(board, opponentPlayerSymbol)) {
+    return -10;
+  }
 
-  // any move left?
+  const emptySquares = getEmptySquares(board);
+  return emptySquares.length === 0 ? 0 : null;
+}
 
+function _minimax(board, depth, isMaximizingPlayer, aiPlayerSymbol, opponentPlayerSymbol) {
+  // Pre-checks
+  const score = _evaluateBoard(board, aiPlayerSymbol, opponentPlayerSymbol);
+    if (score === 10) return score - depth; // AI wins, prioritize faster wins
+    if (score === -10) return score + depth; // Opponent wins, prioritize delaying losses
+    if (score === 0) return 0; // Draw
+
+  const emptySquares = getEmptySquares(board);
+
+  // If it is a Maximizer's move
   if (isMaximizingPlayer) {
     let bestScore = -Infinity;
-    let emptySquares = getEmptySquares(board);
 
     for (const coordinates of emptySquares) {
       const [row, col] = coordinates;
-      board[row][col] = PLAYERS.PLAYER_X; 
-      const score = minimax(board, depth + 1, !isMaximizingPlayer);
-      board[row][col] = ''; // Undo the move
-      bestScore = Math.max(score, bestScore);
+      
+      board[row][col] = aiPlayerSymbol; // AI makes a move
+      const currentScore = _minimax(board, depth + 1, !isMaximizingPlayer, aiPlayerSymbol, opponentPlayerSymbol);
+      board[row][col] = null; // Undo the move
+
+      bestScore = Math.max(currentScore, bestScore);
     }
+
+    return bestScore;
   }
 
-  else {
+  // If it is a Minimizer's move
+  else { 
     let bestScore = Infinity;
+
+    for (const coordinates of emptySquares) {
+      const [row, col] = coordinates;
+      
+      board[row][col] = opponentPlayerSymbol; // Opponent
+      const currentScore = _minimax(board, depth + 1, !isMaximizingPlayer, aiPlayerSymbol, opponentPlayerSymbol);
+      board[row][col] = null; // Undo the move
+
+      bestScore = Math.min(currentScore, bestScore);
+    }
+
+    return bestScore;
   }
-
-  return bestScore;
-
 }

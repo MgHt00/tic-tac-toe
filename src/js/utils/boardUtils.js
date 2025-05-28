@@ -23,7 +23,7 @@ const _winningCombinationsByBoard = {
   diag2: [2, 4, 6],
 };
 
-export function checkWinCondition(currentPlayer, gameBoard) {
+export function checkWinCondition(gameBoard, currentPlayer) {
   const _flatGameBoard = gameBoard.flat();
   for (const key in _winningCombinationsByBoard) {
     const indices = _winningCombinationsByBoard[key];

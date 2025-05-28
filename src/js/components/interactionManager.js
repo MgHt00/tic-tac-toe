@@ -5,9 +5,8 @@ import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
-import { getAILevel0Move, getAILevel1Move } from "../ai/aiStrategies.js"; 
 
-export function interactionManager() {
+export function interactionManager(getAILevel0Move, getAILevel1Move) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 

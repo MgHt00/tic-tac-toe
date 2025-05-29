@@ -1,5 +1,6 @@
 import { getEmptySquares, checkWinCondition, constructVirtualGameBoard } from "../utils/boardUtils.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
+import { minimaxMove } from "./minimax.js";
 
 /**
  * Finds coordinates of a random empty square on the board.
@@ -55,4 +56,8 @@ export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer) {
   }
   console.warn("AI Level 1: No immediate strategic move. Picking a random empty square.");
   return _findRandomEmptySquareCoordinates(gameBoard);
+}
+
+export function getAILevel2Move(gameBoard, aiPlayer, opponentPlayer) {
+  return minimaxMove(gameBoard, aiPlayer, opponentPlayer);
 }

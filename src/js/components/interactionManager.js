@@ -6,7 +6,7 @@ import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
 
-export function interactionManager(getAILevel0Move, getAILevel1Move) {
+export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
@@ -151,13 +151,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move) {
         moveCoordinates = getAILevel1Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
         break;
       case 2: 
-        // Minimax will be here.
-        // moveCoordinates = getAILevel2Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
-        console.warn("AI Level 2 (Minimax) not yet implemented. AI will not move.");
-        // For now, AI Level 2 will do nothing, or you could make it fall back to a simpler AI.
-        // Re-enable interactions if AI isn't going to move.
-        _enableBoardInteractions(); 
-        return; 
+        moveCoordinates = getAILevel2Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
+        break; 
       default:
         console.error("Unknown AI opponent level:", globals.appState.opponentLevel, "AI will not move.");
         _enableBoardInteractions();

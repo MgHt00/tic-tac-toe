@@ -1,6 +1,6 @@
 import '../lib/bootstrap.bundle.js';
 
-import { getAILevel0Move, getAILevel1Move } from './ai/aiStrategies.js';
+import { getAILevel0Move, getAILevel1Move, getAILevel2Move } from './ai/aiStrategies.js';
 
 import { inputManager } from './components/inputManager.js';
 import { loadingManager } from './components/loadingManager.js';
@@ -12,7 +12,7 @@ const { initializeInput } = input;
 const load = loadingManager(initializeInput);
 const { preLoad } = load;
 
-const interaction = interactionManager(getAILevel0Move, getAILevel1Move);
+const interaction = interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move);
 const { initializeGameInteraction } = interaction;
 
 (async function() {

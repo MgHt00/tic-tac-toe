@@ -48,6 +48,18 @@
       <span class="invisible">Loading...</span>
     </div>
   </div>
+  <div id="opponent-alert-wrapper" class="invisible">
+    <div class="alert alert-primary d-flex flex-column" role="alert">
+      <div>
+        <h5 class="opponent-alert-heading">Sure?</h5>
+        This will reset the game.
+      </div>
+      <div id="opponent-alert-buttons" class="d-flex justify-content-center">
+        <button id="opponent-alert-ok" type="button" class="btn btn-primary btn-sm">OK</button>
+        <button id="opponent-alert-cancel" type="button" class="btn btn-primary btn-sm">Cancel</button>
+      </div>
+    </div>
+  </div>
   <script type="module" src="src/js/index.js"></script>
 </body>
 </html>

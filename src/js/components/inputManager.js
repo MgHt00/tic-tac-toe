@@ -1,8 +1,9 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { AI_LEVELS, PLAYERS } from "../constants/appConstants.js";
+import { showOpponentChangeAlert } from "../utils/domHelpers.js";
 
-export function inputManager() {
+export function inputManager(resetGameBoard) {
   function _setOpponetRange() {
   const minRange = 0;
   const maxRange = Object.entries(AI_LEVELS).length-1;
@@ -23,6 +24,8 @@ export function inputManager() {
   function _handleOpponentChange() {
     globals.appState.opponentLevel = parseInt(selectors.AILevelInput.value, 10);
     _changeOpponentLabel();
+    //resetGameBoard();
+    showOpponentChangeAlert();
   }
 
   function _namePlayers() {

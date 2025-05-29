@@ -35,3 +35,9 @@ export function removeWinningLineStyles(squareElement) {
     CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY
   );
 }
+
+export function showOpponentChangeAlert() {
+  selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+  selectors.opponentAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+}

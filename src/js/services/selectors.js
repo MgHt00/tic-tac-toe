@@ -27,4 +27,9 @@ export const selectors = {
 
   overlay: document.querySelector(`#${ELEMENT_IDS.OVERLAY}`),
   loadingWrapper: document.querySelector(`#${ELEMENT_IDS.LOADING_WRAPPER}`),
+
+  opponentAlert: document.querySelector(`#${ELEMENT_IDS.OPPONENT_ALERT_WRAPPER}`),
+  opponentAlertOK: document.querySelector(`#${ELEMENT_IDS.OPPONENT_ALERT_OK}`),
+  opponentAlertCancel: document.querySelector(`#${ELEMENT_IDS.OPPONENT_ALERT_CANCEL}`),
+
 };

@@ -20,6 +20,8 @@
   --winning-strike-color: snow;
   --strike-line-thickness: 2px;
   --board-disabled-opacity: 0.3;
+  --loading-wrapper-font-size: 24px;
+  --alert-wrapper-font-size: 16px;
 }
 
 /*@layer debug {
@@ -101,15 +103,24 @@ div[id|="game"] {
   z-index: 10; /* Ensure it's on top */
 }
 
-#loading-wrapper {
+#loading-wrapper,
+#opponent-alert-wrapper {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%); /* Center the text */
   color: var(--text-color, snow);
-  font-size: 24px;
+  font-size: var(--loading-wrapper-font-size, 24px);
   z-index: 11; /* Ensure it's above the overlay */
   display: flex; /* Use Flexbox to align columns side by side */
+}
+
+#opponent-alert-wrapper {
+  font-size: var(--alert-wrapper-font-size, 18px);
+}
+
+#opponent-alert-buttons * {
+  margin: 10px 9px 0 0;
 }
 
 .winning-square-row, /* Row */

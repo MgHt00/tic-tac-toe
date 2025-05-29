@@ -56,7 +56,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     return true;
   }
 
-  function _resetGameBoard() {
+  function resetGameBoard() {
     restoreDefaults(); // reset global's appState
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
@@ -250,18 +250,19 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   function _addRestartButtonListener() {
     selectors.restartButton.addEventListener("click", () => {
-      _resetGameBoard();
+      resetGameBoard();
     });
   }
   
   function initializeGameInteraction() {
     _addSquareListeners();
     _addRestartButtonListener();
-    _resetGameBoard();
+    resetGameBoard();
     _highlightCurrentPlayer();
   }
 
   return {
     initializeGameInteraction,
+    resetGameBoard,
   }
 }

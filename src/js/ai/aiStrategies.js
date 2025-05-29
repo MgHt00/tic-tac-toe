@@ -43,22 +43,23 @@ export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer) {
   for (const [row, col] of emptySquares) { // Check for AI win
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, aiPlayer);
     if (checkWinCondition(virtualGameBoard, aiPlayer)) {
-      console.warn(`AI Level 1: Found winning move at [${row}, ${col}]`);
+      console.info(`AI Level 1: Found winning move at [${row}, ${col}]`);
       return { row, col };
     }
   }
   for (const [row, col] of emptySquares) { // Check for opponent win to block
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, opponentPlayer);
     if (checkWinCondition(virtualGameBoard, opponentPlayer)) {
-      console.warn(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
+      console.info(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
       return { row, col };
     }
   }
-  console.warn("AI Level 1: No immediate strategic move. Picking a random empty square.");
+  console.info("AI Level 1: No immediate strategic move. Picking a random empty square.");
   return _findRandomEmptySquareCoordinates(gameBoard);
 }
 
 export function getAILevel2Move(gameBoard, aiPlayer, opponentPlayer) {
-  console.warn("You are now playing with the Minimax");  
-  return minimaxMove(gameBoard, aiPlayer, opponentPlayer);
+  const { row, col } =  minimaxMove(gameBoard, aiPlayer, opponentPlayer);
+  console.info(`AI Level 2: Make a minimax move at [${row}, ${col}]`);
+  return { row, col };
 }

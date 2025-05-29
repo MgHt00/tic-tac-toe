@@ -37,11 +37,23 @@ export function inputManager(resetGameBoard) {
     selectors.AILevelInput.addEventListener('input', _handleOpponentChange);
   }
 
+  function _addRestartButtonListener() {
+    selectors.restartButton.addEventListener("click", () => {
+      resetGameBoard();
+    });
+  }
+
+  function _addOpponentChangeAlertListeners() {
+    selectors.opponentAlertOK.addEventListener("click", () => {});
+    selectors.opponentAlertCancel.addEventListener("click", () => {});
+  }
+
   function initializeInput() {
     _setOpponetRange();
     _setDefaultOpponent();
     _namePlayers();
     _addRangeListener();
+    _addRestartButtonListener();
   }
 
   return {

@@ -247,16 +247,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       }
     });
   }
-
-  function _addRestartButtonListener() {
-    selectors.restartButton.addEventListener("click", () => {
-      resetGameBoard();
-    });
-  }
   
   function initializeGameInteraction() {
     _addSquareListeners();
-    _addRestartButtonListener();
     resetGameBoard();
     _highlightCurrentPlayer();
   }

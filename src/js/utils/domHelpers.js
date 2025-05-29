@@ -41,3 +41,9 @@ export function showOpponentChangeAlert() {
   selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
   selectors.opponentAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
 }
+
+export function hideOpponentChangeAlert() {
+  selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+  selectors.opponentAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+}

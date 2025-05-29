@@ -1,6 +1,6 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
-import { AI_LEVELS, PLAYERS } from "../constants/appConstants.js";
+import { AI_LEVELS, PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
 import { showOpponentChangeAlert } from "../utils/domHelpers.js";
 
 export function inputManager(resetGameBoard) {
@@ -17,12 +17,12 @@ export function inputManager(resetGameBoard) {
   }
 
   function _setDefaultOpponent() {
-    selectors.AILevelInput.value = globals.appState.opponentLevel;
+    selectors.AILevelInput.value = globals.appState[STATE_KEYS.OPPONENT_LEVEL];
     _changeOpponentLabel();
   }
 
   function _handleOpponentChange() {
-    globals.appState.opponentLevel = parseInt(selectors.AILevelInput.value, 10);
+    globals.appState[STATE_KEYS.OPPONENT_LEVEL] = parseInt(selectors.AILevelInput.value, 10);
     _changeOpponentLabel();
     //resetGameBoard();
     showOpponentChangeAlert();

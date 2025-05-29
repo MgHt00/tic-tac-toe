@@ -1,40 +1,99 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { AI_LEVELS, PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
-import { showOpponentChangeAlert } from "../utils/domHelpers.js";
+import { showOpponentChangeAlert, hideOpponentChangeAlert } from "../utils/domHelpers.js";
 
 export function inputManager(resetGameBoard) {
-  function _setOpponetRange() {
-  const minRange = 0;
-  const maxRange = Object.entries(AI_LEVELS).length-1;
-  
-  selectors.AILevelInput.setAttribute('min', minRange);
-  selectors.AILevelInput.setAttribute('max', maxRange);
+  // Stores the AI level that is currently confirmed and active.
+  // Used to detect if a change actually occurred and to revert if cancelled.
+  let _confirmedOpponentLevel = null;
+
+  // To store references to the event handlers for easy removal.
+  let _boundAlertOKHandler = null;
+  let _boundAlertCancelHandler = null;
+
+  function _setOpponentRange() {
+    const minRange = 0;
+    const maxRange = Object.keys(AI_LEVELS).length - 1;
+    
+    selectors.AILevelInput.setAttribute('min', minRange.toString());
+    selectors.AILevelInput.setAttribute('max', maxRange.toString());
   }
 
-  function _changeOpponentLabel() {
+  // Updates the label based on the current slider value.
+  function _updateOpponentLabelFromSlider() {
     selectors.AILevelLabel.innerHTML = AI_LEVELS[selectors.AILevelInput.value];
   }
 
-  function _setDefaultOpponent() {
-    selectors.AILevelInput.value = globals.appState[STATE_KEYS.OPPONENT_LEVEL];
-    _changeOpponentLabel();
+  // Initializes the opponent level settings from globals.
+  function _initializeOpponentSettings() {
+    const initialLevel = globals.appState[STATE_KEYS.OPPONENT_LEVEL];
+    selectors.AILevelInput.value = initialLevel.toString();
+    _confirmedOpponentLevel = initialLevel;
+    _updateOpponentLabelFromSlider();
   }
 
-  function _handleOpponentChange() {
-    globals.appState[STATE_KEYS.OPPONENT_LEVEL] = parseInt(selectors.AILevelInput.value, 10);
-    _changeOpponentLabel();
-    //resetGameBoard();
-    showOpponentChangeAlert();
+  // Removes listeners from the alert buttons.
+  function _removeOpponentChangeAlertListeners() {
+    if (_boundAlertOKHandler) {
+      selectors.opponentAlertOK.removeEventListener('click', _boundAlertOKHandler);
+      _boundAlertOKHandler = null;
+    }
+    if (_boundAlertCancelHandler) {
+      selectors.opponentAlertCancel.removeEventListener('click', _boundAlertCancelHandler);
+      _boundAlertCancelHandler = null;
+    }
+  }
+
+  // Adds listeners to the alert buttons.
+  // newLevelAttempted: The AI level the user tried to select (from slider).
+  // levelToRevertTo: The AI level to go back to if cancelled (_confirmedOpponentLevel).
+  function _addOpponentChangeAlertListeners(newLevelAttempted, levelToRevertTo) {
+    _removeOpponentChangeAlertListeners(); // Ensure no duplicate listeners
+
+    _boundAlertOKHandler = () => {
+      globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newLevelAttempted;
+      _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
+      resetGameBoard();
+      hideOpponentChangeAlert();
+      _removeOpponentChangeAlertListeners(); // Clean up after action
+    };
+
+    _boundAlertCancelHandler = () => {
+      selectors.AILevelInput.value = levelToRevertTo.toString();
+      _updateOpponentLabelFromSlider(); // Update label to match reverted slider
+      hideOpponentChangeAlert();
+      _removeOpponentChangeAlertListeners(); // Clean up after action
+    };
+
+    selectors.opponentAlertOK.addEventListener('click', _boundAlertOKHandler);
+    selectors.opponentAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+  }
+
+  // Handles the 'input' event on the AI level slider (fires continuously while dragging).
+  function _handleSliderInput() {
+    _updateOpponentLabelFromSlider(); // Update label live
+  }
+
+  // Handles the 'change' event on the AI level slider (fires when user releases mouse).
+  function _handleSliderChangeFinalized() {
+    const newSelectedLevel = parseInt(selectors.AILevelInput.value, 10);
+
+    if (newSelectedLevel !== _confirmedOpponentLevel) {
+      showOpponentChangeAlert();
+      _addOpponentChangeAlertListeners(newSelectedLevel, _confirmedOpponentLevel);
+    }
   }
 
   function _namePlayers() {
     selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
     selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
   }
-
-  function _addRangeListener() {
-    selectors.AILevelInput.addEventListener('input', _handleOpponentChange);
+  
+  // Adds listeners for the AI level range slider.
+  function _addRangeListeners() {
+    selectors.AILevelInput.addEventListener('input', _handleSliderInput);
+    selectors.AILevelInput.addEventListener('change', _handleSliderChangeFinalized);
   }
 
   function _addRestartButtonListener() {
@@ -43,16 +102,11 @@ export function inputManager(resetGameBoard) {
     });
   }
 
-  function _addOpponentChangeAlertListeners() {
-    selectors.opponentAlertOK.addEventListener("click", () => {});
-    selectors.opponentAlertCancel.addEventListener("click", () => {});
-  }
-
   function initializeInput() {
-    _setOpponetRange();
-    _setDefaultOpponent();
+    _setOpponentRange();
+    _initializeOpponentSettings();
     _namePlayers();
-    _addRangeListener();
+    _addRangeListeners();
     _addRestartButtonListener();
   }
 

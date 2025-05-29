@@ -150,7 +150,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       case 1:
         moveCoordinates = getAILevel1Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
         break;
-      case 2: 
+      case 2:
+        console.warn("You are now playing with the Minimax");
         moveCoordinates = getAILevel2Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
         break; 
       default:

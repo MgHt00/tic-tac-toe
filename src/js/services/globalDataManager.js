@@ -6,6 +6,11 @@ export function restoreDefaults() {
   // and globals.defaults itself is not mutated.
   for (const key in globals.defaults) {
     if (Object.prototype.hasOwnProperty.call(globals.defaults, key)) { // [le002]
+      // Skip resetting opponentLevel to preserve user's choice
+      if (key === 'opponentLevel') {
+        continue;
+      }
+
       const defaultValue = globals.defaults[key];
       if (Array.isArray(defaultValue)) {
         // Check if it's an array of arrays (e.g., a 2D array like `gameBoard`)

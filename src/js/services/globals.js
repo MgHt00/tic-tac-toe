@@ -1,22 +1,22 @@
 import { selectors } from "./selectors.js";
-import { PLAYERS } from "../constants/appConstants.js";
+import { PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
 
 const defaults = {
-  startingPlayer : PLAYERS.PLAYER_X,
-  currentPlayer : PLAYERS.PLAYER_X,
-  //opponentLevel: 1, // should be 1
-  gameBoard: [[null, null, null], [null, null, null], [null, null, null]],
-  gameOver: false, 
-  winner: null,    
+  [STATE_KEYS.STARTING_PLAYER] : PLAYERS.PLAYER_X,
+  [STATE_KEYS.CURRENT_PLAYER] : PLAYERS.PLAYER_X,
+  [STATE_KEYS.OPPONENT_LEVEL]: 1, // Default AI level
+  [STATE_KEYS.GAME_BOARD]: [[null, null, null], [null, null, null], [null, null, null]],
+  [STATE_KEYS.GAME_OVER]: false,
+  [STATE_KEYS.WINNER]: null,
 }
 
 const appState = {
-  startingPlayer : PLAYERS.PLAYER_X,
-  currentPlayer : PLAYERS.PLAYER_X,
-  opponentLevel: 1,
-  gameBoard: [[null, null, null], [null, null, null], [null, null, null]],
-  gameOver: false, 
-  winner: null,    
+  [STATE_KEYS.STARTING_PLAYER] : PLAYERS.PLAYER_X,
+  [STATE_KEYS.CURRENT_PLAYER] : PLAYERS.PLAYER_X,
+  [STATE_KEYS.OPPONENT_LEVEL]: 1,
+  [STATE_KEYS.GAME_BOARD]: [[null, null, null], [null, null, null], [null, null, null]],
+  [STATE_KEYS.GAME_OVER]: false,
+  [STATE_KEYS.WINNER]: null,
 }
 
 export const globals = {

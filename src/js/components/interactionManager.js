@@ -1,7 +1,7 @@
 import { globals } from "../services/globals.js";
 import { restoreDefaults, updateGameBoardState } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
-import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+import { PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
@@ -31,16 +31,16 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   function _flipPlayer() {
-    globals.appState.currentPlayer = globals.appState.currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
+    globals.appState[STATE_KEYS.CURRENT_PLAYER] = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? PLAYER_O : PLAYER_X;
   }
 
   function _displayCurrentPlayer(){
-    selectors.gameInfo.textContent = `${globals.appState.currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
+    selectors.gameInfo.textContent = `${globals.appState[STATE_KEYS.CURRENT_PLAYER]} ${INTERACTIONS.PLAYER_TURN}`;
   }
 
   function _highlightCurrentPlayer() {
-    const currentPlayerButton = globals.appState.currentPlayer === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
-    const otherPlayerButton = globals.appState.currentPlayer === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
+    const currentPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
+    const otherPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
 
     removeHighlight(otherPlayerButton);
     addHighlight(currentPlayerButton);
@@ -112,8 +112,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
-    globals.appState.gameOver = true;
-    globals.appState.winner = winningPlayer;
+    globals.appState[STATE_KEYS.GAME_OVER] = true;
+    globals.appState[STATE_KEYS.WINNER] = winningPlayer;
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
     _strikeThroughCells(winningCombinationDetails);
     _disableBoardInteractions();
@@ -123,14 +123,14 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   function _handleDraw() { 
     console.info("Game is a draw!");
     _disableBoardInteractions();
-    globals.appState.gameOver = true;
-    globals.appState.winner = PLAYERS.PLAYER_DRAW;
+    globals.appState[STATE_KEYS.GAME_OVER] = true;
+    globals.appState[STATE_KEYS.WINNER] = PLAYERS.PLAYER_DRAW;
     selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
     makeRestartButtonFilled();
   }
     
   function _handleAITurn() {
-    if (globals.appState.gameOver) return; // Don't proceed if game is over
+    if (globals.appState[STATE_KEYS.GAME_OVER]) return; // Don't proceed if game is over
     _disableBoardInteractions();
     setTimeout(() => {
         _playAI();
@@ -140,22 +140,21 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   function _playAI() {
     _enableBoardInteractions();
     let moveCoordinates; // Will be {row, col} or null
-    const aiPlayerSymbol = globals.appState.currentPlayer;
+    const aiPlayerSymbol = globals.appState[STATE_KEYS.CURRENT_PLAYER];
     const opponentPlayerSymbol = aiPlayerSymbol === PLAYER_X ? PLAYER_O : PLAYER_X;
 
-    switch (globals.appState.opponentLevel) {
+    switch (globals.appState[STATE_KEYS.OPPONENT_LEVEL]) {
       case 0:
-        moveCoordinates = getAILevel0Move(globals.appState.gameBoard);
+        moveCoordinates = getAILevel0Move(globals.appState[STATE_KEYS.GAME_BOARD]);
         break;
       case 1:
-        moveCoordinates = getAILevel1Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
+        moveCoordinates = getAILevel1Move(globals.appState[STATE_KEYS.GAME_BOARD], aiPlayerSymbol, opponentPlayerSymbol);
         break;
       case 2:
-        console.warn("You are now playing with the Minimax");
-        moveCoordinates = getAILevel2Move(globals.appState.gameBoard, aiPlayerSymbol, opponentPlayerSymbol);
+        moveCoordinates = getAILevel2Move(globals.appState[STATE_KEYS.GAME_BOARD], aiPlayerSymbol, opponentPlayerSymbol);
         break; 
       default:
-        console.error("Unknown AI opponent level:", globals.appState.opponentLevel, "AI will not move.");
+        console.error("Unknown AI opponent level:", globals.appState[STATE_KEYS.OPPONENT_LEVEL], "AI will not move.");
         _enableBoardInteractions();
         return;
     }
@@ -173,7 +172,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     updateGameBoardState(targetElement, aiPlayerSymbol);
 
     // Check for win using the AI's move
-    const winningBoardCombination = checkWinCondition(globals.appState.gameBoard, aiPlayerSymbol);
+    const winningBoardCombination = checkWinCondition(globals.appState[STATE_KEYS.GAME_BOARD], aiPlayerSymbol);
     
     if (winningBoardCombination) {
       _handleWin(aiPlayerSymbol, winningBoardCombination);
@@ -191,7 +190,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   function _handleSquareClick(targetElement) {
-    if (globals.appState.gameOver) {
+    if (globals.appState[STATE_KEYS.GAME_OVER]) {
       console.info("Game is already over.");
       return;
     }
@@ -201,12 +200,12 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       return; 
     }
 
-    const playerMakingMove = globals.appState.currentPlayer;
+    const playerMakingMove = globals.appState[STATE_KEYS.CURRENT_PLAYER];
     _fillSquare(targetElement, playerMakingMove);
     updateGameBoardState(targetElement, playerMakingMove);
 
-    // Check for win using the player's move
-    const winningBoardCombination = checkWinCondition(globals.appState.gameBoard, playerMakingMove);
+    // Check for win using the player's move    
+    const winningBoardCombination = checkWinCondition(globals.appState[STATE_KEYS.GAME_BOARD], playerMakingMove);
 
     if (winningBoardCombination) {
       _handleWin(playerMakingMove, winningBoardCombination); 
@@ -230,7 +229,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const gameBoard = selectors.TTTBoard;
 
     gameBoard.addEventListener("mouseover", (event) => {
-      if(event.target.matches(_matchingID) && !globals.appState.gameOver && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
+      if(event.target.matches(_matchingID) && !globals.appState[STATE_KEYS.GAME_OVER] && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
         addHighlight(event.target);
       }
     });

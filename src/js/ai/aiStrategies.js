@@ -59,5 +59,6 @@ export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer) {
 }
 
 export function getAILevel2Move(gameBoard, aiPlayer, opponentPlayer) {
+  console.warn("You are now playing with the Minimax");  
   return minimaxMove(gameBoard, aiPlayer, opponentPlayer);
 }

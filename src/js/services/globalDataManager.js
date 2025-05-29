@@ -1,4 +1,5 @@
 import { globals } from "./globals.js";
+import { STATE_KEYS } from "../constants/appConstants.js";
 
 export function restoreDefaults() {
   // Iterate over the keys in globals.defaults to correctly reset globals.appState
@@ -6,8 +7,8 @@ export function restoreDefaults() {
   // and globals.defaults itself is not mutated.
   for (const key in globals.defaults) {
     if (Object.prototype.hasOwnProperty.call(globals.defaults, key)) { // [le002]
-      // Skip resetting opponentLevel to preserve user's choice
-      if (key === 'opponentLevel') {
+      // Skip resetting opponentLevel to preserve the user's chosen difficulty
+      if (key === STATE_KEYS.OPPONENT_LEVEL) {
         continue;
       }
 

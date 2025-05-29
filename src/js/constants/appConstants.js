@@ -21,3 +21,12 @@ export const INTERACTIONS = {
   PLAYER_WIN: 'wins!',
   PLAYER_DRAW: 'Game is a draw!',
 };
+
+export const STATE_KEYS = {
+  STARTING_PLAYER: 'startingPlayer',
+  CURRENT_PLAYER: 'currentPlayer',
+  OPPONENT_LEVEL: 'opponentLevel',
+  GAME_BOARD: 'gameBoard',
+  GAME_OVER: 'gameOver',
+  WINNER: 'winner',
+};

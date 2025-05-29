@@ -1,11 +1,12 @@
-import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
-import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+import { restoreDefaults, updateGameBoardState } from "../services/globalDataManager.js";
+import { selectors } from "../services/selectors.js";
+import { PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
-import { generateRandomNumber } from "../utils/mathHelpers.js";
+import { checkWinCondition } from "../utils/boardUtils.js";
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
 
-export function interactionManager(restoreDefaults) {
+export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
@@ -15,40 +16,6 @@ export function interactionManager(restoreDefaults) {
 
   function _isSquareFilled(targetElement) {
     return targetElement.textContent !== "";
-  }
-
-  function _areAllSquaresFilled() {
-    const squaresNodeList = document.querySelectorAll(_matchingID);
-    for (const square of squaresNodeList) {
-      if (square.textContent === "") {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function _updateGameBoardState(targetElement, player) {
-    // data-row and data-col are 0-indexed strings, parse them to integers.
-    const row = parseInt(targetElement.dataset.row, 10);
-    const col = parseInt(targetElement.dataset.col, 10);
-    
-    globals.appState.gameBoard[row][col] = player;
-  }
-
-  function _displayCurrentPlayer(){
-    selectors.gameInfo.textContent = `${globals.appState.currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
-  }
-
-  function _highlightCurrentPlayer() {
-    const currentPlayerButton = globals.appState.currentPlayer === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
-    const otherPlayerButton = globals.appState.currentPlayer === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
-
-    removeHighlight(otherPlayerButton);
-    addHighlight(currentPlayerButton);
-  }
-
-  function _flipPlayer() {
-    globals.appState.currentPlayer = globals.appState.currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
   }
 
   function _disableBoardInteractions() {
@@ -61,6 +28,32 @@ export function interactionManager(restoreDefaults) {
     if (selectors.TTTBoard) {
       selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
     }
+  }
+
+  function _flipPlayer() {
+    globals.appState[STATE_KEYS.CURRENT_PLAYER] = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? PLAYER_O : PLAYER_X;
+  }
+
+  function _displayCurrentPlayer(){
+    selectors.gameInfo.textContent = `${globals.appState[STATE_KEYS.CURRENT_PLAYER]} ${INTERACTIONS.PLAYER_TURN}`;
+  }
+
+  function _highlightCurrentPlayer() {
+    const currentPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
+    const otherPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
+
+    removeHighlight(otherPlayerButton);
+    addHighlight(currentPlayerButton);
+  }
+
+  function _areAllSquaresFilled() {
+    const squaresNodeList = document.querySelectorAll(_matchingID);
+    for (const square of squaresNodeList) {
+      if (square.textContent === "") {
+        return false;
+      }
+    }
+    return true;
   }
 
   function _resetGameBoard() {
@@ -79,16 +72,6 @@ export function interactionManager(restoreDefaults) {
 
     makeRestartButtonOutlined();
     _enableBoardInteractions(); 
-  }
-
-  function _findRandomEmptySquare() {
-    let targetElement;
-    do {
-      const row = generateRandomNumber(0, 2); 
-      const col = generateRandomNumber(0, 2); 
-      targetElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
-    } while (_isSquareFilled(targetElement)); // loop as long as the square is filled
-    return targetElement;
   }
 
   function _strikeThroughCells(winningCombinationDetails) {
@@ -129,8 +112,8 @@ export function interactionManager(restoreDefaults) {
 
   function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
-    globals.appState.gameOver = true;
-    globals.appState.winner = winningPlayer;
+    globals.appState[STATE_KEYS.GAME_OVER] = true;
+    globals.appState[STATE_KEYS.WINNER] = winningPlayer;
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
     _strikeThroughCells(winningCombinationDetails);
     _disableBoardInteractions();
@@ -140,107 +123,14 @@ export function interactionManager(restoreDefaults) {
   function _handleDraw() { 
     console.info("Game is a draw!");
     _disableBoardInteractions();
-    globals.appState.gameOver = true;
-    globals.appState.winner = PLAYERS.PLAYER_DRAW;
+    globals.appState[STATE_KEYS.GAME_OVER] = true;
+    globals.appState[STATE_KEYS.WINNER] = PLAYERS.PLAYER_DRAW;
     selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
     makeRestartButtonFilled();
   }
-
-  const _winningCombinationsByBoard = {
-    row1: [0, 1, 2],
-    row2: [3, 4, 5],
-    row3: [6, 7, 8],
-    col1: [0, 3, 6],
-    col2: [1, 4, 7],
-    col3: [2, 5, 8],
-    diag1: [0, 4, 8],
-    diag2: [2, 4, 6],
-  };
-
-  function _checkWinConditionByBoard(currentPlayer, gameBoard) {
-    const _flatGameBoard = gameBoard.flat();
-    for (const key in _winningCombinationsByBoard) {
-      const indices = _winningCombinationsByBoard[key];
-      if (indices.every(index => _flatGameBoard[index] === currentPlayer)) {
-        return { key, indices }; // Return key and indices for strike-through
-      }
-    }
-    return false; // No win after checking all combinations
-  }
-
-  function _getEmptySquaresByBoard() {
-    const gameBoard = globals.appState.gameBoard;
-    let emptySquares = [];
-    gameBoard.forEach((row, rowIndex) => {
-      row.forEach((cell, colIndex) => {
-        if (cell === null) {
-          emptySquares.push([rowIndex, colIndex]);
-        }
-      });
-    });
-    return emptySquares;
-  }
-
-  function _constructVirtualGameBoard(row, col, player) {
-    // 1. Deep clone globals.appState.gameBoard
-    const virtualGameBoard = globals.appState.gameBoard.map(innerRow => [...innerRow]);
-
-    // 2. Apply the hypothetical move to the virtual board
-    virtualGameBoard[row][col] = player;
-
-    return virtualGameBoard;
-  }
-
-  function _getAILevel0Move() {
-    return _findRandomEmptySquare();
-  }
-
-  function _getAILevel1Move() {
-    const emptySquares = _getEmptySquaresByBoard(); // Gets array of [row, col] which are 0-indexed
-    const aiPlayer = globals.appState.currentPlayer;
-    const opponentPlayer = aiPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
-
-    // 1. Check if AI can win in the next move
-    for (const squareCoords of emptySquares) {
-      const [row, col] = squareCoords; // 0-indexed row and col
-      const virtualGameBoard = _constructVirtualGameBoard(row, col, aiPlayer);
-      const winningCombinationDetails = _checkWinConditionByBoard(aiPlayer, virtualGameBoard);
-      
-      if (winningCombinationDetails) {
-        console.warn(`AI Level 1: Found winning move at [${row}, ${col}]`);
-        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
-      }
-    }
-
-    // 2. Check if opponent can win in the next move, and block them
-    for (const squareCoords of emptySquares) {
-      const [row, col] = squareCoords; // 0-indexed row and col
-      // Simulate opponent making a move in this empty square
-      const virtualGameBoard = _constructVirtualGameBoard(row, col, opponentPlayer);
-      const opponentWinningCombination = _checkWinConditionByBoard(opponentPlayer, virtualGameBoard);
-
-      if (opponentWinningCombination) {
-        console.warn(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
-        // AI should play in this square to block
-        return document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
-      }
-    }
-
-    // 3. Fallback: If no immediate winning move for AI and no immediate blocking move needed,
-    // pick a random empty square.
-    console.warn("AI Level 1: No immediate winning move. Picking a random empty square.");
-    if (emptySquares.length > 0) {
-      return _findRandomEmptySquare();
-    }
-
-    // Should ideally not be reached if game is not over and emptySquares were found.
-    // As a last resort, fall back to level 0 logic if something unexpected happened.
-    console.error("AI Level 1: No empty squares available or unexpected issue. Falling back to Level 0 move.");
-    return _getAILevel0Move();
-  }
     
   function _handleAITurn() {
-    if (globals.appState.gameOver) return; // Don't proceed if game is over
+    if (globals.appState[STATE_KEYS.GAME_OVER]) return; // Don't proceed if game is over
     _disableBoardInteractions();
     setTimeout(() => {
         _playAI();
@@ -249,43 +139,43 @@ export function interactionManager(restoreDefaults) {
 
   function _playAI() {
     _enableBoardInteractions();
-    let targetElement;
+    let moveCoordinates; // Will be {row, col} or null
+    const aiPlayerSymbol = globals.appState[STATE_KEYS.CURRENT_PLAYER];
+    const opponentPlayerSymbol = aiPlayerSymbol === PLAYER_X ? PLAYER_O : PLAYER_X;
 
-    switch (globals.appState.opponentLevel) {
+    switch (globals.appState[STATE_KEYS.OPPONENT_LEVEL]) {
       case 0:
-        targetElement = _getAILevel0Move();
+        moveCoordinates = getAILevel0Move(globals.appState[STATE_KEYS.GAME_BOARD]);
         break;
       case 1:
-        targetElement = _getAILevel1Move();
+        moveCoordinates = getAILevel1Move(globals.appState[STATE_KEYS.GAME_BOARD], aiPlayerSymbol, opponentPlayerSymbol);
         break;
-      case 2: 
-        // Minimax will be here.
-        console.warn("AI Level 2 (Minimax) not yet implemented. AI will not move.");
-        // For now, AI Level 2 will do nothing, or you could make it fall back to a simpler AI.
-        // Re-enable interactions if AI isn't going to move.
-        _enableBoardInteractions(); 
-        return; 
+      case 2:
+        moveCoordinates = getAILevel2Move(globals.appState[STATE_KEYS.GAME_BOARD], aiPlayerSymbol, opponentPlayerSymbol);
+        break; 
       default:
-        console.error("Unknown AI opponent level:", globals.appState.opponentLevel, "AI will not move.");
+        console.error("Unknown AI opponent level:", globals.appState[STATE_KEYS.OPPONENT_LEVEL], "AI will not move.");
         _enableBoardInteractions();
         return;
     }
 
-    if (!targetElement) {
-      console.error("AI failed to select a square. Target element is undefined. Re-enabling board.");
+    if (!moveCoordinates) {
+      console.error("AI failed to select a move (no coordinates returned). Re-enabling board.");
       _enableBoardInteractions();
       return;
     }
 
-    const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
-    _fillSquare(targetElement, aiPlayer);
-    _updateGameBoardState(targetElement, aiPlayer);
+    const targetElementId = `${INTERACTIONS.SQUARES_ID_INITIAL}${moveCoordinates.row}-${moveCoordinates.col}`;
+    const targetElement = document.getElementById(targetElementId);
+
+    _fillSquare(targetElement, aiPlayerSymbol);
+    updateGameBoardState(targetElement, aiPlayerSymbol);
 
     // Check for win using the AI's move
-    const winningBoardCombination = _checkWinConditionByBoard(aiPlayer, globals.appState.gameBoard);
+    const winningBoardCombination = checkWinCondition(globals.appState[STATE_KEYS.GAME_BOARD], aiPlayerSymbol);
     
     if (winningBoardCombination) {
-      _handleWin(aiPlayer, winningBoardCombination);
+      _handleWin(aiPlayerSymbol, winningBoardCombination);
       return;
     }
     
@@ -300,7 +190,7 @@ export function interactionManager(restoreDefaults) {
   }
 
   function _handleSquareClick(targetElement) {
-    if (globals.appState.gameOver) {
+    if (globals.appState[STATE_KEYS.GAME_OVER]) {
       console.info("Game is already over.");
       return;
     }
@@ -310,12 +200,12 @@ export function interactionManager(restoreDefaults) {
       return; 
     }
 
-    const playerMakingMove = globals.appState.currentPlayer;
+    const playerMakingMove = globals.appState[STATE_KEYS.CURRENT_PLAYER];
     _fillSquare(targetElement, playerMakingMove);
-    _updateGameBoardState(targetElement, playerMakingMove);
+    updateGameBoardState(targetElement, playerMakingMove);
 
-    // Check for win using the player's move
-    const winningBoardCombination = _checkWinConditionByBoard(playerMakingMove, globals.appState.gameBoard);
+    // Check for win using the player's move    
+    const winningBoardCombination = checkWinCondition(globals.appState[STATE_KEYS.GAME_BOARD], playerMakingMove);
 
     if (winningBoardCombination) {
       _handleWin(playerMakingMove, winningBoardCombination); 
@@ -339,7 +229,7 @@ export function interactionManager(restoreDefaults) {
     const gameBoard = selectors.TTTBoard;
 
     gameBoard.addEventListener("mouseover", (event) => {
-      if(event.target.matches(_matchingID) && !globals.appState.gameOver && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
+      if(event.target.matches(_matchingID) && !globals.appState[STATE_KEYS.GAME_OVER] && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
         addHighlight(event.target);
       }
     });

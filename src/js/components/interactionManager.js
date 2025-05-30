@@ -2,16 +2,18 @@ import { globals } from "../services/globals.js";
 import { restoreDefaults, updateGameBoardState } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
 import { PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
-import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, blackoutScreen, unBlackoutScreen } from "../utils/domHelpers.js";
+import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, removePlayerMarkStyles, blackoutScreen, unBlackoutScreen } from "../utils/domHelpers.js";
 
 export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
-  function _fillSquare(targetElement, player) {
+  function _fillAndDecorateSquare(targetElement, player) {
     targetElement.textContent = player;
+    const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
+    targetElement.classList.add(cssClass);
   }
 
   function _isSquareFilled(targetElement) {
@@ -66,6 +68,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     squaresNodeList.forEach(square => {
       square.textContent = "";
       removeWinningLineStyles(square);
+      removePlayerMarkStyles(square);
     });
 
     selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
@@ -174,7 +177,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const targetElementId = `${INTERACTIONS.SQUARES_ID_INITIAL}${moveCoordinates.row}-${moveCoordinates.col}`;
     const targetElement = document.getElementById(targetElementId);
 
-    _fillSquare(targetElement, aiPlayerSymbol);
+    _fillAndDecorateSquare(targetElement, aiPlayerSymbol);
     updateGameBoardState(targetElement, aiPlayerSymbol);
 
     // Check for win using the AI's move
@@ -207,7 +210,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     const playerMakingMove = globals.appState[STATE_KEYS.CURRENT_PLAYER];
-    _fillSquare(targetElement, playerMakingMove);
+    _fillAndDecorateSquare(targetElement, playerMakingMove);
     updateGameBoardState(targetElement, playerMakingMove);
 
     // Check for win using the player's move    

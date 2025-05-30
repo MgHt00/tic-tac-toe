@@ -54,6 +54,13 @@ export function removeWinningLineStyles(squareElement) {
   );
 }
 
+export function removePlayerMarkStyles(squareElement) {
+  squareElement.classList.remove(
+    CSS_CLASS_NAMES.PLAYER_X_COLOR, 
+    CSS_CLASS_NAMES.PLAYER_O_COLOR  
+  );
+}
+
 export function blackoutScreen() {
   _showOverlay();
   _showLoadingSpinner();

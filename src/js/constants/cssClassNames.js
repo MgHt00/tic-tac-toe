@@ -11,4 +11,7 @@ export const CSS_CLASS_NAMES = {
 
   OUTLINED_BUTTON: "btn-outline-primary",
   FILLED_BUTTON: "btn-primary",
+
+  PLAYER_X_COLOR: "player-x",
+  PLAYER_O_COLOR: "player-o",
 }

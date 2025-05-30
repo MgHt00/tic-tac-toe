@@ -126,46 +126,68 @@ div[id|="game"] {
   margin: 10px 9px 0 0;
 }
 
-.winning-square-row, /* Row */
-.winning-square-column, /* Column */
-.winning-square-diagonal-main, /* Top-left to bottom-right */
-.winning-square-diagonal-secondary { /* Top-right to bottom-left */
+.x-winning-square-row, /* Row */
+.x-winning-square-column, /* Column */
+.x-winning-square-diagonal-main, /* Top-left to bottom-right */
+.x-winning-square-diagonal-secondary, /* Top-right to bottom-left */
+.o-winning-square-row, /* Row */
+.o-winning-square-column, /* Column */
+.o-winning-square-diagonal-main, /* Top-left to bottom-right */
+.o-winning-square-diagonal-secondary { /* Top-right to bottom-left */
   position: relative;
   overflow: visible;
 }
 
-.winning-square-row::before,
-.winning-square-column::before,
-.winning-square-diagonal-main::before,
-.winning-square-diagonal-secondary::before {
+/* X winning strike-through */
+.x-winning-square-row::before,
+.x-winning-square-column::before,
+.x-winning-square-diagonal-main::before,
+.x-winning-square-diagonal-secondary::before {
   content: "";
   position: absolute;
   top: 50%;
   left: 0;
   height: var(--strike-line-thickness, 2px);
-  background-color: var(--winning-strike-color, snow);
+  background-color: var(--player-X-color, snow);
+}
+
+/* O winning strike-through */
+.o-winning-square-row::before,
+.o-winning-square-column::before,
+.o-winning-square-diagonal-main::before,
+.o-winning-square-diagonal-secondary::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: var(--strike-line-thickness, 2px);
+  background-color: var(--player-O-color, snow);
 }
 
 /* For left to right strike-through: */
-.winning-square-row::before {
+.x-winning-square-row::before,
+.o-winning-square-row::before {
   width: 105%;
   transform: translateY(-50%);
 }
 
 /* For top to bottom strike-through: */
-.winning-square-column::before {
+.x-winning-square-column::before,
+.o-winning-square-column::before {
   width: 105%;
   transform: translateX(-3%) rotate(90deg);
 }
 
 /* For 45deg diagonal strike-through: */
-.winning-square-diagonal-main::before {
+.x-winning-square-diagonal-main::before,
+.o-winning-square-diagonal-main::before {
   width: 145%;
   transform: translate(-10%, -10%) rotate(45deg);
 }
 
 /* For -45deg diagonal strike-through: */
-.winning-square-diagonal-secondary::before {
+.x-winning-square-diagonal-secondary::before,
+.o-winning-square-diagonal-secondary::before {
   width: 145%;
   height: 2px;
   transform: translate(-15%, -15%) rotate(-45deg);

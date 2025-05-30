@@ -83,23 +83,40 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     
   }
 
-  function _strikeThroughCells(winningCombinationDetails) {
+  const _cssClassMapping = {
+    playerX : {
+      WIN_ROW : CSS_CLASS_NAMES.X_WIN_ROW,
+      WIN_COLUMN : CSS_CLASS_NAMES.X_WIN_COLUMN,
+      WIN_DIAGONAL_MAIN : CSS_CLASS_NAMES.X_WIN_DIAGONAL_MAIN,
+      WIN_DIAGONAL_SECONDARY : CSS_CLASS_NAMES.X_WIN_DIAGONAL_SECONDARY,
+    },
+
+    playerO : {
+      WIN_ROW : CSS_CLASS_NAMES.O_WIN_ROW,
+      WIN_COLUMN : CSS_CLASS_NAMES.O_WIN_COLUMN,
+      WIN_DIAGONAL_MAIN : CSS_CLASS_NAMES.O_WIN_DIAGONAL_MAIN,
+      WIN_DIAGONAL_SECONDARY : CSS_CLASS_NAMES.O_WIN_DIAGONAL_SECONDARY
+    }
+  }
+
+  function _strikeThroughCells(winningCombinationDetails, winningPlayer) {
     if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
       console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
       return;
     }
 
-    const { key, indices } = winningCombinationDetails;
     let cssClass;
+    const { key, indices } = winningCombinationDetails;
+    const _winningPlayer = winningPlayer === PLAYER_X ? "playerX" : "playerO";
 
     if (key.startsWith("row")) {
-      cssClass = CSS_CLASS_NAMES.WIN_ROW;
+      cssClass = _cssClassMapping[_winningPlayer].WIN_ROW;
     } else if (key.startsWith("col")) {
-      cssClass = CSS_CLASS_NAMES.WIN_COLUMN;
+      cssClass = _cssClassMapping[_winningPlayer].WIN_COLUMN;
     } else if (key === "diag1") {
-      cssClass = CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN;
+      cssClass = _cssClassMapping[_winningPlayer].WIN_DIAGONAL_MAIN;
     } else if (key === "diag2") {
-      cssClass = CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY;
+      cssClass = _cssClassMapping[_winningPlayer].WIN_DIAGONAL_SECONDARY;
     } else {
       console.error("Unknown winning combination key:", key);
       return;
@@ -124,7 +141,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     globals.appState[STATE_KEYS.GAME_OVER] = true;
     globals.appState[STATE_KEYS.WINNER] = winningPlayer;
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
-    _strikeThroughCells(winningCombinationDetails);
+    _strikeThroughCells(winningCombinationDetails, winningPlayer);
     _disableBoardInteractions();
     makeRestartButtonFilled();
   }

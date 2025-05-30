@@ -1,17 +1,7 @@
 import { restoreDefaults } from "../services/globalDataManager.js";
-import { selectors } from "../services/selectors.js";
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { blackoutScreen, unBlackoutScreen } from "../utils/domHelpers.js";
 
 export function loadingManager(initializeInput) {
-  function _showLoadingSpinner() {
-    selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
-    selectors.loadingWrapper.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
-  }
-
-  function _hideLoadingSpinner() {
-    selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
-    selectors.loadingWrapper.classList.add(CSS_CLASS_NAMES.INVISIBLE);
-  }
 
   function _asyncWrapper(fn) {
     return async (...args) => {
@@ -28,11 +18,12 @@ export function loadingManager(initializeInput) {
     const _initializeInput = _asyncWrapper(initializeInput);
     const _restoreDefaults = _asyncWrapper(restoreDefaults);
 
-    _showLoadingSpinner();
+    blackoutScreen();
     await _restoreDefaults();
     await _initializeInput();
-    //await new Promise(resolve => setTimeout(resolve, 1000)); // Add a 1-second delay (use this if necessary)
-    _hideLoadingSpinner();
+    // Following Promise is just for the decoration purpose
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Add a 1-second delay (use this if necessary)
+    unBlackoutScreen();
   }
 
   return {

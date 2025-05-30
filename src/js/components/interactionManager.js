@@ -4,7 +4,7 @@ import { selectors } from "../services/selectors.js";
 import { PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
-import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
+import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, blackoutScreen, unBlackoutScreen } from "../utils/domHelpers.js";
 
 export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
@@ -57,6 +57,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   function resetGameBoard() {
+    blackoutScreen();
     restoreDefaults(); // reset global's appState
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
@@ -72,6 +73,11 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     makeRestartButtonOutlined();
     _enableBoardInteractions(); 
+
+    setTimeout(() => {
+      unBlackoutScreen();
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    
   }
 
   function _strikeThroughCells(winningCombinationDetails) {

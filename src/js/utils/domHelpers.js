@@ -1,6 +1,24 @@
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { selectors } from "../services/selectors.js";
 
+function _showOverlay() {
+  selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+}
+
+function _hideOverlay() {
+  selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+}
+
+export function _showLoadingSpinner() {
+  //selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.loadingWrapper.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+}
+
+export function _hideLoadingSpinner() {
+  //selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.loadingWrapper.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+}
+
 export function addHighlight(targetElement) {
   targetElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
 }
@@ -34,6 +52,16 @@ export function removeWinningLineStyles(squareElement) {
     CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN,
     CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY
   );
+}
+
+export function blackoutScreen() {
+  _showOverlay();
+  _showLoadingSpinner();
+}
+
+export function unBlackoutScreen() {
+  _hideOverlay();
+  _hideLoadingSpinner();
 }
 
 export function showOpponentChangeAlert() {

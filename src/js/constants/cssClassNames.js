@@ -2,20 +2,22 @@ export const CSS_CLASS_NAMES = {
   INVISIBLE : "invisible",
   HIGHLIGHT : "highlight",
 
-  WIN_ROW: "winning-square-row", // Row
-  WIN_COLUMN: "winning-square-column", // Column
-  WIN_DIAGONAL_MAIN: "winning-square-diagonal-main", // Top-left to bottom-right (e.g., \)
-  WIN_DIAGONAL_SECONDARY: "winning-square-diagonal-secondary", // Top-right to bottom-left (e.g., /)
+  // IMPORTANT: The keys for winning line classes (e.g., X_WIN_ROW, O_WIN_COLUMN)
+  // follow a specific pattern: `${PLAYER_SYMBOL}_WIN_${DIRECTION}`.
 
-  X_WIN_ROW: "x-winning-square-row", // Row
-  X_WIN_COLUMN: "x-winning-square-column", // Column
+  // This pattern is used in `interactionManager.js` to dynamically construct these keys
+  // using `PLAYERS` constants (X, O) and `WIN_LINE_DIRECTIONS` from `appConstants.js`.
+  
+  // If you change this naming convention here, you MUST update the logic
+  // in `interactionManager.js` that generates these keys.
+  X_WIN_ROW: "x-winning-square-row", 
+  X_WIN_COLUMN: "x-winning-square-column", 
   X_WIN_DIAGONAL_MAIN: "x-winning-square-diagonal-main", // Top-left to bottom-right (e.g., \)
   X_WIN_DIAGONAL_SECONDARY: "x-winning-square-diagonal-secondary", // Top-right to bottom-left (e.g., /)
-
-  O_WIN_ROW: "o-winning-square-row", // Row
-  O_WIN_COLUMN: "o-winning-square-column", // Column
-  O_WIN_DIAGONAL_MAIN: "o-winning-square-diagonal-main", // Top-left to bottom-right (e.g., \)
-  O_WIN_DIAGONAL_SECONDARY: "o-winning-square-diagonal-secondary", // Top-right to bottom-left (e.g., /)
+  O_WIN_ROW: "o-winning-square-row", 
+  O_WIN_COLUMN: "o-winning-square-column", 
+  O_WIN_DIAGONAL_MAIN: "o-winning-square-diagonal-main",
+  O_WIN_DIAGONAL_SECONDARY: "o-winning-square-diagonal-secondary", 
 
   BOARD_DISABLED: "board-disabled",
 

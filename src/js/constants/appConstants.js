@@ -30,3 +30,10 @@ export const STATE_KEYS = {
   GAME_OVER: 'gameOver',
   WINNER: 'winner',
 };
+
+export const WIN_LINE_DIRECTIONS = {
+  ROW: "ROW",
+  COLUMN: "COLUMN",
+  DIAGONAL_MAIN: "DIAGONAL_MAIN",
+  DIAGONAL_SECONDARY: "DIAGONAL_SECONDARY",
+};

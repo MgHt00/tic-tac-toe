@@ -1,7 +1,7 @@
 import { globals } from "../services/globals.js";
 import { restoreDefaults, updateGameBoardState } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
-import { PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
+import { PLAYERS, INTERACTIONS, STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, removePlayerMarkStyles, blackoutScreen, unBlackoutScreen } from "../utils/domHelpers.js";
@@ -83,42 +83,34 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     
   }
 
-  const _cssClassMapping = {
-    playerX : {
-      WIN_ROW : CSS_CLASS_NAMES.X_WIN_ROW,
-      WIN_COLUMN : CSS_CLASS_NAMES.X_WIN_COLUMN,
-      WIN_DIAGONAL_MAIN : CSS_CLASS_NAMES.X_WIN_DIAGONAL_MAIN,
-      WIN_DIAGONAL_SECONDARY : CSS_CLASS_NAMES.X_WIN_DIAGONAL_SECONDARY,
-    },
-
-    playerO : {
-      WIN_ROW : CSS_CLASS_NAMES.O_WIN_ROW,
-      WIN_COLUMN : CSS_CLASS_NAMES.O_WIN_COLUMN,
-      WIN_DIAGONAL_MAIN : CSS_CLASS_NAMES.O_WIN_DIAGONAL_MAIN,
-      WIN_DIAGONAL_SECONDARY : CSS_CLASS_NAMES.O_WIN_DIAGONAL_SECONDARY
-    }
-  }
-
   function _strikeThroughCells(winningCombinationDetails, winningPlayer) {
     if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
       console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
       return;
     }
 
-    let cssClass;
     const { key, indices } = winningCombinationDetails;
-    const _winningPlayer = winningPlayer === PLAYER_X ? "playerX" : "playerO";
+    let baseWinType; // Will be "ROW", "COLUMN", "DIAGONAL_MAIN", or "DIAGONAL_SECONDARY"
 
     if (key.startsWith("row")) {
-      cssClass = _cssClassMapping[_winningPlayer].WIN_ROW;
+      baseWinType = WIN_LINE_DIRECTIONS.ROW;
     } else if (key.startsWith("col")) {
-      cssClass = _cssClassMapping[_winningPlayer].WIN_COLUMN;
+      baseWinType = WIN_LINE_DIRECTIONS.COLUMN;
     } else if (key === "diag1") {
-      cssClass = _cssClassMapping[_winningPlayer].WIN_DIAGONAL_MAIN;
+      baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_MAIN;
     } else if (key === "diag2") {
-      cssClass = _cssClassMapping[_winningPlayer].WIN_DIAGONAL_SECONDARY;
+      baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY;
     } else {
       console.error("Unknown winning combination key:", key);
+      return;
+    }
+
+    // Construct the key for CSS_CLASS_NAMES, e.g., "X_WIN_ROW" or "O_WIN_DIAGONAL_MAIN"
+    const cssClassKey = `${winningPlayer}_WIN_${baseWinType}`;
+    const cssClass = CSS_CLASS_NAMES[cssClassKey];
+
+    if (!cssClass) {
+      console.error(`CSS class not found for key: ${cssClassKey}. Ensure PLAYERS constants ('${PLAYER_X}', '${PLAYER_O}') align with CSS_CLASS_NAMES prefixes.`);
       return;
     }
 

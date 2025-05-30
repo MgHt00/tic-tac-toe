@@ -1,7 +1,7 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { AI_LEVELS, PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
-import { showOpponentChangeAlert, hideOpponentChangeAlert } from "../utils/domHelpers.js";
+import { showOpponentChangeAlert, hideOpponentChangeAlert, unBlackoutScreen } from "../utils/domHelpers.js";
 
 export function inputManager(resetGameBoard) {
   // Stores the AI level that is currently confirmed and active.
@@ -62,6 +62,7 @@ export function inputManager(resetGameBoard) {
     _boundAlertCancelHandler = () => {
       selectors.AILevelInput.value = levelToRevertTo.toString();
       _updateOpponentLabelFromSlider(); // Update label to match reverted slider
+      unBlackoutScreen();
       hideOpponentChangeAlert();
       _removeOpponentChangeAlertListeners(); // Clean up after action
     };

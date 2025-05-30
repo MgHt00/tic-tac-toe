@@ -1,5 +1,5 @@
 import { restoreDefaults } from "../services/globalDataManager.js";
-import { blackoutScreen, unBlackoutScreen } from "../utils/domHelpers.js";
+import { unBlackoutScreen, blackoutScreen } from "../utils/domHelpers.js";
 
 export function loadingManager(initializeInput) {
 
@@ -13,21 +13,28 @@ export function loadingManager(initializeInput) {
     };
   }
 
-
   async function preLoad(){
     const _initializeInput = _asyncWrapper(initializeInput);
     const _restoreDefaults = _asyncWrapper(restoreDefaults);
 
     blackoutScreen();
-    await _restoreDefaults();
-    await _initializeInput();
-    // Following Promise is just for the decoration purpose
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Add a 1-second delay (use this if necessary)
-    unBlackoutScreen();
+
+    try {
+      await _restoreDefaults();
+      await _initializeInput();
+
+      // Wait for all fonts specified in CSS to be loaded and applied by the browser.
+      await document.fonts.ready;
+      //console.log("All fonts have been loaded and applied."); // For debugging
+    } catch (error) {
+      console.error("Error during application pre-load phase:", error);
+    } finally {
+      // Always attempt to hide the loading screen.
+      unBlackoutScreen();
+    }
   }
 
   return {
     preLoad,
   };
-
 }

@@ -1,17 +1,19 @@
 import { globals } from "../services/globals.js";
 import { restoreDefaults, updateGameBoardState } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
-import { PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { PLAYERS, INTERACTIONS, STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
+import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
-import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles } from "../utils/domHelpers.js";
+import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, removePlayerMarkStyles, blackoutScreen, unBlackoutScreen } from "../utils/domHelpers.js";
 
 export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
-  function _fillSquare(targetElement, player) {
+  function _fillAndDecorateSquare(targetElement, player) {
     targetElement.textContent = player;
+    const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
+    targetElement.classList.add(cssClass);
   }
 
   function _isSquareFilled(targetElement) {
@@ -56,7 +58,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     return true;
   }
 
-  function _resetGameBoard() {
+  function resetGameBoard() {
+    blackoutScreen();
     restoreDefaults(); // reset global's appState
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
@@ -65,6 +68,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     squaresNodeList.forEach(square => {
       square.textContent = "";
       removeWinningLineStyles(square);
+      removePlayerMarkStyles(square);
     });
 
     selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
@@ -72,27 +76,42 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     makeRestartButtonOutlined();
     _enableBoardInteractions(); 
+
+    setTimeout(() => {
+      unBlackoutScreen();
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    
+    console.warn("Game board reset.");
   }
 
-  function _strikeThroughCells(winningCombinationDetails) {
+  function _strikeThroughCells(winningCombinationDetails, winningPlayer) {
     if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
       console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
       return;
     }
 
     const { key, indices } = winningCombinationDetails;
-    let cssClass;
+    let baseWinType; // Will be "ROW", "COLUMN", "DIAGONAL_MAIN", or "DIAGONAL_SECONDARY"
 
     if (key.startsWith("row")) {
-      cssClass = CSS_CLASS_NAMES.WIN_ROW;
+      baseWinType = WIN_LINE_DIRECTIONS.ROW;
     } else if (key.startsWith("col")) {
-      cssClass = CSS_CLASS_NAMES.WIN_COLUMN;
+      baseWinType = WIN_LINE_DIRECTIONS.COLUMN;
     } else if (key === "diag1") {
-      cssClass = CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN;
+      baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_MAIN;
     } else if (key === "diag2") {
-      cssClass = CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY;
+      baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY;
     } else {
       console.error("Unknown winning combination key:", key);
+      return;
+    }
+
+    // Construct the key for CSS_CLASS_NAMES, e.g., "X_WIN_ROW" or "O_WIN_DIAGONAL_MAIN"
+    const cssClassKey = `${winningPlayer}_WIN_${baseWinType}`;
+    const cssClass = CSS_CLASS_NAMES[cssClassKey];
+
+    if (!cssClass) {
+      console.error(`CSS class not found for key: ${cssClassKey}. Ensure PLAYERS constants ('${PLAYER_X}', '${PLAYER_O}') align with CSS_CLASS_NAMES prefixes.`);
       return;
     }
 
@@ -115,7 +134,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     globals.appState[STATE_KEYS.GAME_OVER] = true;
     globals.appState[STATE_KEYS.WINNER] = winningPlayer;
     selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
-    _strikeThroughCells(winningCombinationDetails);
+    _strikeThroughCells(winningCombinationDetails, winningPlayer);
     _disableBoardInteractions();
     makeRestartButtonFilled();
   }
@@ -133,8 +152,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     if (globals.appState[STATE_KEYS.GAME_OVER]) return; // Don't proceed if game is over
     _disableBoardInteractions();
     setTimeout(() => {
-        _playAI();
-      }, INTERACTIONS.AI_THINKING_TIME_MS);
+      _playAI();
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    globals.appState[STATE_KEYS.GAME_IN_PROGRESS] = true;
   }
 
   function _playAI() {
@@ -168,7 +188,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const targetElementId = `${INTERACTIONS.SQUARES_ID_INITIAL}${moveCoordinates.row}-${moveCoordinates.col}`;
     const targetElement = document.getElementById(targetElementId);
 
-    _fillSquare(targetElement, aiPlayerSymbol);
+    _fillAndDecorateSquare(targetElement, aiPlayerSymbol);
     updateGameBoardState(targetElement, aiPlayerSymbol);
 
     // Check for win using the AI's move
@@ -201,7 +221,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     const playerMakingMove = globals.appState[STATE_KEYS.CURRENT_PLAYER];
-    _fillSquare(targetElement, playerMakingMove);
+
+    globals.appState[STATE_KEYS.GAME_IN_PROGRESS] = true;
+
+    _fillAndDecorateSquare(targetElement, playerMakingMove);
     updateGameBoardState(targetElement, playerMakingMove);
 
     // Check for win using the player's move    
@@ -247,21 +270,15 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       }
     });
   }
-
-  function _addRestartButtonListener() {
-    selectors.restartButton.addEventListener("click", () => {
-      _resetGameBoard();
-    });
-  }
   
   function initializeGameInteraction() {
     _addSquareListeners();
-    _addRestartButtonListener();
-    _resetGameBoard();
+    resetGameBoard();
     _highlightCurrentPlayer();
   }
 
   return {
     initializeGameInteraction,
+    resetGameBoard,
   }
 }

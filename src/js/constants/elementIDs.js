@@ -25,4 +25,8 @@ export const ELEMENT_IDS = {
 
   OVERLAY: "overlay",
   LOADING_WRAPPER: "loading-wrapper",
+
+  OPPONENT_ALERT_WRAPPER: "opponent-alert-wrapper",
+  OPPONENT_ALERT_OK: "opponent-alert-ok",
+  OPPONENT_ALERT_CANCEL: "opponent-alert-cancel",
 };

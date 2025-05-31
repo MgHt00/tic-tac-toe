@@ -17,10 +17,10 @@
       <input type="range" id="game-settings-difficulty-range" min="0" max="0" value="1" class="form-range">
     </div>
     <div id="game-scores" class="d-flex w-100 justify-content-evenly">
-      <div id="player-x"></div>
+      <div id="player-x" class="player-x"></div>
       <div id="player-x-score">0</div>
       <div id="player-score-divider">:</div>
-      <div id="player-o"></div>
+      <div id="player-o" class="player-o"></div>
       <div id="player-o-score">0</div>
     </div>
     <div id="game-info">Start game or select player</div>
@@ -42,10 +42,22 @@
     </div>
   </div>
 
-  <div id="overlay" class="invisible"></div>
-  <div id="loading-wrapper" class="invisible">
+  <div id="overlay"></div> <!-- Made visible by default -->
+  <div id="loading-wrapper"> <!-- Made visible by default -->
     <div class="spinner-grow" role="status">
       <span class="invisible">Loading...</span>
+    </div>
+  </div>
+  <div id="opponent-alert-wrapper" class="invisible">
+    <div class="alert alert-primary d-flex flex-column" role="alert">
+      <div>
+        <h5 class="opponent-alert-heading">Sure?</h5>
+        This will reset the game.
+      </div>
+      <div id="opponent-alert-buttons" class="d-flex justify-content-center">
+        <button id="opponent-alert-ok" type="button" class="btn btn-primary btn-sm">OK</button>
+        <button id="opponent-alert-cancel" type="button" class="btn btn-primary btn-sm">Cancel</button>
+      </div>
     </div>
   </div>
   <script type="module" src="src/js/index.js"></script>

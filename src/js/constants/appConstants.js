@@ -5,6 +5,16 @@ export const AI_LEVELS = {
   3: '2 Player Mode',
 };
 
+export const STATE_KEYS = {
+  STARTING_PLAYER: 'startingPlayer',
+  CURRENT_PLAYER: 'currentPlayer',
+  OPPONENT_LEVEL: 'opponentLevel',
+  GAME_BOARD: 'gameBoard',
+  GAME_OVER: 'gameOver',
+  WINNER: 'winner',
+  GAME_IN_PROGRESS: 'gameInProgress',
+};
+
 export const PLAYERS = {
   INITIAL_MESSAGE: 'Start game or select player',
   PLAYER_X: 'X',
@@ -22,11 +32,9 @@ export const INTERACTIONS = {
   PLAYER_DRAW: 'Game is a draw!',
 };
 
-export const STATE_KEYS = {
-  STARTING_PLAYER: 'startingPlayer',
-  CURRENT_PLAYER: 'currentPlayer',
-  OPPONENT_LEVEL: 'opponentLevel',
-  GAME_BOARD: 'gameBoard',
-  GAME_OVER: 'gameOver',
-  WINNER: 'winner',
+export const WIN_LINE_DIRECTIONS = {
+  ROW: "ROW",
+  COLUMN: "COLUMN",
+  DIAGONAL_MAIN: "DIAGONAL_MAIN",
+  DIAGONAL_SECONDARY: "DIAGONAL_SECONDARY",
 };

@@ -1,7 +1,7 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { AI_LEVELS, PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
-import { showOpponentChangeAlert, hideOpponentChangeAlert, unBlackoutScreen } from "../utils/domHelpers.js";
+import { showOpponentChangeAlert, hideOpponentChangeAlert, unBlackoutScreen, updateScoreOnScreen } from "../utils/domHelpers.js";
 
 export function inputManager(resetGameBoard) {
   // Stores the AI level that is currently confirmed and active.
@@ -12,12 +12,19 @@ export function inputManager(resetGameBoard) {
   let _boundAlertOKHandler = null;
   let _boundAlertCancelHandler = null;
 
+  // Sets the min and max attributes for the AI difficulty range input based on available AI_LEVELS.
   function _setOpponentRange() {
     const minRange = 0;
     const maxRange = Object.keys(AI_LEVELS).length - 1;
     
     selectors.AILevelInput.setAttribute('min', minRange.toString());
     selectors.AILevelInput.setAttribute('max', maxRange.toString());
+  }
+
+  // Sets the display names for the player X and player O buttons.
+  function _namePlayers() {
+    selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
+    selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
   }
 
   // Updates the label based on the current slider value.
@@ -55,9 +62,10 @@ export function inputManager(resetGameBoard) {
       globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newLevelAttempted;
       _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
       resetGameBoard({ resetScore: true });
-      console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
+      updateScoreOnScreen();
       hideOpponentChangeAlert();
       _removeOpponentChangeAlertListeners(); // Clean up after action
+      console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
     };
 
     _boundAlertCancelHandler = () => {
@@ -72,20 +80,17 @@ export function inputManager(resetGameBoard) {
     selectors.opponentAlertCancel.addEventListener('click', _boundAlertCancelHandler);
   }
 
-  // Handles the 'input' event on the AI level slider (fires continuously while dragging).
-  function _handleSliderInput() {
-    _updateOpponentLabelFromSlider(); // Update label live
-  }
-
+  // Determines if a game is considered "in progress" for the purpose of showing
+  // an alert when changing the AI opponent. This is true if the current board
+  // is active OR if there are any accumulated scores from previous games.
   function _isGameInProgress() {
     const gameInProgress = globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
     const isScoreZero = globals.appState[STATE_KEYS.PLAYER_X_SCORE] === 0 && globals.appState[STATE_KEYS.PLAYER_O_SCORE] === 0;
     return gameInProgress || !isScoreZero;
-    //return globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
   }
 
   // Handles the 'change' event on the AI level slider (fires when user releases mouse).
-  function _handleSliderChangeFinalized() {
+  function _handleSliderChange() {
     const newSelectedLevel = parseInt(selectors.AILevelInput.value, 10);
 
     if (!_isGameInProgress()) {
@@ -107,15 +112,15 @@ export function inputManager(resetGameBoard) {
     }
   }
 
-  function _namePlayers() {
-    selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
-    selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
+  // Handles the 'input' event on the AI level slider (fires continuously while dragging).
+  function _handleSliderInput() {
+    _updateOpponentLabelFromSlider(); // Update label live
   }
-  
+
   // Adds listeners for the AI level range slider.
   function _addRangeListeners() {
     selectors.AILevelInput.addEventListener('input', _handleSliderInput);
-    selectors.AILevelInput.addEventListener('change', _handleSliderChangeFinalized);
+    selectors.AILevelInput.addEventListener('change', _handleSliderChange);
   }
 
   function _addRestartButtonListener() {

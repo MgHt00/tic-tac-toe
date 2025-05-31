@@ -45,10 +45,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
     return true;
   }
-
-  function resetGameBoard() {
+ 
+  function resetGameBoard({ resetScore = false }) {
     blackoutScreen();
-    restoreDefaults({ resetScore: false }); // reset global's appState
+    resetScore === true ? restoreDefaults({ resetScore: true }) : restoreDefaults({}); 
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
     
@@ -272,7 +272,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   
   function initializeGameInteraction() {
     _addSquareListeners();
-    resetGameBoard();
+    resetGameBoard({ resetScore: true });
     highlightCurrentPlayer();
   }
 

@@ -1,7 +1,7 @@
 import { globals } from "./globals.js";
 import { STATE_KEYS } from "../constants/appConstants.js";
 
-export function restoreDefaults() {
+export function restoreDefaults({ resetScore = false }) {
   // Iterate over the keys in globals.defaults to correctly reset globals.appState
   // This ensures that mutable objects like arrays are properly re-initialized
   // and globals.defaults itself is not mutated.
@@ -11,6 +11,11 @@ export function restoreDefaults() {
       if (key === STATE_KEYS.OPPONENT_LEVEL) {
         continue;
       }
+
+      // Preserve scores only if resetScore is false
+      if ((key === STATE_KEYS.PLAYER_X_SCORE || key === STATE_KEYS.PLAYER_O_SCORE) && !resetScore) {
+        continue;
+      } 
 
       const defaultValue = globals.defaults[key];
       if (Array.isArray(defaultValue)) {

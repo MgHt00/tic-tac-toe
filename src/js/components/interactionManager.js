@@ -60,7 +60,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   function resetGameBoard() {
     blackoutScreen();
-    restoreDefaults(); // reset global's appState
+    restoreDefaults({ resetScore: false }); // reset global's appState
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
     
@@ -129,11 +129,31 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     });
   }
 
+  function _accumulateScore(winningPlayer) {
+    if (winningPlayer === PLAYER_X) {
+      globals.appState[STATE_KEYS.PLAYER_X_SCORE]++; 
+    }
+    if (winningPlayer === PLAYER_O) {
+      globals.appState[STATE_KEYS.PLAYER_O_SCORE]++; 
+    }
+  }
+
+  function _updateScoreOnScreen() {
+    selectors.playerXScore.textContent = globals.appState[STATE_KEYS.PLAYER_X_SCORE];
+    selectors.playerOScore.textContent = globals.appState[STATE_KEYS.PLAYER_O_SCORE];
+  }
+
+  function _showWinnerOnScreen(winningPlayer) {
+    selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
+  }
+
   function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
     globals.appState[STATE_KEYS.GAME_OVER] = true;
     globals.appState[STATE_KEYS.WINNER] = winningPlayer;
-    selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
+    _accumulateScore(winningPlayer);
+    _updateScoreOnScreen();
+    _showWinnerOnScreen(winningPlayer);
     _strikeThroughCells(winningCombinationDetails, winningPlayer);
     _disableBoardInteractions();
     makeRestartButtonFilled();

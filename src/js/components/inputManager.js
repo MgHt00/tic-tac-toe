@@ -54,7 +54,7 @@ export function inputManager(resetGameBoard) {
     _boundAlertOKHandler = () => {
       globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newLevelAttempted;
       _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
-      resetGameBoard();
+      resetGameBoard({ resetScore: true });
       console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
       hideOpponentChangeAlert();
       _removeOpponentChangeAlertListeners(); // Clean up after action
@@ -78,8 +78,10 @@ export function inputManager(resetGameBoard) {
   }
 
   function _isGameInProgress() {
-    //console.info("Game in progress:", globals.appState[STATE_KEYS.GAME_IN_PROGRESS]);
-    return globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
+    const gameInProgress = globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
+    const isScoreZero = globals.appState[STATE_KEYS.PLAYER_X_SCORE] === 0 && globals.appState[STATE_KEYS.PLAYER_O_SCORE] === 0;
+    return gameInProgress || !isScoreZero;
+    //return globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
   }
 
   // Handles the 'change' event on the AI level slider (fires when user releases mouse).
@@ -118,7 +120,7 @@ export function inputManager(resetGameBoard) {
 
   function _addRestartButtonListener() {
     selectors.restartButton.addEventListener("click", () => {
-      resetGameBoard();
+      resetGameBoard({ resetScore: false });
     });
   }
 

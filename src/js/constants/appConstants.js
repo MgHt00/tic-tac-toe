@@ -13,6 +13,8 @@ export const STATE_KEYS = {
   GAME_OVER: 'gameOver',
   WINNER: 'winner',
   GAME_IN_PROGRESS: 'gameInProgress',
+  PLAYER_X_SCORE: 'playerXScore',
+  PLAYER_O_SCORE: 'playerOScore',
 };
 
 export const PLAYERS = {

@@ -55,6 +55,7 @@ export function inputManager(resetGameBoard) {
       globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newLevelAttempted;
       _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
       resetGameBoard();
+      console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
       hideOpponentChangeAlert();
       _removeOpponentChangeAlertListeners(); // Clean up after action
     };
@@ -76,11 +77,29 @@ export function inputManager(resetGameBoard) {
     _updateOpponentLabelFromSlider(); // Update label live
   }
 
+  function _isGameInProgress() {
+    //console.info("Game in progress:", globals.appState[STATE_KEYS.GAME_IN_PROGRESS]);
+    return globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
+  }
+
   // Handles the 'change' event on the AI level slider (fires when user releases mouse).
   function _handleSliderChangeFinalized() {
     const newSelectedLevel = parseInt(selectors.AILevelInput.value, 10);
 
-    if (newSelectedLevel !== _confirmedOpponentLevel) {
+    if (!_isGameInProgress()) {
+      // Game is not in progress. If the level actually changed,
+      // update the opponent level in appState and the confirmed level.
+      if (newSelectedLevel !== _confirmedOpponentLevel) {
+        globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newSelectedLevel;
+        _confirmedOpponentLevel = newSelectedLevel;
+        console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
+        // No game reset is needed as the game is not currently running.
+      }
+      return;
+    }
+
+    // Game is in progress. If the level changed, show the alert.
+    if (newSelectedLevel !== _confirmedOpponentLevel) { 
       showOpponentChangeAlert();
       _addOpponentChangeAlertListeners(newSelectedLevel, _confirmedOpponentLevel);
     }

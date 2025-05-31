@@ -81,6 +81,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       unBlackoutScreen();
     }, INTERACTIONS.AI_THINKING_TIME_MS);
     
+    console.warn("Game board reset.");
   }
 
   function _strikeThroughCells(winningCombinationDetails, winningPlayer) {
@@ -151,8 +152,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     if (globals.appState[STATE_KEYS.GAME_OVER]) return; // Don't proceed if game is over
     _disableBoardInteractions();
     setTimeout(() => {
-        _playAI();
-      }, INTERACTIONS.AI_THINKING_TIME_MS);
+      _playAI();
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    globals.appState[STATE_KEYS.GAME_IN_PROGRESS] = true;
   }
 
   function _playAI() {
@@ -219,6 +221,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     const playerMakingMove = globals.appState[STATE_KEYS.CURRENT_PLAYER];
+
+    globals.appState[STATE_KEYS.GAME_IN_PROGRESS] = true;
+
     _fillAndDecorateSquare(targetElement, playerMakingMove);
     updateGameBoardState(targetElement, playerMakingMove);
 

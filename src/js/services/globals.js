@@ -1,4 +1,3 @@
-import { selectors } from "./selectors.js";
 import { PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
 
 const defaults = {
@@ -8,6 +7,8 @@ const defaults = {
   [STATE_KEYS.GAME_BOARD]: [[null, null, null], [null, null, null], [null, null, null]],
   [STATE_KEYS.GAME_OVER]: false,
   [STATE_KEYS.WINNER]: null,
+  [STATE_KEYS.GAME_IN_PROGRESS]: false,
+
 }
 
 const appState = {
@@ -17,6 +18,7 @@ const appState = {
   [STATE_KEYS.GAME_BOARD]: [[null, null, null], [null, null, null], [null, null, null]],
   [STATE_KEYS.GAME_OVER]: false,
   [STATE_KEYS.WINNER]: null,
+  [STATE_KEYS.GAME_IN_PROGRESS]: false, 
 }
 
 export const globals = {

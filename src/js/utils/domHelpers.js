@@ -1,5 +1,10 @@
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { globals } from "../services/globals.js";
 import { selectors } from "../services/selectors.js";
+
+import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { STATE_KEYS, PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+
+const { PLAYER_X, PLAYER_O } = PLAYERS;
 
 function _showOverlay() {
   selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
@@ -85,4 +90,26 @@ export function hideOpponentChangeAlert() {
   //selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
   selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
   selectors.opponentAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+}
+
+export function displayCurrentPlayer() {
+  selectors.gameInfo.textContent = `${globals.appState[STATE_KEYS.CURRENT_PLAYER]} ${INTERACTIONS.PLAYER_TURN}`;
+}
+
+export function highlightCurrentPlayer() {
+  const currentPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
+  const otherPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
+
+  removeHighlight(otherPlayerButton);
+  addHighlight(currentPlayerButton);
+}
+
+
+export function updateScoreOnScreen() {
+  selectors.playerXScore.textContent = globals.appState[STATE_KEYS.PLAYER_X_SCORE];
+  selectors.playerOScore.textContent = globals.appState[STATE_KEYS.PLAYER_O_SCORE];
+}
+
+export function showWinnerOnScreen(winningPlayer) {
+  selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
 }

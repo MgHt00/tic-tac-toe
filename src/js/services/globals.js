@@ -8,7 +8,8 @@ const defaults = {
   [STATE_KEYS.GAME_OVER]: false,
   [STATE_KEYS.WINNER]: null,
   [STATE_KEYS.GAME_IN_PROGRESS]: false,
-
+  [STATE_KEYS.PLAYER_X_SCORE]: 0,
+  [STATE_KEYS.PLAYER_O_SCORE]: 0,
 }
 
 const appState = {
@@ -19,6 +20,8 @@ const appState = {
   [STATE_KEYS.GAME_OVER]: false,
   [STATE_KEYS.WINNER]: null,
   [STATE_KEYS.GAME_IN_PROGRESS]: false, 
+  [STATE_KEYS.PLAYER_X_SCORE]: 0,
+  [STATE_KEYS.PLAYER_O_SCORE]: 0,
 }
 
 export const globals = {

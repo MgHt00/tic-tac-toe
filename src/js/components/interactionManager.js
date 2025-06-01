@@ -4,7 +4,7 @@ import { selectors } from "../services/selectors.js";
 import { PLAYERS, INTERACTIONS, STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
-import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, removePlayerMarkStyles, blackoutScreen, unBlackoutScreen } from "../utils/domHelpers.js";
+import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, removePlayerMarkStyles, blackoutScreen, unBlackoutScreen, updateScoreOnScreen, showWinnerOnScreen, displayCurrentPlayer, highlightCurrentPlayer } from "../utils/domHelpers.js";
 
 export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
@@ -36,18 +36,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     globals.appState[STATE_KEYS.CURRENT_PLAYER] = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? PLAYER_O : PLAYER_X;
   }
 
-  function _displayCurrentPlayer(){
-    selectors.gameInfo.textContent = `${globals.appState[STATE_KEYS.CURRENT_PLAYER]} ${INTERACTIONS.PLAYER_TURN}`;
-  }
-
-  function _highlightCurrentPlayer() {
-    const currentPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
-    const otherPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
-
-    removeHighlight(otherPlayerButton);
-    addHighlight(currentPlayerButton);
-  }
-
   function _areAllSquaresFilled() {
     const squaresNodeList = document.querySelectorAll(_matchingID);
     for (const square of squaresNodeList) {
@@ -57,10 +45,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
     return true;
   }
-
-  function resetGameBoard() {
+ 
+  function resetGameBoard({ resetScore = false }) {
     blackoutScreen();
-    restoreDefaults(); // reset global's appState
+    resetScore === true ? restoreDefaults({ resetScore: true }) : restoreDefaults({}); 
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
     
@@ -129,11 +117,22 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     });
   }
 
+  function _accumulateScore(winningPlayer) {
+    if (winningPlayer === PLAYER_X) {
+      globals.appState[STATE_KEYS.PLAYER_X_SCORE]++; 
+    }
+    if (winningPlayer === PLAYER_O) {
+      globals.appState[STATE_KEYS.PLAYER_O_SCORE]++; 
+    }
+  }
+
   function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
     globals.appState[STATE_KEYS.GAME_OVER] = true;
     globals.appState[STATE_KEYS.WINNER] = winningPlayer;
-    selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
+    _accumulateScore(winningPlayer);
+    updateScoreOnScreen();
+    showWinnerOnScreen(winningPlayer);
     _strikeThroughCells(winningCombinationDetails, winningPlayer);
     _disableBoardInteractions();
     makeRestartButtonFilled();
@@ -205,8 +204,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     _flipPlayer(); // Switch back to human player
-    _displayCurrentPlayer();
-    _highlightCurrentPlayer();
+    displayCurrentPlayer();
+    highlightCurrentPlayer();
   }
 
   function _handleSquareClick(targetElement) {
@@ -242,8 +241,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     // Prepare for AI turn
     _flipPlayer();
-    _displayCurrentPlayer();
-    _highlightCurrentPlayer();
+    displayCurrentPlayer();
+    highlightCurrentPlayer();
 
     _handleAITurn();
   }
@@ -266,15 +265,15 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     gameBoard.addEventListener("click", (event) => {
       if(event.target.matches(_matchingID)) {
         _handleSquareClick(event.target);
-        _highlightCurrentPlayer();
+        highlightCurrentPlayer();
       }
     });
   }
   
   function initializeGameInteraction() {
     _addSquareListeners();
-    resetGameBoard();
-    _highlightCurrentPlayer();
+    resetGameBoard({ resetScore: true });
+    highlightCurrentPlayer();
   }
 
   return {

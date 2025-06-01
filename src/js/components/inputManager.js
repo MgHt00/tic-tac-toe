@@ -7,6 +7,7 @@ export function inputManager(resetGameBoard) {
   // Stores the AI level that is currently confirmed and active.
   // Used to detect if a change actually occurred and to revert if cancelled.
   let _confirmedOpponentLevel = null;
+  let _confirmedStartingPlayer = null;
 
   // To store references to the event handlers for easy removal.
   let _boundAlertOKHandler = null;
@@ -40,6 +41,10 @@ export function inputManager(resetGameBoard) {
     _updateOpponentLabelFromSlider();
   }
 
+  function _initializeStartingPlayer() {
+    _confirmedStartingPlayer = globals.appState[STATE_KEYS.STARTING_PLAYER];
+  }
+
   // Removes listeners from the confirmation alert buttons.
   function _removeConfirmationAlertListeners() {
     if (_boundAlertOKHandler) {
@@ -52,10 +57,10 @@ export function inputManager(resetGameBoard) {
     }
   }
 
-  // Adds listeners to the confirmation alert buttons (specifically for opponent change scenario).
+  // Adds listeners to the confirmation alert buttons specifically for an opponent change.
   // newLevelAttempted: The AI level the user tried to select (from slider).
   // levelToRevertTo: The AI level to go back to if cancelled (_confirmedOpponentLevel).
-  function _addConfirmationAlertListeners(newLevelAttempted, levelToRevertTo) {
+  function _addOpponentChangeConfirmationListeners(newLevelAttempted, levelToRevertTo) {
     _removeConfirmationAlertListeners(); // Ensure no duplicate listeners
 
     _boundAlertOKHandler = () => {
@@ -63,7 +68,7 @@ export function inputManager(resetGameBoard) {
       _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
       resetGameBoard({ resetScore: true });
       updateScoreOnScreen();
-      hideConfirmationAlert(); // Use new function name
+      hideConfirmationAlert(); 
       _removeConfirmationAlertListeners(); // Clean up after action
       console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
     };
@@ -72,12 +77,38 @@ export function inputManager(resetGameBoard) {
       selectors.AILevelInput.value = levelToRevertTo.toString();
       _updateOpponentLabelFromSlider(); // Update label to match reverted slider
       unBlackoutScreen();
-      hideConfirmationAlert(); // Use new function name
+      hideConfirmationAlert(); 
       _removeConfirmationAlertListeners(); // Clean up after action
     };
 
-    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); // Changed selector
-    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); // Changed selector
+    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); 
+  }
+
+  function _addStartingPlayerChangeConfirmationListeners(newStartingPlayer, startingPlayerToRevertTo) {
+    _removeConfirmationAlertListeners(); // Ensure no duplicate listeners
+
+    _boundAlertOKHandler = () => {
+      globals.appState[STATE_KEYS.STARTING_PLAYER] = newStartingPlayer;
+      _confirmedStartingPlayer = newStartingPlayer; // Confirm the new starting player
+      resetGameBoard({ resetScore: true });
+      updateScoreOnScreen();
+      hideConfirmationAlert(); 
+      _removeConfirmationAlertListeners(); // Clean up after action
+      console.info("%cNew starting player: ", "color: yellow;", _confirmedStartingPlayer);
+    }
+
+    _boundAlertCancelHandler = () => {
+      //selectors.playerXButton.textContent = startingPlayerToRevertTo === PLAYERS.PLAYER_X ? PLAYERS.PLAYER_X : PLAYERS.PLAYER_O;
+      globals.appState[STATE_KEYS.STARTING_PLAYER] = startingPlayerToRevertTo;
+      _confirmedStartingPlayer = startingPlayerToRevertTo; // Confirm the new starting player
+      unBlackoutScreen();
+      hideConfirmationAlert();
+    };
+
+    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); 
+
   }
 
   // Determines if a game is considered "in progress" for the purpose of showing
@@ -107,8 +138,26 @@ export function inputManager(resetGameBoard) {
 
     // Game is in progress. If the level changed, show the alert.
     if (newSelectedLevel !== _confirmedOpponentLevel) { 
-      showConfirmationAlert(); // Use new function name
-      _addConfirmationAlertListeners(newSelectedLevel, _confirmedOpponentLevel);
+      showConfirmationAlert(); 
+      _addOpponentChangeConfirmationListeners(newSelectedLevel, _confirmedOpponentLevel);
+    }
+  }
+
+  function _handlePlayerChange(playerSymbolToSet) {
+    const newSelectedPlayer = playerSymbolToSet === PLAYERS.PLAYER_X ? PLAYERS.PLAYER_X : PLAYERS.PLAYER_O;
+
+    if (!_isGameInProgress()){
+      if (newSelectedPlayer !== _confirmedStartingPlayer) {
+        globals.appState[STATE_KEYS.STARTING_PLAYER] = newSelectedPlayer;
+        _confirmedStartingPlayer = newSelectedPlayer;
+        console.info("%cNew starting player: ", "color: yellow;", _confirmedStartingPlayer);
+      }
+      return;
+    }
+
+    if (newSelectedPlayer !== _confirmedStartingPlayer) { 
+      showConfirmationAlert();
+      _addStartingPlayerChangeConfirmationListeners(newSelectedPlayer, _confirmedStartingPlayer)
     }
   }
 
@@ -129,24 +178,6 @@ export function inputManager(resetGameBoard) {
     });
   }
 
-  function _setStartingPlayer(selectedPlayerSymbol) {
-    console.info("_setStartingPlayer: ", selectedPlayerSymbol);
-    globals.appState[STATE_KEYS.STARTING_PLAYER] = selectedPlayerSymbol;
-  }
-
-  function _handlePlayerChange(playerSymbolToSet) {
-    console.warn("ARE YOU SURE?");
-    
-    const currentStartingPlayer = globals.appState[STATE_KEYS.STARTING_PLAYER];
-    const newStartingPlayer = playerSymbolToSet === PLAYERS.PLAYER_X ? PLAYERS.PLAYER_X : PLAYERS.PLAYER_O;
-    
-    if (currentStartingPlayer !== newStartingPlayer) {
-      
-      //globals.appState[STATE_KEYS.STARTING_PLAYER] = newStartingPlayer;
-    }
-
-  }
-
   function _addPlayerButtonListeners() {
     const scoreBoard = selectors.scoreBoard;
     const playerXBtn = selectors.playerXButton;
@@ -162,20 +193,16 @@ export function inputManager(resetGameBoard) {
         playerSymbolToSet = PLAYERS.PLAYER_O;
       }
 
-      if (playerSymbolToSet && !_isGameInProgress())  {
-        _setStartingPlayer(playerSymbolToSet);
-        return;
-        //_setStartingPlayer(playerSymbolToSet);
-        //resetGameBoard({ resetScore: false });
-      }
-
-      _handlePlayerChange(playerSymbolToSet);
+      if (playerSymbolToSet)  {
+       _handlePlayerChange(playerSymbolToSet);
+      }      
     });
   }
 
   function initializeInput() {
     _setOpponentRange();
     _initializeOpponentSettings();
+    _initializeStartingPlayer();
     _namePlayers();
     _addRangeListeners();
     _addPlayerButtonListeners();

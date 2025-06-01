@@ -2,6 +2,7 @@ export const ELEMENT_IDS = {
   AI_LEVEL_LABEL: "game-settings-difficulty-value",
   AI_LEVEL_INPUT: "game-settings-difficulty-range",
 
+  SCORE_BOARD: "game-scores",
   PLAYER_X_BUTTON: "player-x",
   PLAYER_O_BUTTON: "player-o",
   PLAYER_X_SCORE: "player-x-score",

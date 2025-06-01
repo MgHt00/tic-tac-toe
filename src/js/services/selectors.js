@@ -4,6 +4,7 @@ export const selectors = {
   AILevelLabel : document.querySelector(`#${ELEMENT_IDS.AI_LEVEL_LABEL}`),
   AILevelInput: document.querySelector(`#${ELEMENT_IDS.AI_LEVEL_INPUT}`),
 
+  scoreBoard: document.querySelector(`#${ELEMENT_IDS.SCORE_BOARD}`),
   playerXButton: document.querySelector(`#${ELEMENT_IDS.PLAYER_X_BUTTON}`),
   playerOButton: document.querySelector(`#${ELEMENT_IDS.PLAYER_O_BUTTON}`),
   playerXScore: document.querySelector(`#${ELEMENT_IDS.PLAYER_X_SCORE}`),

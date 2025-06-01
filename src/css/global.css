@@ -201,6 +201,11 @@ div[id|="game"] {
   box-shadow: var(--current-player-box-shadow);
 }
 
+#game-scores > #player-x,
+#game-scores > #player-o {
+  cursor: pointer;
+}
+
 #game-scores > .player-x,
 #tic-tac-toe-board > .player-x {
   color: var(--player-X-color, snow);

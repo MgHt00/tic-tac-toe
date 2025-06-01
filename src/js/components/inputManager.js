@@ -129,11 +129,56 @@ export function inputManager(resetGameBoard) {
     });
   }
 
+  function _setStartingPlayer(selectedPlayerSymbol) {
+    console.info("_setStartingPlayer: ", selectedPlayerSymbol);
+    globals.appState[STATE_KEYS.STARTING_PLAYER] = selectedPlayerSymbol;
+  }
+
+  function _handlePlayerChange(playerSymbolToSet) {
+    console.warn("ARE YOU SURE?");
+    
+    const currentStartingPlayer = globals.appState[STATE_KEYS.STARTING_PLAYER];
+    const newStartingPlayer = playerSymbolToSet === PLAYERS.PLAYER_X ? PLAYERS.PLAYER_X : PLAYERS.PLAYER_O;
+    
+    if (currentStartingPlayer !== newStartingPlayer) {
+      
+      //globals.appState[STATE_KEYS.STARTING_PLAYER] = newStartingPlayer;
+    }
+
+  }
+
+  function _addPlayerButtonListeners() {
+    const scoreBoard = selectors.scoreBoard;
+    const playerXBtn = selectors.playerXButton;
+    const playerOBtn = selectors.playerOButton;
+
+    scoreBoard.addEventListener("click", (event) => {
+      const clickedElement = event.target;
+      let playerSymbolToSet = null;
+
+      if (clickedElement === playerXBtn) {
+        playerSymbolToSet = PLAYERS.PLAYER_X;
+      } else if (clickedElement === playerOBtn) {
+        playerSymbolToSet = PLAYERS.PLAYER_O;
+      }
+
+      if (playerSymbolToSet && !_isGameInProgress())  {
+        _setStartingPlayer(playerSymbolToSet);
+        return;
+        //_setStartingPlayer(playerSymbolToSet);
+        //resetGameBoard({ resetScore: false });
+      }
+
+      _handlePlayerChange(playerSymbolToSet);
+    });
+  }
+
   function initializeInput() {
     _setOpponentRange();
     _initializeOpponentSettings();
     _namePlayers();
     _addRangeListeners();
+    _addPlayerButtonListeners();
     _addRestartButtonListener();
   }
 

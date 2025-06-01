@@ -146,13 +146,25 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
     makeRestartButtonFilled();
   }
+
+  function _handle2PlayerMode() {
+    _enableBoardInteractions();
+    displayCurrentPlayer();
+    highlightCurrentPlayer();
+  }
     
   function _handleAITurn() {
     if (globals.appState[STATE_KEYS.GAME_OVER]) return; // Don't proceed if game is over
     _disableBoardInteractions();
+    
+    if (globals.appState[STATE_KEYS.OPPONENT_LEVEL] === 3) {
+      _handle2PlayerMode();
+      return;
+    }
     setTimeout(() => {
       _playAI();
     }, INTERACTIONS.AI_THINKING_TIME_MS);
+    
     globals.appState[STATE_KEYS.GAME_IN_PROGRESS] = true;
   }
 

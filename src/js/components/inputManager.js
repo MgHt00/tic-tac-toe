@@ -1,7 +1,7 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { AI_LEVELS, PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
-import { showOpponentChangeAlert, hideOpponentChangeAlert, unBlackoutScreen, updateScoreOnScreen } from "../utils/domHelpers.js";
+import { showConfirmationAlert, hideConfirmationAlert, unBlackoutScreen, updateScoreOnScreen } from "../utils/domHelpers.js";
 
 export function inputManager(resetGameBoard) {
   // Stores the AI level that is currently confirmed and active.
@@ -40,31 +40,31 @@ export function inputManager(resetGameBoard) {
     _updateOpponentLabelFromSlider();
   }
 
-  // Removes listeners from the alert buttons.
-  function _removeOpponentChangeAlertListeners() {
+  // Removes listeners from the confirmation alert buttons.
+  function _removeConfirmationAlertListeners() {
     if (_boundAlertOKHandler) {
-      selectors.opponentAlertOK.removeEventListener('click', _boundAlertOKHandler);
+      selectors.confirmationAlertOK.removeEventListener('click', _boundAlertOKHandler); // Changed selector
       _boundAlertOKHandler = null;
     }
     if (_boundAlertCancelHandler) {
-      selectors.opponentAlertCancel.removeEventListener('click', _boundAlertCancelHandler);
+      selectors.confirmationAlertCancel.removeEventListener('click', _boundAlertCancelHandler); // Changed selector
       _boundAlertCancelHandler = null;
     }
   }
 
-  // Adds listeners to the alert buttons.
+  // Adds listeners to the confirmation alert buttons (specifically for opponent change scenario).
   // newLevelAttempted: The AI level the user tried to select (from slider).
   // levelToRevertTo: The AI level to go back to if cancelled (_confirmedOpponentLevel).
-  function _addOpponentChangeAlertListeners(newLevelAttempted, levelToRevertTo) {
-    _removeOpponentChangeAlertListeners(); // Ensure no duplicate listeners
+  function _addConfirmationAlertListeners(newLevelAttempted, levelToRevertTo) {
+    _removeConfirmationAlertListeners(); // Ensure no duplicate listeners
 
     _boundAlertOKHandler = () => {
       globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newLevelAttempted;
       _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
       resetGameBoard({ resetScore: true });
       updateScoreOnScreen();
-      hideOpponentChangeAlert();
-      _removeOpponentChangeAlertListeners(); // Clean up after action
+      hideConfirmationAlert(); // Use new function name
+      _removeConfirmationAlertListeners(); // Clean up after action
       console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
     };
 
@@ -72,12 +72,12 @@ export function inputManager(resetGameBoard) {
       selectors.AILevelInput.value = levelToRevertTo.toString();
       _updateOpponentLabelFromSlider(); // Update label to match reverted slider
       unBlackoutScreen();
-      hideOpponentChangeAlert();
-      _removeOpponentChangeAlertListeners(); // Clean up after action
+      hideConfirmationAlert(); // Use new function name
+      _removeConfirmationAlertListeners(); // Clean up after action
     };
 
-    selectors.opponentAlertOK.addEventListener('click', _boundAlertOKHandler);
-    selectors.opponentAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); // Changed selector
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); // Changed selector
   }
 
   // Determines if a game is considered "in progress" for the purpose of showing
@@ -107,8 +107,8 @@ export function inputManager(resetGameBoard) {
 
     // Game is in progress. If the level changed, show the alert.
     if (newSelectedLevel !== _confirmedOpponentLevel) { 
-      showOpponentChangeAlert();
-      _addOpponentChangeAlertListeners(newSelectedLevel, _confirmedOpponentLevel);
+      showConfirmationAlert(); // Use new function name
+      _addConfirmationAlertListeners(newSelectedLevel, _confirmedOpponentLevel);
     }
   }
 

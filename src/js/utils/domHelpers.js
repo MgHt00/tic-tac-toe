@@ -80,16 +80,18 @@ export function unBlackoutScreen() {
   _hideLoadingSpinner();
 }
 
-export function showOpponentChangeAlert() {
+// Renamed from showOpponentChangeAlert
+export function showConfirmationAlert() {
   selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
   selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
-  selectors.opponentAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.confirmationAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE); // Changed selector
 }
 
-export function hideOpponentChangeAlert() {
+// Renamed from hideOpponentChangeAlert
+export function hideConfirmationAlert() {
   //selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
   selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
-  selectors.opponentAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.confirmationAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE); // Changed selector
 }
 
 export function displayCurrentPlayer() {

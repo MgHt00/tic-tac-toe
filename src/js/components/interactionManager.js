@@ -1,6 +1,8 @@
 import {
   restoreDefaults,
   updateGameBoardState,
+  getStartingPlayer,
+  setStartingPlayer,
   getCurrentPlayer,
   setCurrentPlayer,
   getGameBoard,
@@ -301,10 +303,15 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   
   function initializeGameInteraction() {
     _addSquareListeners();
-    //resetGameBoard({ resetScore: true });
-    displayCurrentPlayer(getCurrentPlayer()); // Display initial player
-    highlightCurrentPlayer(getCurrentPlayer()); // Highlight initial player
-    if (getCurrentPlayer()) {
+    // Ensure currentPlayer is aligned with the startingPlayer state.
+    // This is especially important on initial load or if resetGameBoard wasn't just called.
+    setCurrentPlayer(getStartingPlayer()); 
+    console.warn(getCurrentPlayer());
+
+    displayCurrentPlayer(getCurrentPlayer()); 
+    highlightCurrentPlayer(getCurrentPlayer()); 
+    // If the current player is O (AI) and it's not 2-player mode, AI makes the first move.
+    if (getCurrentPlayer() === PLAYER_O && getOpponentLevel() < 3) { 
       _handleAITurn();
     }
   }

@@ -39,6 +39,11 @@ export function restoreDefaults({ resetScore = false, resetStartingPlayer = fals
       }
     }
   }
+  // After defaults are restored, if startingPlayer was preserved (not reset to default),
+  // ensure currentPlayer matches the (potentially preserved) startingPlayer.
+  if (!resetStartingPlayer) {
+    globals.appState[STATE_KEYS.CURRENT_PLAYER] = globals.appState[STATE_KEYS.STARTING_PLAYER];
+  }
 }
 
 export function updateGameBoardState(targetElement, player) {

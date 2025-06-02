@@ -11,7 +11,7 @@ import {
 import { AI_LEVELS, PLAYERS } from "../constants/appConstants.js";
 import { showConfirmationAlert, hideConfirmationAlert, unBlackoutScreen, updateScoreOnScreen } from "../utils/domHelpers.js";
 
-export function inputManager(resetGameBoard) {
+export function inputManager(resetGameBoard, initializeGameInteraction) {
   // Stores the AI level that is currently confirmed and active.
   // Used to detect if a change actually occurred and to revert if cancelled.
   let _confirmedOpponentLevel = null;
@@ -161,6 +161,7 @@ export function inputManager(resetGameBoard) {
         setStartingPlayer(newSelectedPlayer);
         _confirmedStartingPlayer = newSelectedPlayer;
         console.info("%cNew starting player: ", "color: yellow;", _confirmedStartingPlayer);
+        initializeGameInteraction();
       }
       return;
     }

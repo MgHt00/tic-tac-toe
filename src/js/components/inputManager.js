@@ -74,7 +74,7 @@ export function inputManager(resetGameBoard) {
     _boundAlertOKHandler = () => {
       setOpponentLevel(newLevelAttempted);
       _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
-      resetGameBoard({ resetScore: true });
+      resetGameBoard({ resetScore: true, resetStartingPlayer: false });
       updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
       hideConfirmationAlert(); 
       _removeConfirmationAlertListeners(); // Clean up after action
@@ -99,16 +99,19 @@ export function inputManager(resetGameBoard) {
     _boundAlertOKHandler = () => {
       setStartingPlayer(newStartingPlayer);
       _confirmedStartingPlayer = newStartingPlayer; // Confirm the new starting player
-      resetGameBoard({ resetScore: true });
+      resetGameBoard({ resetScore: true, resetStartingPlayer: false });
       updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
       hideConfirmationAlert(); 
       _removeConfirmationAlertListeners(); // Clean up after action
+      initializeGameInteraction();
       console.info("%cNew starting player: ", "color: yellow;", _confirmedStartingPlayer);
     }
 
     _boundAlertCancelHandler = () => {
       //selectors.playerXButton.textContent = startingPlayerToRevertTo === PLAYERS.PLAYER_X ? PLAYERS.PLAYER_X : PLAYERS.PLAYER_O;
       // No need to set appState here, just revert the _confirmedStartingPlayer for internal logic if needed, or rely on UI to not change.
+      setStartingPlayer(startingPlayerToRevertTo);
+      _confirmedStartingPlayer = startingPlayerToRevertTo; // Confirm the new starting player
       unBlackoutScreen();
       hideConfirmationAlert();
     };
@@ -181,7 +184,7 @@ export function inputManager(resetGameBoard) {
 
   function _addRestartButtonListener() {
     selectors.restartButton.addEventListener("click", () => {
-      resetGameBoard({ resetScore: false });
+      resetGameBoard({ resetScore: false, resetStartingPlayer: false });
     });
   }
 

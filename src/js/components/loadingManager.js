@@ -15,7 +15,7 @@ export function loadingManager(initializeInput) {
 
   async function preLoad(){
     const _initializeInput = _asyncWrapper(initializeInput);
-    const _restoreDefaults = _asyncWrapper(() => restoreDefaults({ resetScore : true })); // [le004]
+    const _restoreDefaults = _asyncWrapper(() => restoreDefaults({ resetScore : true, resetStartingPlayer: true })); // [le004]
 
     blackoutScreen();
 

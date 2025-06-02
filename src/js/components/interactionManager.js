@@ -63,9 +63,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     return true;
   }
  
-  function resetGameBoard({ resetScore = false }) {
+  function resetGameBoard({ resetScore = false, resetStartingPlayer = false }) {
     blackoutScreen();
-    resetScore === true ? restoreDefaults({ resetScore: true }) : restoreDefaults({}); 
+    restoreDefaults({ resetScore, resetStartingPlayer });
 
     selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
     
@@ -301,9 +301,12 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   
   function initializeGameInteraction() {
     _addSquareListeners();
-    resetGameBoard({ resetScore: true });
+    //resetGameBoard({ resetScore: true });
     displayCurrentPlayer(getCurrentPlayer()); // Display initial player
     highlightCurrentPlayer(getCurrentPlayer()); // Highlight initial player
+    if (getCurrentPlayer()) {
+      _handleAITurn();
+    }
   }
 
   return {

@@ -9,7 +9,7 @@ import { interactionManager } from './components/interactionManager.js';
 const interaction = interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move);
 const { initializeGameInteraction, resetGameBoard } = interaction;
 
-const input = inputManager(resetGameBoard);
+const input = inputManager(resetGameBoard, initializeGameInteraction);
 const { initializeInput } = input;
 
 const load = loadingManager(initializeInput);

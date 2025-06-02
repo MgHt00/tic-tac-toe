@@ -23,38 +23,51 @@ import { PLAYERS, INTERACTIONS, WIN_LINE_DIRECTIONS } from "../constants/appCons
 import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
 import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, removePlayerMarkStyles, blackoutScreen, unBlackoutScreen, updateScoreOnScreen, showWinnerOnScreen, displayCurrentPlayer, highlightCurrentPlayer } from "../utils/domHelpers.js";
-
+/**
+ * Manages all game interactions on the Tic-Tac-Toe board.
+ * This includes handling player moves, AI turns, win/draw conditions, and game resets.
+ * @param {function} getAILevel0Move - Function to get a move for AI level 0.
+ * @param {function} getAILevel1Move - Function to get a move for AI level 1.
+ * @param {function} getAILevel2Move - Function to get a move for AI level 2.
+ * @returns {object} An object containing `initializeGameInteraction` and `resetGameBoard` functions.
+ */
 export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2Move) {
   const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
+  // Fills a square with the player's mark and applies appropriate styling.
   function _fillAndDecorateSquare(targetElement, player) {
     targetElement.textContent = player;
     const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
     targetElement.classList.add(cssClass);
   }
 
+  // Checks if a given square element is already filled with a player's mark.
   function _isSquareFilled(targetElement) {
     return targetElement.textContent !== "";
   }
 
+  // Disables interactions with the Tic-Tac-Toe board.
   function _disableBoardInteractions() {
     if (selectors.TTTBoard) {
       selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
     }
   }
 
+  // Enables interactions with the Tic-Tac-Toe board.
   function _enableBoardInteractions() {
     if (selectors.TTTBoard) {
       selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
     }
   }
 
+  // Switches the current player.
   function _flipPlayer() {
     const newPlayer = getCurrentPlayer() === PLAYER_X ? PLAYER_O : PLAYER_X;
     setCurrentPlayer(newPlayer);
   }
 
+  // Checks if all squares on the board are filled.
   function _areAllSquaresFilled() {
     const squaresNodeList = document.querySelectorAll(_matchingID);
     for (const square of squaresNodeList) {
@@ -65,6 +78,12 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     return true;
   }
  
+  /**
+   * Resets the game board to its initial state.
+   * @param {object} options - Options for the reset.
+   * @param {boolean} [options.resetScore=false] - Whether to reset player scores.
+   * @param {boolean} [options.resetStartingPlayer=false] - Whether to reset the starting player to default.
+   */
   function resetGameBoard({ resetScore = false, resetStartingPlayer = false }) {
     blackoutScreen();
     restoreDefaults({ resetScore, resetStartingPlayer });
@@ -91,6 +110,11 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     console.warn("Game board reset.");
   }
 
+  /**
+   * Applies styling to indicate the winning line on the board.
+   * @param {object} winningCombinationDetails - Details of the winning combination, including key and indices.
+   * @param {string} winningPlayer - The player who won (PLAYER_X or PLAYER_O).
+   */
   function _strikeThroughCells(winningCombinationDetails, winningPlayer) {
     if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
       console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
@@ -136,6 +160,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     });
   }
 
+  // Increments the score for the winning player.
   function _accumulateScore(winningPlayer) {
     if (winningPlayer === PLAYER_X) {
       setPlayerXScore(getPlayerXScore() + 1);
@@ -145,6 +170,11 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
   }
 
+  /**
+   * Handles the game win scenario.
+   * @param {string} winningPlayer - The player who won.
+   * @param {object} winningCombinationDetails - Details of the winning line.
+   */
   function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
     setGameOverState(true);
@@ -157,6 +187,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     makeRestartButtonFilled();
   }
 
+  // Handles the game draw scenario.
   function _handleDraw() { 
     console.info("Game is a draw!");
     _disableBoardInteractions();
@@ -166,12 +197,14 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     makeRestartButtonFilled();
   }
 
+  // Handles UI updates and enables board for 2-player mode turns.
   function _handle2PlayerMode() {
     _enableBoardInteractions();
     displayCurrentPlayer(getCurrentPlayer());
     highlightCurrentPlayer(getCurrentPlayer());
   }
     
+  // Manages the AI's turn, including thinking time and invoking the AI move logic.
   function _handleAITurn() {
     if (isGameOverState()) return; // Don't proceed if game is over
     _disableBoardInteractions();
@@ -187,6 +220,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     setGameInProgressState(true);
   }
 
+  // Executes the AI's move based on the selected difficulty level.
   function _playAI() {
     _enableBoardInteractions();
     let moveCoordinates; // Will be {row, col} or null
@@ -239,6 +273,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     highlightCurrentPlayer(getCurrentPlayer());
   }
 
+  // Handles a click event on a square of the Tic-Tac-Toe board.
   function _handleSquareClick(targetElement) {
     if (isGameOverState()) {
       console.info("Game is already over.");
@@ -278,6 +313,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     _handleAITurn();
   }
   
+  // Adds event listeners to the squares on the Tic-Tac-Toe board for mouseover, mouseout, and click events.
   function _addSquareListeners() {
     const gameBoard = selectors.TTTBoard;
 
@@ -301,6 +337,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     });
   }
   
+  // Initializes the game interactions, sets up event listeners, and handles the initial game state.
   function initializeGameInteraction() {
     _addSquareListeners();
     // Ensure currentPlayer is aligned with the startingPlayer state.

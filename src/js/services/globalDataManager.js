@@ -1,5 +1,5 @@
 import { globals } from "./globals.js";
-import { STATE_KEYS } from "../constants/appConstants.js";
+import { STATE_KEYS, PLAYERS, AI_LEVELS } from "../constants/appConstants.js";
 
 export function restoreDefaults({ resetScore = false }) {
   // Iterate over the keys in globals.defaults to correctly reset globals.appState
@@ -42,4 +42,108 @@ export function updateGameBoardState(targetElement, player) {
   const col = parseInt(targetElement.dataset.col, 10);
 
   globals.appState.gameBoard[row][col] = player;
+}
+
+export function getStartingPlayer() {
+  return globals.appState[STATE_KEYS.STARTING_PLAYER];
+}
+
+export function setStartingPlayer(newPlayer) {
+  if (newPlayer !== PLAYERS.PLAYER_X && newPlayer !== PLAYERS.PLAYER_O) {
+    console.error("Invalid starting player value:", newPlayer);
+    return; // Or throw an error
+  }
+  globals.appState[STATE_KEYS.STARTING_PLAYER] = newPlayer;
+}
+
+export function getCurrentPlayer() {
+  return globals.appState[STATE_KEYS.CURRENT_PLAYER];
+}
+
+export function setCurrentPlayer(newPlayer) {
+  return globals.appState[STATE_KEYS.CURRENT_PLAYER] =  newPlayer;
+}
+
+export function getOpponentLevel() {
+  return globals.appState[STATE_KEYS.OPPONENT_LEVEL];
+}
+
+export function setOpponentLevel(newLevel) {
+  const level = parseInt(newLevel, 10); // Ensure it's a number
+  if (isNaN(level) || AI_LEVELS[level] === undefined) {
+    console.error("Invalid opponent level value:", newLevel);
+    return; // Or throw an error
+  }
+  globals.appState[STATE_KEYS.OPPONENT_LEVEL] = level;
+}
+
+export function isGameInProgressState() {
+  return globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
+}
+
+export function setGameInProgressState(isInProgress) {
+  if (typeof isInProgress !== 'boolean') {
+    console.error("Invalid value for game in progress state:", isInProgress);
+    return;
+  }
+  globals.appState[STATE_KEYS.GAME_IN_PROGRESS] = isInProgress;
+}
+
+export function getGameBoard() {
+  // Return a deep copy to prevent direct modification of the state array from outside
+  // if that's a desired level of encapsulation.
+  // For this project, direct reference might be fine if mutations are controlled.
+  // Let's start with direct reference for simplicity, can be changed if needed.
+  return globals.appState[STATE_KEYS.GAME_BOARD];
+}
+
+export function isGameOverState() {
+  return globals.appState[STATE_KEYS.GAME_OVER];
+}
+
+export function setGameOverState(isOver) {
+  if (typeof isOver !== 'boolean') {
+    console.error("Invalid value for game over state:", isOver);
+    return;
+  }
+  globals.appState[STATE_KEYS.GAME_OVER] = isOver;
+}
+
+export function getWinner() {
+  return globals.appState[STATE_KEYS.WINNER];
+}
+
+export function setWinner(player) {
+  // Allow null, PLAYERS.PLAYER_X, PLAYERS.PLAYER_O, or PLAYERS.PLAYER_DRAW
+  if (player !== null && player !== PLAYERS.PLAYER_X && player !== PLAYERS.PLAYER_O && player !== PLAYERS.PLAYER_DRAW) {
+    console.error("Invalid winner value:", player);
+    return;
+  }
+  globals.appState[STATE_KEYS.WINNER] = player;
+}
+
+export function getPlayerXScore() {
+  return globals.appState[STATE_KEYS.PLAYER_X_SCORE];
+}
+
+export function getPlayerOScore() {
+  return globals.appState[STATE_KEYS.PLAYER_O_SCORE];
+}
+
+export function setPlayerXScore(score) {
+  const newScore = parseInt(score, 10);
+  if (isNaN(newScore) || newScore < 0) {
+    console.error("Invalid Player X score:", score);
+    return;
+  }
+  globals.appState[STATE_KEYS.PLAYER_X_SCORE] = newScore;
+}
+
+export function setPlayerOScore(score) {
+  const newScore = parseInt(score, 10);
+  if (isNaN(newScore) || newScore < 0) {
+    console.error("Invalid Player O score:", score);
+    return;
+  }
+  globals.appState[STATE_KEYS.PLAYER_O_SCORE] = newScore;
 }

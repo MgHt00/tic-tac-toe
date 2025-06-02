@@ -1,6 +1,14 @@
 import { selectors } from "../services/selectors.js";
-import { globals } from "../services/globals.js";
-import { AI_LEVELS, PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
+import {
+  getStartingPlayer,
+  setStartingPlayer,
+  getOpponentLevel,
+  setOpponentLevel,
+  isGameInProgressState,
+  getPlayerXScore,
+  getPlayerOScore,
+} from "../services/globalDataManager.js";
+import { AI_LEVELS, PLAYERS } from "../constants/appConstants.js";
 import { showConfirmationAlert, hideConfirmationAlert, unBlackoutScreen, updateScoreOnScreen } from "../utils/domHelpers.js";
 
 export function inputManager(resetGameBoard) {
@@ -35,14 +43,14 @@ export function inputManager(resetGameBoard) {
 
   // Initializes the opponent level settings from globals.
   function _initializeOpponentSettings() {
-    const initialLevel = globals.appState[STATE_KEYS.OPPONENT_LEVEL];
+    const initialLevel = getOpponentLevel();
     selectors.AILevelInput.value = initialLevel.toString();
     _confirmedOpponentLevel = initialLevel;
     _updateOpponentLabelFromSlider();
   }
 
   function _initializeStartingPlayer() {
-    _confirmedStartingPlayer = globals.appState[STATE_KEYS.STARTING_PLAYER];
+    _confirmedStartingPlayer = getStartingPlayer();
   }
 
   // Removes listeners from the confirmation alert buttons.
@@ -64,10 +72,10 @@ export function inputManager(resetGameBoard) {
     _removeConfirmationAlertListeners(); // Ensure no duplicate listeners
 
     _boundAlertOKHandler = () => {
-      globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newLevelAttempted;
+      setOpponentLevel(newLevelAttempted);
       _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
       resetGameBoard({ resetScore: true });
-      updateScoreOnScreen();
+      updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
       hideConfirmationAlert(); 
       _removeConfirmationAlertListeners(); // Clean up after action
       console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
@@ -89,10 +97,10 @@ export function inputManager(resetGameBoard) {
     _removeConfirmationAlertListeners(); // Ensure no duplicate listeners
 
     _boundAlertOKHandler = () => {
-      globals.appState[STATE_KEYS.STARTING_PLAYER] = newStartingPlayer;
+      setStartingPlayer(newStartingPlayer);
       _confirmedStartingPlayer = newStartingPlayer; // Confirm the new starting player
       resetGameBoard({ resetScore: true });
-      updateScoreOnScreen();
+      updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
       hideConfirmationAlert(); 
       _removeConfirmationAlertListeners(); // Clean up after action
       console.info("%cNew starting player: ", "color: yellow;", _confirmedStartingPlayer);
@@ -100,8 +108,7 @@ export function inputManager(resetGameBoard) {
 
     _boundAlertCancelHandler = () => {
       //selectors.playerXButton.textContent = startingPlayerToRevertTo === PLAYERS.PLAYER_X ? PLAYERS.PLAYER_X : PLAYERS.PLAYER_O;
-      globals.appState[STATE_KEYS.STARTING_PLAYER] = startingPlayerToRevertTo;
-      _confirmedStartingPlayer = startingPlayerToRevertTo; // Confirm the new starting player
+      // No need to set appState here, just revert the _confirmedStartingPlayer for internal logic if needed, or rely on UI to not change.
       unBlackoutScreen();
       hideConfirmationAlert();
     };
@@ -115,8 +122,8 @@ export function inputManager(resetGameBoard) {
   // an alert when changing the AI opponent. This is true if the current board
   // is active OR if there are any accumulated scores from previous games.
   function _isGameInProgress() {
-    const gameInProgress = globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
-    const isScoreZero = globals.appState[STATE_KEYS.PLAYER_X_SCORE] === 0 && globals.appState[STATE_KEYS.PLAYER_O_SCORE] === 0;
+    const gameInProgress = isGameInProgressState();
+    const isScoreZero = getPlayerXScore() === 0 && getPlayerOScore() === 0;
     return gameInProgress || !isScoreZero;
   }
 
@@ -128,7 +135,7 @@ export function inputManager(resetGameBoard) {
       // Game is not in progress. If the level actually changed,
       // update the opponent level in appState and the confirmed level.
       if (newSelectedLevel !== _confirmedOpponentLevel) {
-        globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newSelectedLevel;
+        setOpponentLevel(newSelectedLevel);
         _confirmedOpponentLevel = newSelectedLevel;
         console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
         // No game reset is needed as the game is not currently running.
@@ -148,7 +155,7 @@ export function inputManager(resetGameBoard) {
 
     if (!_isGameInProgress()){
       if (newSelectedPlayer !== _confirmedStartingPlayer) {
-        globals.appState[STATE_KEYS.STARTING_PLAYER] = newSelectedPlayer;
+        setStartingPlayer(newSelectedPlayer);
         _confirmedStartingPlayer = newSelectedPlayer;
         console.info("%cNew starting player: ", "color: yellow;", _confirmedStartingPlayer);
       }

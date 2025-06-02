@@ -186,6 +186,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
   function _addRestartButtonListener() {
     selectors.restartButton.addEventListener("click", () => {
       resetGameBoard({ resetScore: false, resetStartingPlayer: false });
+      initializeGameInteraction();
     });
   }
 

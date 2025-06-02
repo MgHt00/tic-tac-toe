@@ -86,7 +86,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     setTimeout(() => {
       unBlackoutScreen();
-    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    }, INTERACTIONS.GAME_RESET_TIME_MS);
     
     console.warn("Game board reset.");
   }
@@ -306,7 +306,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     // Ensure currentPlayer is aligned with the startingPlayer state.
     // This is especially important on initial load or if resetGameBoard wasn't just called.
     setCurrentPlayer(getStartingPlayer()); 
-    console.warn(getCurrentPlayer());
 
     displayCurrentPlayer(getCurrentPlayer()); 
     highlightCurrentPlayer(getCurrentPlayer()); 

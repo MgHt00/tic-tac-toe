@@ -1,13 +1,26 @@
 import { selectors } from "../services/selectors.js";
-import { globals } from "../services/globals.js";
-import { AI_LEVELS, PLAYERS, STATE_KEYS } from "../constants/appConstants.js";
-import { showOpponentChangeAlert, hideOpponentChangeAlert, unBlackoutScreen, updateScoreOnScreen } from "../utils/domHelpers.js";
+import {
+  getStartingPlayer,
+  setStartingPlayer,
+  getOpponentLevel,
+  setOpponentLevel,
+  isGameInProgressState,
+  getPlayerXScore,
+  getPlayerOScore,
+} from "../services/globalDataManager.js";
+import { AI_LEVELS, PLAYERS } from "../constants/appConstants.js";
+import { showConfirmationAlert, hideConfirmationAlert, unBlackoutScreen, updateScoreOnScreen } from "../utils/domHelpers.js";
 
-export function inputManager(resetGameBoard) {
-  // Stores the AI level that is currently confirmed and active.
-  // Used to detect if a change actually occurred and to revert if cancelled.
-  let _confirmedOpponentLevel = null;
-
+/**
+ * Manages user input for game settings like AI difficulty and starting player,
+ * as well as the restart button functionality.
+ * @param {function} resetGameBoard - Function to reset the game board and state.
+ * @param {function} initializeGameInteraction - Function to initialize or re-initialize game interactions.
+ */
+export function inputManager(resetGameBoard, initializeGameInteraction) {
+  let _confirmedOpponentLevel = null; // Stores the AI level that is currently active.
+  let _confirmedStartingPlayer = null; // Stores the starting player that is currently active.
+  
   // To store references to the event handlers for easy removal.
   let _boundAlertOKHandler = null;
   let _boundAlertCancelHandler = null;
@@ -27,44 +40,51 @@ export function inputManager(resetGameBoard) {
     selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
   }
 
-  // Updates the label based on the current slider value.
+  // Updates the AI difficulty label based on the current slider value.
   function _updateOpponentLabelFromSlider() {
     selectors.AILevelLabel.innerHTML = AI_LEVELS[selectors.AILevelInput.value];
   }
 
-  // Initializes the opponent level settings from globals.
+  // Initializes the opponent level settings from global state on page load.
   function _initializeOpponentSettings() {
-    const initialLevel = globals.appState[STATE_KEYS.OPPONENT_LEVEL];
+    const initialLevel = getOpponentLevel();
     selectors.AILevelInput.value = initialLevel.toString();
     _confirmedOpponentLevel = initialLevel;
     _updateOpponentLabelFromSlider();
   }
 
-  // Removes listeners from the alert buttons.
-  function _removeOpponentChangeAlertListeners() {
+  // Initializes the starting player from global state on page load.
+  function _initializeStartingPlayer() {
+    _confirmedStartingPlayer = getStartingPlayer();
+  }
+
+  // Removes listeners from the confirmation alert buttons.
+  function _removeConfirmationAlertListeners() {
     if (_boundAlertOKHandler) {
-      selectors.opponentAlertOK.removeEventListener('click', _boundAlertOKHandler);
+      selectors.confirmationAlertOK.removeEventListener('click', _boundAlertOKHandler);
       _boundAlertOKHandler = null;
     }
     if (_boundAlertCancelHandler) {
-      selectors.opponentAlertCancel.removeEventListener('click', _boundAlertCancelHandler);
+      selectors.confirmationAlertCancel.removeEventListener('click', _boundAlertCancelHandler);
       _boundAlertCancelHandler = null;
     }
   }
 
-  // Adds listeners to the alert buttons.
-  // newLevelAttempted: The AI level the user tried to select (from slider).
-  // levelToRevertTo: The AI level to go back to if cancelled (_confirmedOpponentLevel).
-  function _addOpponentChangeAlertListeners(newLevelAttempted, levelToRevertTo) {
-    _removeOpponentChangeAlertListeners(); // Ensure no duplicate listeners
+  /**
+   * Adds listeners to the confirmation alert buttons for an opponent level change.
+   * @param {number} newLevelAttempted - The AI level the user tried to select.
+   * @param {number} levelToRevertTo - The AI level to revert to if the change is cancelled.
+   */
+  function _addOpponentChangeConfirmationListeners(newLevelAttempted, levelToRevertTo) {
+    _removeConfirmationAlertListeners(); // Ensure no duplicate listeners
 
     _boundAlertOKHandler = () => {
-      globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newLevelAttempted;
+      setOpponentLevel(newLevelAttempted);
       _confirmedOpponentLevel = newLevelAttempted; // Confirm the new level
-      resetGameBoard({ resetScore: true });
-      updateScoreOnScreen();
-      hideOpponentChangeAlert();
-      _removeOpponentChangeAlertListeners(); // Clean up after action
+      resetGameBoard({ resetScore: true, resetStartingPlayer: false });
+      updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
+      hideConfirmationAlert(); 
+      _removeConfirmationAlertListeners(); // Clean up after action
       console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
     };
 
@@ -72,24 +92,56 @@ export function inputManager(resetGameBoard) {
       selectors.AILevelInput.value = levelToRevertTo.toString();
       _updateOpponentLabelFromSlider(); // Update label to match reverted slider
       unBlackoutScreen();
-      hideOpponentChangeAlert();
-      _removeOpponentChangeAlertListeners(); // Clean up after action
+      hideConfirmationAlert(); 
+      _removeConfirmationAlertListeners(); // Clean up after action
     };
 
-    selectors.opponentAlertOK.addEventListener('click', _boundAlertOKHandler);
-    selectors.opponentAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); 
   }
 
-  // Determines if a game is considered "in progress" for the purpose of showing
-  // an alert when changing the AI opponent. This is true if the current board
-  // is active OR if there are any accumulated scores from previous games.
+  /**
+   * Adds listeners to the confirmation alert buttons for a starting player change.
+   * @param {string} newStartingPlayer - The player symbol (X or O) the user tried to select.
+   * @param {string} startingPlayerToRevertTo - The player symbol to revert to if the change is cancelled.
+   */
+  function _addStartingPlayerChangeConfirmationListeners(newStartingPlayer, startingPlayerToRevertTo) {
+    _removeConfirmationAlertListeners(); // Ensure no duplicate listeners
+
+    _boundAlertOKHandler = () => {
+      setStartingPlayer(newStartingPlayer);
+      _confirmedStartingPlayer = newStartingPlayer; // Confirm the new starting player
+      resetGameBoard({ resetScore: true, resetStartingPlayer: false });
+      updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
+      hideConfirmationAlert(); 
+      _removeConfirmationAlertListeners(); // Clean up after action
+      initializeGameInteraction();
+      console.info("%cNew starting player: ", "color: yellow;", _confirmedStartingPlayer);
+    }
+
+    _boundAlertCancelHandler = () => {
+      // Revert the starting player in the global state and the internal confirmed state.
+      setStartingPlayer(startingPlayerToRevertTo);
+      _confirmedStartingPlayer = startingPlayerToRevertTo; // Confirm the new starting player
+      unBlackoutScreen();
+      hideConfirmationAlert();
+    };
+
+    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); 
+
+  }
+
+  // Determines if a game is considered "in progress".
+  // A game is in progress if the board is not empty or if scores are not zero.
   function _isGameInProgress() {
-    const gameInProgress = globals.appState[STATE_KEYS.GAME_IN_PROGRESS];
-    const isScoreZero = globals.appState[STATE_KEYS.PLAYER_X_SCORE] === 0 && globals.appState[STATE_KEYS.PLAYER_O_SCORE] === 0;
+    const gameInProgress = isGameInProgressState();
+    const isScoreZero = getPlayerXScore() === 0 && getPlayerOScore() === 0;
     return gameInProgress || !isScoreZero;
   }
 
   // Handles the 'change' event on the AI level slider (fires when user releases mouse).
+  // This is the final confirmation of the AI level selection.
   function _handleSliderChange() {
     const newSelectedLevel = parseInt(selectors.AILevelInput.value, 10);
 
@@ -97,7 +149,7 @@ export function inputManager(resetGameBoard) {
       // Game is not in progress. If the level actually changed,
       // update the opponent level in appState and the confirmed level.
       if (newSelectedLevel !== _confirmedOpponentLevel) {
-        globals.appState[STATE_KEYS.OPPONENT_LEVEL] = newSelectedLevel;
+        setOpponentLevel(newSelectedLevel);
         _confirmedOpponentLevel = newSelectedLevel;
         console.info("%cNew opponent Level: ", "color: yellow;", _confirmedOpponentLevel);
         // No game reset is needed as the game is not currently running.
@@ -107,33 +159,81 @@ export function inputManager(resetGameBoard) {
 
     // Game is in progress. If the level changed, show the alert.
     if (newSelectedLevel !== _confirmedOpponentLevel) { 
-      showOpponentChangeAlert();
-      _addOpponentChangeAlertListeners(newSelectedLevel, _confirmedOpponentLevel);
+      showConfirmationAlert(); 
+      _addOpponentChangeConfirmationListeners(newSelectedLevel, _confirmedOpponentLevel);
+    }
+  }
+
+  //Handles the click event on player selection buttons (X or O).
+  function _handlePlayerChange(playerSymbolToSet) {
+    const newSelectedPlayer = playerSymbolToSet === PLAYERS.PLAYER_X ? PLAYERS.PLAYER_X : PLAYERS.PLAYER_O;
+
+    if (!_isGameInProgress()){
+      if (newSelectedPlayer !== _confirmedStartingPlayer) {
+        setStartingPlayer(newSelectedPlayer);
+        _confirmedStartingPlayer = newSelectedPlayer;
+        console.info("%cNew starting player: ", "color: yellow;", _confirmedStartingPlayer);
+        initializeGameInteraction();
+      }
+      return;
+    }
+
+    if (newSelectedPlayer !== _confirmedStartingPlayer) { 
+      showConfirmationAlert();
+      _addStartingPlayerChangeConfirmationListeners(newSelectedPlayer, _confirmedStartingPlayer)
     }
   }
 
   // Handles the 'input' event on the AI level slider (fires continuously while dragging).
+  // Used to update the difficulty label in real-time.
   function _handleSliderInput() {
     _updateOpponentLabelFromSlider(); // Update label live
   }
 
-  // Adds listeners for the AI level range slider.
+  // Adds event listeners for the AI level range slider.
   function _addRangeListeners() {
     selectors.AILevelInput.addEventListener('input', _handleSliderInput);
     selectors.AILevelInput.addEventListener('change', _handleSliderChange);
   }
 
+  // Adds event listener for the restart button.
   function _addRestartButtonListener() {
     selectors.restartButton.addEventListener("click", () => {
-      resetGameBoard({ resetScore: false });
+      resetGameBoard({ resetScore: false, resetStartingPlayer: false });
+      initializeGameInteraction();
     });
   }
 
+  // Adds event listeners for the player selection buttons (X and O).
+  function _addPlayerButtonListeners() {
+    const scoreBoard = selectors.scoreBoard;
+    const playerXBtn = selectors.playerXButton;
+    const playerOBtn = selectors.playerOButton;
+
+    scoreBoard.addEventListener("click", (event) => {
+      const clickedElement = event.target;
+      let playerSymbolToSet = null;
+
+      if (clickedElement === playerXBtn) {
+        playerSymbolToSet = PLAYERS.PLAYER_X;
+      } else if (clickedElement === playerOBtn) {
+        playerSymbolToSet = PLAYERS.PLAYER_O;
+      }
+
+      if (playerSymbolToSet)  {
+       _handlePlayerChange(playerSymbolToSet);
+      }      
+    });
+  }
+
+  // Initializes all input-related settings and event listeners.
   function initializeInput() {
     _setOpponentRange();
     _initializeOpponentSettings();
+    _initializeStartingPlayer();
     _namePlayers();
     _addRangeListeners();
+    _addPlayerButtonListeners();
     _addRestartButtonListener();
   }
 

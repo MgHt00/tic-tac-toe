@@ -1,8 +1,7 @@
-import { globals } from "../services/globals.js";
 import { selectors } from "../services/selectors.js";
 
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
-import { STATE_KEYS, PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 
 const { PLAYER_X, PLAYER_O } = PLAYERS;
 
@@ -15,12 +14,10 @@ function _hideOverlay() {
 }
 
 export function _showLoadingSpinner() {
-  //selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
   selectors.loadingWrapper.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
 }
 
 export function _hideLoadingSpinner() {
-  //selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
   selectors.loadingWrapper.classList.add(CSS_CLASS_NAMES.INVISIBLE);
 }
 
@@ -37,7 +34,7 @@ export function showRecentMove(targetElement) {
   addHighlight(targetElement);
   setTimeout(() => {
       removeHighlight(targetElement);
-    }, 1000);
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
 }
 
 export function makeRestartButtonFilled() {
@@ -80,34 +77,32 @@ export function unBlackoutScreen() {
   _hideLoadingSpinner();
 }
 
-export function showOpponentChangeAlert() {
+export function showConfirmationAlert() {
   selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
   selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
-  selectors.opponentAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.confirmationAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE); 
 }
 
-export function hideOpponentChangeAlert() {
-  //selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+export function hideConfirmationAlert() {
   selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
-  selectors.opponentAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.confirmationAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE); 
 }
 
-export function displayCurrentPlayer() {
-  selectors.gameInfo.textContent = `${globals.appState[STATE_KEYS.CURRENT_PLAYER]} ${INTERACTIONS.PLAYER_TURN}`;
+export function displayCurrentPlayer(currentPlayer) {
+  selectors.gameInfo.textContent = `${currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
 }
 
-export function highlightCurrentPlayer() {
-  const currentPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
-  const otherPlayerButton = globals.appState[STATE_KEYS.CURRENT_PLAYER] === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
+export function highlightCurrentPlayer(currentPlayer) {
+  const currentPlayerButton = currentPlayer === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
+  const otherPlayerButton = currentPlayer === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
 
   removeHighlight(otherPlayerButton);
   addHighlight(currentPlayerButton);
 }
 
-
-export function updateScoreOnScreen() {
-  selectors.playerXScore.textContent = globals.appState[STATE_KEYS.PLAYER_X_SCORE];
-  selectors.playerOScore.textContent = globals.appState[STATE_KEYS.PLAYER_O_SCORE];
+export function updateScoreOnScreen(playerXScore, playerOScore) {
+  selectors.playerXScore.textContent = playerXScore;
+  selectors.playerOScore.textContent = playerOScore;
 }
 
 export function showWinnerOnScreen(winningPlayer) {

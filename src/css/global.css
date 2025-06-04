@@ -107,7 +107,7 @@ div[id|="game"] {
 }
 
 #loading-wrapper,
-#opponent-alert-wrapper {
+#confirmation-alert-wrapper {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -118,11 +118,11 @@ div[id|="game"] {
   display: flex; /* Use Flexbox to align columns side by side */
 }
 
-#opponent-alert-wrapper {
+#confirmation-alert-wrapper {
   font-size: var(--alert-wrapper-font-size, 18px);
 }
 
-#opponent-alert-buttons * {
+#confirmation-alert-buttons * {
   margin: 10px 9px 0 0;
 }
 
@@ -199,6 +199,11 @@ div[id|="game"] {
 
 #game-scores > div[id|="player"].highlight {
   box-shadow: var(--current-player-box-shadow);
+}
+
+#game-scores > #player-x,
+#game-scores > #player-o {
+  cursor: pointer;
 }
 
 #game-scores > .player-x,

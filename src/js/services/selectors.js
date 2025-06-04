@@ -4,6 +4,7 @@ export const selectors = {
   AILevelLabel : document.querySelector(`#${ELEMENT_IDS.AI_LEVEL_LABEL}`),
   AILevelInput: document.querySelector(`#${ELEMENT_IDS.AI_LEVEL_INPUT}`),
 
+  scoreBoard: document.querySelector(`#${ELEMENT_IDS.SCORE_BOARD}`),
   playerXButton: document.querySelector(`#${ELEMENT_IDS.PLAYER_X_BUTTON}`),
   playerOButton: document.querySelector(`#${ELEMENT_IDS.PLAYER_O_BUTTON}`),
   playerXScore: document.querySelector(`#${ELEMENT_IDS.PLAYER_X_SCORE}`),
@@ -28,8 +29,8 @@ export const selectors = {
   overlay: document.querySelector(`#${ELEMENT_IDS.OVERLAY}`),
   loadingWrapper: document.querySelector(`#${ELEMENT_IDS.LOADING_WRAPPER}`),
 
-  opponentAlert: document.querySelector(`#${ELEMENT_IDS.OPPONENT_ALERT_WRAPPER}`),
-  opponentAlertOK: document.querySelector(`#${ELEMENT_IDS.OPPONENT_ALERT_OK}`),
-  opponentAlertCancel: document.querySelector(`#${ELEMENT_IDS.OPPONENT_ALERT_CANCEL}`),
+  confirmationAlert: document.querySelector(`#${ELEMENT_IDS.CONFIRMATION_ALERT_WRAPPER}`),
+  confirmationAlertOK: document.querySelector(`#${ELEMENT_IDS.CONFIRMATION_ALERT_OK}`),
+  confirmationAlertCancel: document.querySelector(`#${ELEMENT_IDS.CONFIRMATION_ALERT_CANCEL}`),
 
 };

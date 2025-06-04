@@ -15,7 +15,7 @@ export function loadingManager(initializeInput) {
 
   async function preLoad(){
     const _initializeInput = _asyncWrapper(initializeInput);
-    const _restoreDefaults = _asyncWrapper(() => restoreDefaults({ resetScore : true })); // [le004]
+    const _restoreDefaults = _asyncWrapper(() => restoreDefaults({ resetScore : true, resetStartingPlayer: true })); // [le004]
 
     blackoutScreen();
 
@@ -25,12 +25,10 @@ export function loadingManager(initializeInput) {
 
       // Wait for all fonts specified in CSS to be loaded and applied by the browser.
       await document.fonts.ready;
-      //console.log("All fonts have been loaded and applied."); // For debugging
     } catch (error) {
       console.error("Error during application pre-load phase:", error);
     } finally {
-      // Always attempt to hide the loading screen.
-      unBlackoutScreen();
+      unBlackoutScreen(); // hide the loading screen
     }
   }
 

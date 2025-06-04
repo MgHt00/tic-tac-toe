@@ -120,8 +120,8 @@ export function getWinner() {
 }
 
 export function setWinner(player) {
-  // Allow PLAYERS.PLAYER_X, PLAYERS.PLAYER_O
-  if (player !== PLAYERS.PLAYER_X && player !== PLAYERS.PLAYER_O) {
+  // Allow PLAYERS.PLAYER_X, PLAYERS.PLAYER_O, PLAYER.DRAW
+  if (player !== PLAYERS.PLAYER_X && player !== PLAYERS.PLAYER_O && player !== PLAYERS.PLAYER_DRAW) {
     console.error("Invalid winner value:", player);
     return;
   }

@@ -1,10 +1,13 @@
 :root {
-  --body-background: #1B2235;
+  --body-background: rgb(27, 34, 53);
   --body-height: 100vh;
   --body-width: 230px;
   --body-margin: 0 auto;
-  --overlay-background: rgba(0, 0, 0, 0.8);
-  --text-color: snow;
+  /*--overlay-background: rgba(0, 0, 0, 0.98);*/
+  --overlay-background: rgba(27, 34, 53, 0.98);
+  --text-color: rgb(255, 250, 250);
+  --player-X-color: var(--text-color);
+  --player-O-color: rgb(85, 193, 251);
   --block-background: rgba(83, 83, 83, 0.285);
   --block-box-shadow: 0px 0px 15px 3px rgba(0, 0, 0, 0.4);
   --block-border-radius: 10px;
@@ -12,7 +15,7 @@
   --block-margin: 0 0 10px;
   --player-background: rgba(83, 83, 83, 0.7);
   --player-box-shadow: 0px 0px 15px 2px rgba(0, 0, 0, 0.3);
-  --current-player-box-shadow: 0px 0px 7px 2px rgba(255, 255, 255, 0.38);
+  --current-player-box-shadow: 0px 0px 6px 2px rgba(255, 255, 255, 0.58);
   --player-border-radius: 3px;
   --player-padding: 3px;
   --player-width: 30px;
@@ -20,6 +23,8 @@
   --winning-strike-color: snow;
   --strike-line-thickness: 2px;
   --board-disabled-opacity: 0.3;
+  --loading-wrapper-font-size: 24px;
+  --alert-wrapper-font-size: 16px;
 }
 
 /*@layer debug {
@@ -101,57 +106,88 @@ div[id|="game"] {
   z-index: 10; /* Ensure it's on top */
 }
 
-#loading-wrapper {
+#loading-wrapper,
+#confirmation-alert-wrapper {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%); /* Center the text */
   color: var(--text-color, snow);
-  font-size: 24px;
+  font-size: var(--loading-wrapper-font-size, 24px);
   z-index: 11; /* Ensure it's above the overlay */
   display: flex; /* Use Flexbox to align columns side by side */
 }
 
-.winning-square-row, /* Row */
-.winning-square-column, /* Column */
-.winning-square-diagonal-main, /* Top-left to bottom-right */
-.winning-square-diagonal-secondary { /* Top-right to bottom-left */
+#confirmation-alert-wrapper {
+  font-size: var(--alert-wrapper-font-size, 18px);
+}
+
+#confirmation-alert-buttons * {
+  margin: 10px 9px 0 0;
+}
+
+.x-winning-square-row, /* Row */
+.x-winning-square-column, /* Column */
+.x-winning-square-diagonal-main, /* Top-left to bottom-right */
+.x-winning-square-diagonal-secondary, /* Top-right to bottom-left */
+.o-winning-square-row, /* Row */
+.o-winning-square-column, /* Column */
+.o-winning-square-diagonal-main, /* Top-left to bottom-right */
+.o-winning-square-diagonal-secondary { /* Top-right to bottom-left */
   position: relative;
   overflow: visible;
 }
 
-.winning-square-row::before,
-.winning-square-column::before,
-.winning-square-diagonal-main::before,
-.winning-square-diagonal-secondary::before {
+/* X winning strike-through */
+.x-winning-square-row::before,
+.x-winning-square-column::before,
+.x-winning-square-diagonal-main::before,
+.x-winning-square-diagonal-secondary::before {
   content: "";
   position: absolute;
   top: 50%;
   left: 0;
   height: var(--strike-line-thickness, 2px);
-  background-color: var(--winning-strike-color, snow);
+  background-color: var(--player-X-color, snow);
+}
+
+/* O winning strike-through */
+.o-winning-square-row::before,
+.o-winning-square-column::before,
+.o-winning-square-diagonal-main::before,
+.o-winning-square-diagonal-secondary::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: var(--strike-line-thickness, 2px);
+  background-color: var(--player-O-color, snow);
 }
 
 /* For left to right strike-through: */
-.winning-square-row::before {
+.x-winning-square-row::before,
+.o-winning-square-row::before {
   width: 105%;
   transform: translateY(-50%);
 }
 
 /* For top to bottom strike-through: */
-.winning-square-column::before {
+.x-winning-square-column::before,
+.o-winning-square-column::before {
   width: 105%;
   transform: translateX(-3%) rotate(90deg);
 }
 
 /* For 45deg diagonal strike-through: */
-.winning-square-diagonal-main::before {
+.x-winning-square-diagonal-main::before,
+.o-winning-square-diagonal-main::before {
   width: 145%;
   transform: translate(-10%, -10%) rotate(45deg);
 }
 
 /* For -45deg diagonal strike-through: */
-.winning-square-diagonal-secondary::before {
+.x-winning-square-diagonal-secondary::before,
+.o-winning-square-diagonal-secondary::before {
   width: 145%;
   height: 2px;
   transform: translate(-15%, -15%) rotate(-45deg);
@@ -163,6 +199,21 @@ div[id|="game"] {
 
 #game-scores > div[id|="player"].highlight {
   box-shadow: var(--current-player-box-shadow);
+}
+
+#game-scores > #player-x,
+#game-scores > #player-o {
+  cursor: pointer;
+}
+
+#game-scores > .player-x,
+#tic-tac-toe-board > .player-x {
+  color: var(--player-X-color, snow);
+}
+
+#game-scores > .player-o,
+#tic-tac-toe-board > .player-o {
+  color: var(--player-O-color, snow);
 }
 
 .board-disabled {

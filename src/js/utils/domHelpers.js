@@ -1,5 +1,25 @@
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 import { selectors } from "../services/selectors.js";
+
+import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+
+const { PLAYER_X, PLAYER_O } = PLAYERS;
+
+function _showOverlay() {
+  selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+}
+
+function _hideOverlay() {
+  selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+}
+
+export function _showLoadingSpinner() {
+  selectors.loadingWrapper.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+}
+
+export function _hideLoadingSpinner() {
+  selectors.loadingWrapper.classList.add(CSS_CLASS_NAMES.INVISIBLE);
+}
 
 export function addHighlight(targetElement) {
   targetElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
@@ -14,7 +34,7 @@ export function showRecentMove(targetElement) {
   addHighlight(targetElement);
   setTimeout(() => {
       removeHighlight(targetElement);
-    }, 1000);
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
 }
 
 export function makeRestartButtonFilled() {
@@ -29,9 +49,62 @@ export function makeRestartButtonOutlined() {
 
 export function removeWinningLineStyles(squareElement) {
   squareElement.classList.remove(
-    CSS_CLASS_NAMES.WIN_ROW,
-    CSS_CLASS_NAMES.WIN_COLUMN,
-    CSS_CLASS_NAMES.WIN_DIAGONAL_MAIN,
-    CSS_CLASS_NAMES.WIN_DIAGONAL_SECONDARY
+    CSS_CLASS_NAMES.X_WIN_ROW,
+    CSS_CLASS_NAMES.X_WIN_COLUMN,
+    CSS_CLASS_NAMES.X_WIN_DIAGONAL_MAIN,
+    CSS_CLASS_NAMES.X_WIN_DIAGONAL_SECONDARY,
+    CSS_CLASS_NAMES.O_WIN_ROW,
+    CSS_CLASS_NAMES.O_WIN_COLUMN,
+    CSS_CLASS_NAMES.O_WIN_DIAGONAL_MAIN,
+    CSS_CLASS_NAMES.O_WIN_DIAGONAL_SECONDARY
   );
+}
+
+export function removePlayerMarkStyles(squareElement) {
+  squareElement.classList.remove(
+    CSS_CLASS_NAMES.PLAYER_X_COLOR, 
+    CSS_CLASS_NAMES.PLAYER_O_COLOR  
+  );
+}
+
+export function blackoutScreen() {
+  _showOverlay();
+  _showLoadingSpinner();
+}
+
+export function unBlackoutScreen() {
+  _hideOverlay();
+  _hideLoadingSpinner();
+}
+
+export function showConfirmationAlert() {
+  selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
+  selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+  selectors.confirmationAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE); 
+}
+
+export function hideConfirmationAlert() {
+  selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+  selectors.confirmationAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE); 
+}
+
+export function displayCurrentPlayer(currentPlayer) {
+  selectors.gameInfo.textContent = `${currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
+}
+
+export function highlightCurrentPlayer(currentPlayer) {
+  const currentPlayerButton = currentPlayer === PLAYER_X ? selectors.playerXButton : selectors.playerOButton;
+  const otherPlayerButton = currentPlayer === PLAYER_X ? selectors.playerOButton : selectors.playerXButton;
+
+  removeHighlight(otherPlayerButton);
+  addHighlight(currentPlayerButton);
+}
+
+export function updateScoreOnScreen(playerXScore, playerOScore) {
+  selectors.playerXScore.textContent = playerXScore;
+  selectors.playerOScore.textContent = playerOScore;
+}
+
+export function showWinnerOnScreen(winningPlayer) {
+  selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
 }

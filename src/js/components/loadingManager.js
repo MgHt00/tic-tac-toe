@@ -1,16 +1,7 @@
-import { selectors } from "../services/selectors.js";
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { restoreDefaults } from "../services/globalDataManager.js";
+import { unBlackoutScreen, blackoutScreen } from "../utils/domHelpers.js";
 
-export function loadingManager(initializeInput, restoreDefaults) {
-  function _showLoadingSpinner() {
-    selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
-    selectors.loadingWrapper.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
-  }
-
-  function _hideLoadingSpinner() {
-    selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
-    selectors.loadingWrapper.classList.add(CSS_CLASS_NAMES.INVISIBLE);
-  }
+export function loadingManager(initializeInput) {
 
   function _asyncWrapper(fn) {
     return async (...args) => {
@@ -22,20 +13,26 @@ export function loadingManager(initializeInput, restoreDefaults) {
     };
   }
 
-
   async function preLoad(){
     const _initializeInput = _asyncWrapper(initializeInput);
-    const _restoreDefaults = _asyncWrapper(restoreDefaults);
+    const _restoreDefaults = _asyncWrapper(() => restoreDefaults({ resetScore : true, resetStartingPlayer: true })); // [le004]
 
-    _showLoadingSpinner();
-    await _restoreDefaults();
-    await _initializeInput();
-    //await new Promise(resolve => setTimeout(resolve, 1000)); // Add a 1-second delay (use this if necessary)
-    _hideLoadingSpinner();
+    blackoutScreen();
+
+    try {
+      await _restoreDefaults();
+      await _initializeInput();
+
+      // Wait for all fonts specified in CSS to be loaded and applied by the browser.
+      await document.fonts.ready;
+    } catch (error) {
+      console.error("Error during application pre-load phase:", error);
+    } finally {
+      unBlackoutScreen(); // hide the loading screen
+    }
   }
 
   return {
     preLoad,
   };
-
 }

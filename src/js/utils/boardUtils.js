@@ -11,7 +11,7 @@ export function getEmptySquares(gameBoard) {
   return emptySquares;
 }
 
-
+// Defines all possible winning combinations on a 3x3 Tic-Tac-Toe board.
 const _winningCombinationsByBoard = {
   row1: [0, 1, 2],
   row2: [3, 4, 5],
@@ -23,6 +23,7 @@ const _winningCombinationsByBoard = {
   diag2: [2, 4, 6],
 };
 
+/* Checks if the current player has won the game. */
 export function checkWinCondition(gameBoard, currentPlayer) {
   const _flatGameBoard = gameBoard.flat();
   for (const key in _winningCombinationsByBoard) {
@@ -34,10 +35,12 @@ export function checkWinCondition(gameBoard, currentPlayer) {
   return false; // No win after checking all combinations
 }
 
+/* Creates a deep copy of the game board. */
 export function deepCopyGameBoard(gameBoard) {
   return gameBoard.map(innerRow => [...innerRow]);
 }
 
+/* Creates a virtual game board with a hypothetical move applied. */
 export function constructVirtualGameBoard(gameBoard, row, col, player) {
   // 1. Deep clone gameBoard
   const virtualGameBoard = deepCopyGameBoard(gameBoard);

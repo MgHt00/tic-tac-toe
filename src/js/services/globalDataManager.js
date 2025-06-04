@@ -82,7 +82,7 @@ export function setOpponentLevel(newLevel) {
   const level = parseInt(newLevel, 10); // Ensure it's a number
   if (isNaN(level) || AI_LEVELS[level] === undefined) {
     console.error("Invalid opponent level value:", newLevel);
-    return; // Or throw an error
+    return; 
   }
   globals.appState[STATE_KEYS.OPPONENT_LEVEL] = level;
 }
@@ -100,10 +100,6 @@ export function setGameInProgressState(isInProgress) {
 }
 
 export function getGameBoard() {
-  // Return a deep copy to prevent direct modification of the state array from outside
-  // if that's a desired level of encapsulation.
-  // For this project, direct reference might be fine if mutations are controlled.
-  // Let's start with direct reference for simplicity, can be changed if needed.
   return globals.appState[STATE_KEYS.GAME_BOARD];
 }
 
@@ -124,8 +120,8 @@ export function getWinner() {
 }
 
 export function setWinner(player) {
-  // Allow null, PLAYERS.PLAYER_X, PLAYERS.PLAYER_O, or PLAYERS.PLAYER_DRAW
-  if (player !== null && player !== PLAYERS.PLAYER_X && player !== PLAYERS.PLAYER_O && player !== PLAYERS.PLAYER_DRAW) {
+  // Allow PLAYERS.PLAYER_X, PLAYERS.PLAYER_O
+  if (player !== PLAYERS.PLAYER_X && player !== PLAYERS.PLAYER_O) {
     console.error("Invalid winner value:", player);
     return;
   }

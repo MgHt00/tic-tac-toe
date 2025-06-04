@@ -16,13 +16,25 @@ import {
   getPlayerXScore,
   setPlayerXScore,
   getPlayerOScore,
-  setPlayerOScore
-} from "../services/globalDataManager.js";
+  setPlayerOScore } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
 import { PLAYERS, INTERACTIONS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
-import { addHighlight, removeHighlight, makeRestartButtonFilled, makeRestartButtonOutlined, removeWinningLineStyles, removePlayerMarkStyles, blackoutScreen, unBlackoutScreen, updateScoreOnScreen, showWinnerOnScreen, displayCurrentPlayer, highlightCurrentPlayer } from "../utils/domHelpers.js";
+import { 
+  addHighlight, 
+  removeHighlight, 
+  makeRestartButtonFilled, 
+  makeRestartButtonOutlined, 
+  removeWinningLineStyles, 
+  removePlayerMarkStyles, 
+  blackoutScreen, 
+  unBlackoutScreen, 
+  updateScoreOnScreen, 
+  showWinnerOnScreen, 
+  displayCurrentPlayer, 
+  highlightCurrentPlayer } from "../utils/domHelpers.js";
+  
 /**
  * Manages all game interactions on the Tic-Tac-Toe board.
  * This includes handling player moves, AI turns, win/draw conditions, and game resets.

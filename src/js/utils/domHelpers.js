@@ -14,12 +14,10 @@ function _hideOverlay() {
 }
 
 export function _showLoadingSpinner() {
-  //selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
   selectors.loadingWrapper.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
 }
 
 export function _hideLoadingSpinner() {
-  //selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
   selectors.loadingWrapper.classList.add(CSS_CLASS_NAMES.INVISIBLE);
 }
 
@@ -36,7 +34,7 @@ export function showRecentMove(targetElement) {
   addHighlight(targetElement);
   setTimeout(() => {
       removeHighlight(targetElement);
-    }, 1000);
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
 }
 
 export function makeRestartButtonFilled() {
@@ -79,18 +77,15 @@ export function unBlackoutScreen() {
   _hideLoadingSpinner();
 }
 
-// Renamed from showOpponentChangeAlert
 export function showConfirmationAlert() {
   selectors.overlay.classList.remove(CSS_CLASS_NAMES.INVISIBLE);
   selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
-  selectors.confirmationAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE); // Changed selector
+  selectors.confirmationAlert.classList.remove(CSS_CLASS_NAMES.INVISIBLE); 
 }
 
-// Renamed from hideOpponentChangeAlert
 export function hideConfirmationAlert() {
-  //selectors.overlay.classList.add(CSS_CLASS_NAMES.INVISIBLE);
   selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
-  selectors.confirmationAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE); // Changed selector
+  selectors.confirmationAlert.classList.add(CSS_CLASS_NAMES.INVISIBLE); 
 }
 
 export function displayCurrentPlayer(currentPlayer) {
@@ -104,7 +99,6 @@ export function highlightCurrentPlayer(currentPlayer) {
   removeHighlight(otherPlayerButton);
   addHighlight(currentPlayerButton);
 }
-
 
 export function updateScoreOnScreen(playerXScore, playerOScore) {
   selectors.playerXScore.textContent = playerXScore;

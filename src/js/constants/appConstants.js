@@ -17,6 +17,11 @@ export const STATE_KEYS = {
   PLAYER_O_SCORE: 'playerOScore',
 };
 
+export const GAME = {
+  TIC_TAC_TOE: "Tic-Tac-Toe",
+  CONNECT_FOUR: "Connect Four",
+}
+
 export const PLAYERS = {
   INITIAL_MESSAGE: 'Start game or select player',
   PLAYER_X: 'X',

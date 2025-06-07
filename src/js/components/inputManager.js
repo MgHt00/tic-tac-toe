@@ -226,6 +226,24 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     });
   }
 
+  function _addGameSwitchButtonListeners() {
+    const gameSwitchWrapper = selectors.gameSwitchWrapper;
+    const switchTTTButton = selectors.switchTTTButton;
+    const switchCFButton = selectors.switchCFButton;
+
+    gameSwitchWrapper.addEventListener("click", (event) => {
+      const clickedElement = event.target;
+
+      if (clickedElement === switchTTTButton) {
+        /*selectors.gameTitle.textContent = "Tic-Tac-Toe";*/
+        console.info(clickedElement);
+      } else if (clickedElement === switchCFButton) {
+        /*selectors.gameTitle.textContent = "Connect Four";*/
+        console.info(clickedElement);
+      }
+    });
+  }
+
   // Initializes all input-related settings and event listeners.
   function initializeInput() {
     _setOpponentRange();
@@ -235,6 +253,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     _addRangeListeners();
     _addPlayerButtonListeners();
     _addRestartButtonListener();
+    _addGameSwitchButtonListeners()
   }
 
   return {

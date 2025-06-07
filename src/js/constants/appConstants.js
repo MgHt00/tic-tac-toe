@@ -20,6 +20,8 @@ export const STATE_KEYS = {
 export const GAME = {
   TIC_TAC_TOE: "Tic-Tac-Toe",
   CONNECT_FOUR: "Connect Four",
+  TIC_TAC_TOE_TITLE_ELEMENT: "<h3>Tic Tac Toe</h3>", 
+  CONNECT_FOUR_TITLE_ELEMENT: "<h3>Connect Four</h3>", 
 }
 
 export const PLAYERS = {

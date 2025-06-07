@@ -3,10 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>tic-tac-toe with the minimax algorithm</title>
+  <title>tic-tac-toe and connect-four with the minimax algorithm</title>
   <link rel="stylesheet" href="src/css/index.css">
 </head>
 <body>
+  <div id="game-switch-wrapper" class="position-absolute top-0 end-0 d-flex justify-content-center">
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+      <label class="btn btn-sm btn-outline-secondary" for="btnradio1">Tic Tac Toe</label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+      <label class="btn btn-sm btn-outline-secondary" for="btnradio2">Connect Four</label>
+    </div>
+  </div>
   <div id="main-container" class="d-flex flex-column justify-content-center align-items-center h-100">
     <div id="game-title" class="w-100 p-1"><h3>Tic Tac Toe</h3></div>
     <div id="game-settings" class="w-100">

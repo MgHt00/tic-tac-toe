@@ -121,3 +121,18 @@ export function changeGameTitle(game) {
   const htmlElement = game === GAME.TIC_TAC_TOE ? GAME.TIC_TAC_TOE_TITLE_ELEMENT : GAME.CONNECT_FOUR_TITLE_ELEMENT;
   selectors.gameTitle.innerHTML = htmlElement;
 }
+
+export function checkGameRadioInput(game) {
+  if (game !== GAME.TIC_TAC_TOE && game !== GAME.CONNECT_FOUR) {
+    console.error("Invalid game:", game);
+    return;
+  }
+  if (game === GAME.TIC_TAC_TOE) {
+    selectors.radioTTT.checked = true;
+    selectors.radioTTT.focus();
+
+  } else if (game === GAME.CONNECT_FOUR) {
+    selectors.radioCF.checked = true; 
+    selectors.radioCF.focus();
+  } 
+}

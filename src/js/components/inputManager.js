@@ -16,7 +16,8 @@ import {
   hideConfirmationAlert, 
   unBlackoutScreen, 
   updateScoreOnScreen,
-  changeGameTitle } from "../utils/domHelpers.js";
+  changeGameTitle,
+  checkGameRadioInput } from "../utils/domHelpers.js";
 import { globals } from "../services/globals.js";
 
 /**
@@ -183,6 +184,8 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
 
     _boundAlertCancelHandler = () => {
       setCurrentGame(gameToRevertTo);
+      checkGameRadioInput(gameToRevertTo);
+      _confirmedGame = gameToRevertTo;
       unBlackoutScreen();
       hideConfirmationAlert();
     };

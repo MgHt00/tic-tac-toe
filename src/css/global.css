@@ -7,6 +7,8 @@
   --tic-tac-toe-square-size: 60px;
   --connect-four-board-size: 210px;
   --connect-four-square-size: 30px;
+  --connect-four-circle-size: 20px;
+  --connect-four-circle-border-radius: 50%;
   /*--overlay-background: rgba(0, 0, 0, 0.98);*/
   --overlay-background: rgba(27, 34, 53, 0.98);
   --text-color: rgb(255, 250, 250);
@@ -235,13 +237,29 @@ div[id|="game"] {
 }
 
 #game-scores > .player-x,
-#tic-tac-toe-board > .player-x {
+#tic-tac-toe-board > .player-x,
+#connect-four-board > .player-x {
   color: var(--player-X-color, snow);
 }
 
 #game-scores > .player-o,
-#tic-tac-toe-board > .player-o {
-  color: var(--player-O-color, snow);
+#tic-tac-toe-board > .player-o
+#connect-four-board > .player-o {
+  color: var(--player-O-color, rgb(85, 193, 251));
+}
+
+#connect-four-board [class|='player'] {
+  width: var(--connect-four-circle-size, 20px);
+  height: var(--connect-four-circle-size, 20px);
+  border-radius: var(--connect-four-circle-border-radius, 50%);
+}
+
+#connect-four-board .player-x {
+  background-color: var(--player-X-color, snow);
+}
+
+#connect-four-board .player-o {
+  background-color: var(--player-O-color, rgb(85, 193, 251));
 }
 
 .board-disabled {

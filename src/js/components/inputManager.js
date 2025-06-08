@@ -46,7 +46,6 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
 
   // Sets the display names for the player X and player O buttons.
   function _namePlayers(currentGame) {
-    console.info("_namePlayers:", currentGame);
     if (currentGame === GAME.TIC_TAC_TOE) {
       selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
       selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
@@ -56,8 +55,6 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     } else {
       console.error("Invalid game:", currentGame);
     }
-    //selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
-    //selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
   }
 
   // Updates the AI difficulty label based on the current slider value.

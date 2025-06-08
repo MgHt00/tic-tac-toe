@@ -1,6 +1,6 @@
 export const CSS_CLASS_NAMES = {
   INVISIBLE : "invisible",
-  HIDDEN: "visually-hidden",
+  VISUALLY_HIDDEN: "visually-hidden",
   HIGHLIGHT : "highlight",
 
   // IMPORTANT: The keys for winning line classes (e.g., X_WIN_ROW, O_WIN_COLUMN)

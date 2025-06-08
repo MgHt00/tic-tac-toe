@@ -17,6 +17,7 @@ export const selectors = {
   gameWrapper: document.querySelector(`#${ELEMENT_IDS.GAME_WRAPPER}`),
   
   TTTBoard: document.querySelector(`#${ELEMENT_IDS.TTT_BOARD}`),
+  CFBoard: document.querySelector(`#${ELEMENT_IDS.CF_BOARD}`),
   /*Square_1_1: document.querySelector(`#${ELEMENT_IDS.SQUARE_1_1}`),
   Square_1_2: document.querySelector(`#${ELEMENT_IDS.SQUARE_1_2}`),
   Square_1_3: document.querySelector(`#${ELEMENT_IDS.SQUARE_1_3}`),

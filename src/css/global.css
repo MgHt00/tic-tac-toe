@@ -248,16 +248,19 @@ div[id|="game"] {
   color: var(--player-O-color, rgb(85, 193, 251));
 }
 
+#game-scores > div > div[class|='player'],
 #connect-four-board [class|='player'] {
   width: var(--connect-four-circle-size, 20px);
   height: var(--connect-four-circle-size, 20px);
   border-radius: var(--connect-four-circle-border-radius, 50%);
 }
 
+#game-scores > div > .player-x,
 #connect-four-board .player-x {
   background-color: var(--player-X-color, snow);
 }
 
+#game-scores > div > .player-o,
 #connect-four-board .player-o {
   background-color: var(--player-O-color, rgb(85, 193, 251));
 }

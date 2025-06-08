@@ -17,6 +17,7 @@ import {
   unBlackoutScreen, 
   updateScoreOnScreen,
   changeGameTitle } from "../utils/domHelpers.js";
+import { globals } from "../services/globals.js";
 
 /**
  * Manages user input for game settings like AI difficulty and starting player,
@@ -44,9 +45,19 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
   }
 
   // Sets the display names for the player X and player O buttons.
-  function _namePlayers() {
-    selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
-    selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
+  function _namePlayers(currentGame) {
+    console.info("_namePlayers:", currentGame);
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
+      selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
+    } else if (currentGame === GAME.CONNECT_FOUR) {
+      selectors.playerXButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_X;
+      selectors.playerOButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_O;
+    } else {
+      console.error("Invalid game:", currentGame);
+    }
+    //selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
+    //selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
   }
 
   // Updates the AI difficulty label based on the current slider value.
@@ -247,9 +258,11 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
 
     if (!_isGameInProgress()){
       if(newSelectedGame !== _confirmedGame) {
+        setCurrentGame(newSelectedGame);
         _confirmedGame = newSelectedGame;
         console.info("%cNew Game: ", "color: orange;", _confirmedGame);
         changeGameTitle(newSelectedGame);
+        _namePlayers(globals.appState.currentGame);
       }
       return;
     }
@@ -325,7 +338,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     _initializeCurrentGame();
     _initializeOpponentSettings();
     _initializeStartingPlayer();
-    _namePlayers();
+    _namePlayers(globals.appState.currentGame);
     _addRangeListeners();
     _addPlayerButtonListeners();
     _addRestartButtonListener();

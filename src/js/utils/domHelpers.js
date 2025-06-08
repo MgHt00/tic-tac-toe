@@ -1,7 +1,8 @@
 import { selectors } from "../services/selectors.js";
 
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
-import { GAME, PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+import { GAME, PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
+import { globals } from "../services/globals.js";
 
 const { PLAYER_X, PLAYER_O } = PLAYERS;
 
@@ -89,7 +90,9 @@ export function hideConfirmationAlert() {
 }
 
 export function displayCurrentPlayer(currentPlayer) {
-  selectors.gameInfo.textContent = `${currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
+  if (globals.appState[STATE_KEYS.GAME_IN_PROGRESS]) { // shows default message if the game is new
+      selectors.gameInfo.textContent = `${currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
+  }
 }
 
 export function highlightCurrentPlayer(currentPlayer) {

@@ -6,6 +6,7 @@ export const AI_LEVELS = {
 };
 
 export const STATE_KEYS = {
+  CURRENT_GAME: 'currentGame',
   STARTING_PLAYER: 'startingPlayer',
   CURRENT_PLAYER: 'currentPlayer',
   OPPONENT_LEVEL: 'opponentLevel',

@@ -22,6 +22,10 @@ export const PLAYERS = {
   PLAYER_X: 'X',
   PLAYER_O: 'O',
   PLAYER_DRAW: 'draw',
+  CONNECT_FOUR_PLAYER_X_ID: 'White',
+  CONNECT_FOUR_PLAYER_O_ID: 'Blue',
+  CONNECT_FOUR_PLAYER_X: '<div class="player-x"></div>',
+  CONNECT_FOUR_PLAYER_O: '<div class="player-o"></div>',
 };
 
 export const INTERACTIONS = {

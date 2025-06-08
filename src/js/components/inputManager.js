@@ -1,5 +1,7 @@
 import { selectors } from "../services/selectors.js";
 import {
+  getCurrentGame,
+  setCurrentGame,
   getStartingPlayer,
   setStartingPlayer,
   getOpponentLevel,
@@ -50,6 +52,11 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
   // Updates the AI difficulty label based on the current slider value.
   function _updateOpponentLabelFromSlider() {
     selectors.AILevelLabel.innerHTML = AI_LEVELS[selectors.AILevelInput.value];
+  }
+
+  // Initializes the current Game from global state on page load.
+  function _initializeCurrentGame() {
+    _confirmedGame = getCurrentGame();
   }
 
   // Initializes the opponent level settings from global state on page load.
@@ -156,8 +163,31 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     document.addEventListener('keydown', _boundEscHandler);
   }
 
-  function _addGameChangeConfirmationListeners(newGame, gameToRevertTo) {
-    
+  function _addGameChangeConfirmationListeners(newSelectedGame, gameToRevertTo) {
+    _removeConfirmationAlertListeners();
+
+    _boundAlertOKHandler = () => {
+      setCurrentGame(newSelectedGame);
+      _confirmedGame = newSelectedGame;
+      console.info("%cNew Game: ", "color: orange;", _confirmedGame);
+      // and upcoming procedures
+    };
+
+    _boundAlertCancelHandler = () => {
+      setCurrentGame(gameToRevertTo);
+      unBlackoutScreen();
+      hideConfirmationAlert();
+    };
+
+    _boundEscHandler = (event) => {
+      if (event.key === 'Escape') {
+        _boundAlertCancelHandler();
+      }
+    };
+
+    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+    document.addEventListener('keydown', _boundEscHandler);
   }
 
   // Determines if a game is considered "in progress".
@@ -230,7 +260,6 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     }
   }
   
-
   // Handles the 'input' event on the AI level slider (fires continuously while dragging).
   // Used to update the difficulty label in real-time.
   function _handleSliderInput() {
@@ -293,6 +322,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
   // Initializes all input-related settings and event listeners.
   function initializeInput() {
     _setOpponentRange();
+    _initializeCurrentGame();
     _initializeOpponentSettings();
     _initializeStartingPlayer();
     _namePlayers();

@@ -1,5 +1,7 @@
 import { selectors } from "../services/selectors.js";
 import {
+  getCurrentGame,
+  setCurrentGame,
   getStartingPlayer,
   setStartingPlayer,
   getOpponentLevel,
@@ -8,8 +10,13 @@ import {
   getPlayerXScore,
   getPlayerOScore,
 } from "../services/globalDataManager.js";
-import { AI_LEVELS, PLAYERS } from "../constants/appConstants.js";
-import { showConfirmationAlert, hideConfirmationAlert, unBlackoutScreen, updateScoreOnScreen } from "../utils/domHelpers.js";
+import { AI_LEVELS, GAME, PLAYERS } from "../constants/appConstants.js";
+import { 
+  showConfirmationAlert, 
+  hideConfirmationAlert, 
+  unBlackoutScreen, 
+  updateScoreOnScreen,
+  changeGameTitle } from "../utils/domHelpers.js";
 
 /**
  * Manages user input for game settings like AI difficulty and starting player,
@@ -20,10 +27,12 @@ import { showConfirmationAlert, hideConfirmationAlert, unBlackoutScreen, updateS
 export function inputManager(resetGameBoard, initializeGameInteraction) {
   let _confirmedOpponentLevel = null; // Stores the AI level that is currently active.
   let _confirmedStartingPlayer = null; // Stores the starting player that is currently active.
+  let _confirmedGame = null; // Stores the game that is currently active.
   
   // To store references to the event handlers for easy removal.
   let _boundAlertOKHandler = null;
   let _boundAlertCancelHandler = null;
+  let _boundEscHandler = null;
 
   // Sets the min and max attributes for the AI difficulty range input based on available AI_LEVELS.
   function _setOpponentRange() {
@@ -43,6 +52,11 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
   // Updates the AI difficulty label based on the current slider value.
   function _updateOpponentLabelFromSlider() {
     selectors.AILevelLabel.innerHTML = AI_LEVELS[selectors.AILevelInput.value];
+  }
+
+  // Initializes the current Game from global state on page load.
+  function _initializeCurrentGame() {
+    _confirmedGame = getCurrentGame();
   }
 
   // Initializes the opponent level settings from global state on page load.
@@ -67,6 +81,10 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     if (_boundAlertCancelHandler) {
       selectors.confirmationAlertCancel.removeEventListener('click', _boundAlertCancelHandler);
       _boundAlertCancelHandler = null;
+    }
+    if (_boundEscHandler) {
+      document.removeEventListener('keydown', _boundEscHandler);
+      _boundEscHandler = null;
     }
   }
 
@@ -96,8 +114,15 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
       _removeConfirmationAlertListeners(); // Clean up after action
     };
 
+    _boundEscHandler = (event) => {
+      if (event.key === 'Escape') {
+        _boundAlertCancelHandler();
+      }
+    };
+
     selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
-    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+    document.addEventListener('keydown', _boundEscHandler);
   }
 
   /**
@@ -127,9 +152,42 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
       hideConfirmationAlert();
     };
 
-    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
-    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); 
+     _boundEscHandler = (event) => {
+      if (event.key === 'Escape') {
+        _boundAlertCancelHandler();
+      }
+    };
 
+    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+    document.addEventListener('keydown', _boundEscHandler);
+  }
+
+  function _addGameChangeConfirmationListeners(newSelectedGame, gameToRevertTo) {
+    _removeConfirmationAlertListeners();
+
+    _boundAlertOKHandler = () => {
+      setCurrentGame(newSelectedGame);
+      _confirmedGame = newSelectedGame;
+      console.info("%cNew Game: ", "color: orange;", _confirmedGame);
+      // and upcoming procedures
+    };
+
+    _boundAlertCancelHandler = () => {
+      setCurrentGame(gameToRevertTo);
+      unBlackoutScreen();
+      hideConfirmationAlert();
+    };
+
+    _boundEscHandler = (event) => {
+      if (event.key === 'Escape') {
+        _boundAlertCancelHandler();
+      }
+    };
+
+    selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+    document.addEventListener('keydown', _boundEscHandler);
   }
 
   // Determines if a game is considered "in progress".
@@ -184,6 +242,24 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     }
   }
 
+  function _handleGameChange(gameToSet) {
+    const newSelectedGame = gameToSet === GAME.TIC_TAC_TOE ? GAME.TIC_TAC_TOE : GAME.CONNECT_FOUR;
+
+    if (!_isGameInProgress()){
+      if(newSelectedGame !== _confirmedGame) {
+        _confirmedGame = newSelectedGame;
+        console.info("%cNew Game: ", "color: orange;", _confirmedGame);
+        changeGameTitle(newSelectedGame);
+      }
+      return;
+    }
+
+    if (newSelectedGame !== _confirmedGame) {
+      showConfirmationAlert();
+      _addGameChangeConfirmationListeners(newSelectedGame, _confirmedGame);
+    }
+  }
+  
   // Handles the 'input' event on the AI level slider (fires continuously while dragging).
   // Used to update the difficulty label in real-time.
   function _handleSliderInput() {
@@ -226,15 +302,34 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     });
   }
 
+  function _addGameSwitchButtonListeners() {
+    const gameSwitchWrapper = selectors.gameSwitchWrapper;
+    const switchTTTButton = selectors.switchTTTButton;
+    const switchCFButton = selectors.switchCFButton;
+
+    gameSwitchWrapper.addEventListener("click", (event) => {
+      const clickedElement = event.target;
+
+      if (clickedElement === switchTTTButton) {
+        _handleGameChange(GAME.TIC_TAC_TOE);
+        
+      } else if (clickedElement === switchCFButton) {
+        _handleGameChange(GAME.CONNECT_FOUR);
+      }
+    });
+  }
+
   // Initializes all input-related settings and event listeners.
   function initializeInput() {
     _setOpponentRange();
+    _initializeCurrentGame();
     _initializeOpponentSettings();
     _initializeStartingPlayer();
     _namePlayers();
     _addRangeListeners();
     _addPlayerButtonListeners();
     _addRestartButtonListener();
+    _addGameSwitchButtonListeners()
   }
 
   return {

@@ -1,5 +1,5 @@
 import { globals } from "./globals.js";
-import { STATE_KEYS, PLAYERS, AI_LEVELS } from "../constants/appConstants.js";
+import { STATE_KEYS, PLAYERS, AI_LEVELS, GAME } from "../constants/appConstants.js";
 
 export function restoreDefaults({ resetScore = false, resetStartingPlayer = false }) {
   // Iterate over the keys in globals.defaults to correctly reset globals.appState
@@ -152,4 +152,16 @@ export function setPlayerOScore(score) {
     return;
   }
   globals.appState[STATE_KEYS.PLAYER_O_SCORE] = newScore;
+}
+
+export function getCurrentGame() {
+  return globals.appState[STATE_KEYS.CURRENT_GAME];
+}
+
+export function setCurrentGame(game) {
+  if (game !== GAME.TIC_TAC_TOE && game !== GAME.CONNECT_FOUR) {
+    console.error("Invalid game value:", game);
+    return;
+  }
+  globals.appState[STATE_KEYS.CURRENT_GAME] = game;
 }

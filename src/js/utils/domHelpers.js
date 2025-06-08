@@ -1,7 +1,7 @@
 import { selectors } from "../services/selectors.js";
 
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
-import { PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+import { GAME, PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
 
 const { PLAYER_X, PLAYER_O } = PLAYERS;
 
@@ -107,4 +107,14 @@ export function updateScoreOnScreen(playerXScore, playerOScore) {
 
 export function showWinnerOnScreen(winningPlayer) {
   selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
+}
+
+export function changeGameTitle(game) {
+  if (game !== GAME.TIC_TAC_TOE && game !== GAME.CONNECT_FOUR) {
+    console.error("Invalid game:", game);
+    return;
+  }
+
+  const htmlElement = game === GAME.TIC_TAC_TOE ? GAME.TIC_TAC_TOE_TITLE_ELEMENT : GAME.CONNECT_FOUR_TITLE_ELEMENT;
+  selectors.gameTitle.innerHTML = htmlElement;
 }

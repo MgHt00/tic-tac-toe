@@ -1,4 +1,8 @@
 export const ELEMENT_IDS = {
+  GAME_SWITCH_WRAPPER: "game-switch-wrapper",
+
+  GAME_TITLE: "game-title",
+
   AI_LEVEL_LABEL: "game-settings-difficulty-value",
   AI_LEVEL_INPUT: "game-settings-difficulty-range",
 
@@ -12,7 +16,8 @@ export const ELEMENT_IDS = {
   GAME_WRAPPER: "game-wrapper",
   
   TTT_BOARD: "tic-tac-toe-board",
-  SQUARE_1_1: "square-1-1",
+  CF_BOARD: "connect-four-board",
+/*  SQUARE_1_1: "square-1-1",
   SQUARE_1_2: "square-1-2",
   SQUARE_1_3: "square-1-3",
   SQUARE_2_1: "square-2-1",
@@ -21,8 +26,10 @@ export const ELEMENT_IDS = {
   SQUARE_3_1: "square-3-1",
   SQUARE_3_2: "square-3-2",
   SQUARE_3_3: "square-3-3",
-
+*/
   RESTART_BUTTON: "restart-button",
+  SWITCH_TTT_BUTTON: "switch-tic-tac-toe-button",
+  SWITCH_CF_BUTTON: "switch-connect-four-button",
 
   OVERLAY: "overlay",
   LOADING_WRAPPER: "loading-wrapper",

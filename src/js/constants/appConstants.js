@@ -6,6 +6,7 @@ export const AI_LEVELS = {
 };
 
 export const STATE_KEYS = {
+  CURRENT_GAME: 'currentGame',
   STARTING_PLAYER: 'startingPlayer',
   CURRENT_PLAYER: 'currentPlayer',
   OPPONENT_LEVEL: 'opponentLevel',
@@ -16,6 +17,13 @@ export const STATE_KEYS = {
   PLAYER_X_SCORE: 'playerXScore',
   PLAYER_O_SCORE: 'playerOScore',
 };
+
+export const GAME = {
+  TIC_TAC_TOE: "Tic-Tac-Toe",
+  CONNECT_FOUR: "Connect Four",
+  TIC_TAC_TOE_TITLE_ELEMENT: "<h3>Tic Tac Toe</h3>", 
+  CONNECT_FOUR_TITLE_ELEMENT: "<h3>Connect Four</h3>", 
+}
 
 export const PLAYERS = {
   INITIAL_MESSAGE: 'Start game or select player',

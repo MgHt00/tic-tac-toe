@@ -243,7 +243,7 @@ div[id|="game"] {
 }
 
 #game-scores > .player-o,
-#tic-tac-toe-board > .player-o
+#tic-tac-toe-board > .player-o,
 #connect-four-board > .player-o {
   color: var(--player-O-color, rgb(85, 193, 251));
 }

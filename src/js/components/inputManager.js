@@ -30,6 +30,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
   // To store references to the event handlers for easy removal.
   let _boundAlertOKHandler = null;
   let _boundAlertCancelHandler = null;
+  let _boundEscHandler = null;
 
   // Sets the min and max attributes for the AI difficulty range input based on available AI_LEVELS.
   function _setOpponentRange() {
@@ -74,6 +75,10 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
       selectors.confirmationAlertCancel.removeEventListener('click', _boundAlertCancelHandler);
       _boundAlertCancelHandler = null;
     }
+    if (_boundEscHandler) {
+      document.removeEventListener('keydown', _boundEscHandler);
+      _boundEscHandler = null;
+    }
   }
 
   /**
@@ -102,8 +107,15 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
       _removeConfirmationAlertListeners(); // Clean up after action
     };
 
+    _boundEscHandler = (event) => {
+      if (event.key === 'Escape') {
+        _boundAlertCancelHandler();
+      }
+    };
+
     selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
-    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+    document.addEventListener('keydown', _boundEscHandler);
   }
 
   /**
@@ -133,8 +145,15 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
       hideConfirmationAlert();
     };
 
+     _boundEscHandler = (event) => {
+      if (event.key === 'Escape') {
+        _boundAlertCancelHandler();
+      }
+    };
+
     selectors.confirmationAlertOK.addEventListener('click', _boundAlertOKHandler); 
-    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler); 
+    selectors.confirmationAlertCancel.addEventListener('click', _boundAlertCancelHandler);
+    document.addEventListener('keydown', _boundEscHandler);
   }
 
   function _addGameChangeConfirmationListeners(newGame, gameToRevertTo) {

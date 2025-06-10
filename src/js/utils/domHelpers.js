@@ -166,3 +166,23 @@ export function convertPlayerBoxToSquare() {
   selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
   selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
 }
+
+export function showConnectFourBoar() {
+  selectors.CFBoard.classList.remove(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
+  selectors.CFBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+}
+
+export function hideConnectFourBoard() {
+  selectors.CFBoard.classList.add(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
+  selectors.CFBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+}
+
+export function showTTTBoard() {
+  selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
+  selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+}
+
+export function hideTTTBoard() {
+  selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
+  selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+}

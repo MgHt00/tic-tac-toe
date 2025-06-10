@@ -40,6 +40,10 @@ import {
   namePlayers,
   convertPlayerBoxToCircle,
   convertPlayerBoxToSquare,
+  hideConnectFourBoard,
+  showConnectFourBoar,
+  showTTTBoard,
+  hideTTTBoard,
   } from "../utils/domHelpers.js";
   
 /**
@@ -402,9 +406,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     blackoutScreen();
     changeGameTitle(connectFour);
-    //removeHighlight([selectors.playerXButton, selectors.playerOButton]);
     convertPlayerBoxToCircle();
     namePlayers(connectFour);
+    hideTTTBoard();
+    showConnectFourBoar();
 
     setTimeout(() => {
       unBlackoutScreen();

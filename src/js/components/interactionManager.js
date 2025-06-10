@@ -61,17 +61,35 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     return targetElement.textContent !== "";
   }
 
-  // Disables interactions with the Tic-Tac-Toe board.
+  // Disables interactions with the Tic-Tac-Toe and Connect Four board.
   function _disableBoardInteractions() {
-    if (selectors.TTTBoard) {
+    const currentGame = getCurrentGame();
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      if (selectors.TTTBoard) {
       selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+    }
+    } else if (currentGame === GAME.CONNECT_FOUR) {
+      if (selectors.CFBoard) {
+        selectors.CFBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+      }
+    } else {
+      console.error("Invalid game:", currentGame);
     }
   }
 
-  // Enables interactions with the Tic-Tac-Toe board.
+  // Enables interactions with the Tic-Tac-Toe and Connect Four board.
   function _enableBoardInteractions() {
-    if (selectors.TTTBoard) {
+    const currentGame = getCurrentGame();
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      if (selectors.TTTBoard) {
       selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+    }
+    } else if (currentGame === GAME.CONNECT_FOUR) {
+      if (selectors.CFBoard) {
+        selectors.CFBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+      }
+    } else {
+      console.error("Invalid game:", currentGame);
     }
   }
 

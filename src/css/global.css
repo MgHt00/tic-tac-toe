@@ -75,9 +75,16 @@ div[id|="game"] {
 #game-scores > div:not([id*='-score']) {
   background-color: var(--player-background, none);
   border-radius: var(--player-border-radius, 10px);
+  /*border-radius: var(--connect-four-circle-border-radius, 50%);*/
   box-shadow: var(--player-box-shadow, none);
   width: var(--player-width, 30px);
+  height: var(--player-width, 30px);
   text-align: center;
+}
+
+#game-scores > div.convert-to-circle {
+  border-radius: var(--connect-four-circle-border-radius, 50%);
+  box-shadow: none;
 }
 
 #game-wrapper {

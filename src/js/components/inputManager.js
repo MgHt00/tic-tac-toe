@@ -17,7 +17,8 @@ import {
   unBlackoutScreen, 
   updateScoreOnScreen,
   changeGameTitle,
-  checkGameRadioInput } from "../utils/domHelpers.js";
+  checkGameRadioInput,
+  namePlayers, } from "../utils/domHelpers.js";
 import { globals } from "../services/globals.js";
 
 /**
@@ -43,19 +44,6 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     
     selectors.AILevelInput.setAttribute('min', minRange.toString());
     selectors.AILevelInput.setAttribute('max', maxRange.toString());
-  }
-
-  // Sets the display names for the player X and player O buttons.
-  function _namePlayers(currentGame) {
-    if (currentGame === GAME.TIC_TAC_TOE) {
-      selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
-      selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
-    } else if (currentGame === GAME.CONNECT_FOUR) {
-      selectors.playerXButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_X;
-      selectors.playerOButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_O;
-    } else {
-      console.error("Invalid game:", currentGame);
-    }
   }
 
   // Updates the AI difficulty label based on the current slider value.
@@ -178,8 +166,12 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     _boundAlertOKHandler = () => {
       setCurrentGame(newSelectedGame);
       _confirmedGame = newSelectedGame;
+      resetGameBoard({ resetScore: true });
+      updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
+      hideConfirmationAlert(); 
+      _removeConfirmationAlertListeners(); // Clean up after action
+      initializeGameInteraction();
       console.info("%cNew Game: ", "color: orange;", _confirmedGame);
-      // and upcoming procedures
     };
 
     _boundAlertCancelHandler = () => {
@@ -261,8 +253,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
         setCurrentGame(newSelectedGame);
         _confirmedGame = newSelectedGame;
         console.info("%cNew Game: ", "color: orange;", _confirmedGame);
-        changeGameTitle(newSelectedGame);
-        _namePlayers(globals.appState.currentGame);
+        initializeGameInteraction();
       }
       return;
     }
@@ -338,7 +329,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     _initializeCurrentGame();
     _initializeOpponentSettings();
     _initializeStartingPlayer();
-    _namePlayers(globals.appState.currentGame);
+    namePlayers(getCurrentGame());
     _addRangeListeners();
     _addPlayerButtonListeners();
     _addRestartButtonListener();

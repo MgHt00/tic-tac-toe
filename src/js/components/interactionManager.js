@@ -35,7 +35,12 @@ import {
   updateScoreOnScreen, 
   showWinnerOnScreen, 
   displayCurrentPlayer, 
-  highlightCurrentPlayer } from "../utils/domHelpers.js";
+  highlightCurrentPlayer,
+  changeGameTitle,
+  namePlayers,
+  convertPlayerBoxToCircle,
+  convertPlayerBoxToSquare,
+  } from "../utils/domHelpers.js";
   
 /**
  * Manages all game interactions on the Tic-Tac-Toe board.
@@ -391,21 +396,51 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       }
     });
   }
+
+  function _enableConnectFour() {
+    const connectFour = GAME.CONNECT_FOUR;
+
+    blackoutScreen();
+    changeGameTitle(connectFour);
+    //removeHighlight([selectors.playerXButton, selectors.playerOButton]);
+    convertPlayerBoxToCircle();
+    namePlayers(connectFour);
+
+    setTimeout(() => {
+      unBlackoutScreen();
+    }, INTERACTIONS.GAME_CHANGE_TIME_MS);
+  }
   
   // Initializes the game interactions, sets up event listeners, and handles the initial game state.
   function initializeGameInteraction() {
-    _addSquareListeners();
-    // Ensure currentPlayer is aligned with the startingPlayer state.
-    // This is especially important on initial load or if resetGameBoard wasn't just called.
-    setCurrentGame(getCurrentGame());
-    setCurrentPlayer(getStartingPlayer()); 
+    const gameToPlay = getCurrentGame();
+    const startingPlayer = getStartingPlayer();
+    const opponentLevel = getOpponentLevel();
 
-    displayCurrentPlayer(getCurrentPlayer()); 
-    highlightCurrentPlayer(getCurrentPlayer()); 
-    // If the current player is O (AI) and it's not 2-player mode, AI makes the first move.
-    if (getCurrentPlayer() === PLAYER_O && getOpponentLevel() < 3) { 
-      _handleAITurn();
+    // Ensure startingPlayer and gameToPlay is aligned with the starting state.
+    // This is especially important on initial load or if resetGameBoard wasn't just called.
+    setCurrentGame(gameToPlay);
+    setCurrentPlayer(startingPlayer); 
+
+    if (gameToPlay === GAME.CONNECT_FOUR) {
+      //_disableTTT();
+      _enableConnectFour();
+    } 
+    
+    else if (gameToPlay === GAME.TIC_TAC_TOE) {
+      _addSquareListeners();
+      displayCurrentPlayer(getCurrentPlayer()); 
+      highlightCurrentPlayer(getCurrentPlayer()); 
+      // If the current player is O (AI) and it's not 2-player mode, AI makes the first move.
+      if (getCurrentPlayer() === PLAYER_O && opponentLevel < 3) { 
+        _handleAITurn();
+      }
+    } 
+    
+    else {
+      console.error("Unknown game type in initializeGameInteraction:", gameToPlay);
     }
+
   }
 
   return {

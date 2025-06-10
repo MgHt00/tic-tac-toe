@@ -26,8 +26,15 @@ export function addHighlight(targetElement) {
   targetElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
 }
 
-export function removeHighlight(targetElement) {
+/*export function removeHighlight(targetElement) {
   targetElement.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
+}*/
+
+export function removeHighlight(targetElements) {
+  targetElements = Array.isArray(targetElements) ? targetElements : [targetElements];
+  targetElements.forEach(element => {
+    element.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
+  });
 }
 
 export function showRecentMove(targetElement) {
@@ -135,4 +142,27 @@ export function checkGameRadioInput(game) {
     selectors.radioCF.checked = true; 
     selectors.radioCF.focus();
   } 
+}
+
+// Sets the display names for the player X and player O buttons.
+export function namePlayers(currentGame) {
+  if (currentGame === GAME.TIC_TAC_TOE) {
+    selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
+    selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
+  } else if (currentGame === GAME.CONNECT_FOUR) {
+    selectors.playerXButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_X;
+    selectors.playerOButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_O;
+  } else {
+    console.error("Invalid game:", currentGame);
+  }
+}
+
+export function convertPlayerBoxToCircle() {
+  selectors.playerXButton.classList.add(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
+  selectors.playerOButton.classList.add(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
+}
+
+export function convertPlayerBoxToSquare() {
+  selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
+  selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
 }

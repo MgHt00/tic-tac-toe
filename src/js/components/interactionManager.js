@@ -1,6 +1,8 @@
 import {
   restoreDefaults,
   updateGameBoardState,
+  getCurrentGame,
+  setCurrentGame,
   getStartingPlayer,
   setStartingPlayer,
   getCurrentPlayer,
@@ -18,7 +20,7 @@ import {
   getPlayerOScore,
   setPlayerOScore } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
-import { PLAYERS, INTERACTIONS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
+import { PLAYERS, INTERACTIONS, GAME, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
 import { 
@@ -215,21 +217,44 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     displayCurrentPlayer(getCurrentPlayer());
     highlightCurrentPlayer(getCurrentPlayer());
   }
+
+  function _handleConnectFourAITurn() {
+    console.log("Connect Four AI is thinking...");
+    // Example: _enableConnectFourBoardInteractions(); // (Needs to be created)
+    // Example: const move = getConnectFourAIMove(getConnectFourGameBoard(), getCurrentPlayer(), ...);
+    // Example: if (move) { _applyConnectFourMove(move, getCurrentPlayer()); ... } // (Needs to be created)
+    // Example: _checkConnectFourWinOrDraw(); // (Needs to be created)
+    // Example: _flipPlayer(); displayCurrentPlayer(getCurrentPlayer()); highlightCurrentPlayer(getCurrentPlayer());
+  }
     
   // Manages the AI's turn, including thinking time and invoking the AI move logic.
   function _handleAITurn() {
     if (isGameOverState()) return; // Don't proceed if game is over
-    _disableBoardInteractions();
-    
-    if (getOpponentLevel() === 3) {
-      _handle2PlayerMode();
-      return;
+    _disableBoardInteractions(); 
+
+    const currentGame = getCurrentGame();
+
+    if (currentGame === GAME.CONNECT_FOUR) { // AI turn for Connect Four
+      setTimeout(() => {
+        _handleConnectFourAITurn(); 
+      }, INTERACTIONS.AI_THINKING_TIME_MS); 
+      setGameInProgressState(true); 
+      
+    } else if (currentGame === GAME.TIC_TAC_TOE) {
+      if (getOpponentLevel() === 3) { // 2-Player mode for TTT
+        _handle2PlayerMode(); // enables the board for the next human player.
+        return; 
+      }
+
+      setTimeout(() => { // AI turn for Tic-Tac-Toe
+        _playAI();
+      }, INTERACTIONS.AI_THINKING_TIME_MS);
+      setGameInProgressState(true);
+
+    } else {
+      console.error("Unknown game type in _handleAITurn:", currentGame);
+      _enableBoardInteractions(); // Or game-specific enable
     }
-    setTimeout(() => {
-      _playAI();
-    }, INTERACTIONS.AI_THINKING_TIME_MS);
-    
-    setGameInProgressState(true);
   }
 
   // Executes the AI's move based on the selected difficulty level.
@@ -354,6 +379,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     _addSquareListeners();
     // Ensure currentPlayer is aligned with the startingPlayer state.
     // This is especially important on initial load or if resetGameBoard wasn't just called.
+    setCurrentGame(getCurrentGame());
     setCurrentPlayer(getStartingPlayer()); 
 
     displayCurrentPlayer(getCurrentPlayer()); 

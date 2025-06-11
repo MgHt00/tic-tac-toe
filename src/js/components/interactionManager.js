@@ -415,6 +415,21 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       unBlackoutScreen();
     }, INTERACTIONS.GAME_CHANGE_TIME_MS);
   }
+
+  function _enableTTT(){
+    const ticTacToe = GAME.TIC_TAC_TOE;
+
+    blackoutScreen();
+    changeGameTitle(ticTacToe);
+    convertPlayerBoxToSquare();
+    namePlayers(ticTacToe);
+    hideConnectFourBoard();
+    showTTTBoard();
+
+    setTimeout(() => {
+      unBlackoutScreen();
+    }, INTERACTIONS.GAME_CHANGE_TIME_MS);
+  }
   
   // Initializes the game interactions, sets up event listeners, and handles the initial game state.
   function initializeGameInteraction() {
@@ -428,11 +443,11 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     setCurrentPlayer(startingPlayer); 
 
     if (gameToPlay === GAME.CONNECT_FOUR) {
-      //_disableTTT();
       _enableConnectFour();
     } 
     
     else if (gameToPlay === GAME.TIC_TAC_TOE) {
+      _enableTTT();
       _addSquareListeners();
       displayCurrentPlayer(getCurrentPlayer()); 
       highlightCurrentPlayer(getCurrentPlayer()); 

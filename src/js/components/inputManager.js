@@ -166,7 +166,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     _boundAlertOKHandler = () => {
       setCurrentGame(newSelectedGame);
       _confirmedGame = newSelectedGame;
-      resetGameBoard({ resetScore: true });
+      resetGameBoard({ resetGameType: true, resetScore: true, resetStartingPlayer: true });
       updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
       hideConfirmationAlert(); 
       _removeConfirmationAlertListeners(); // Clean up after action

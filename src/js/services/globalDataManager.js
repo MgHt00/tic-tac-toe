@@ -1,12 +1,17 @@
 import { globals } from "./globals.js";
 import { STATE_KEYS, PLAYERS, AI_LEVELS, GAME } from "../constants/appConstants.js";
 
-export function restoreDefaults({ resetScore = false, resetStartingPlayer = false }) {
+export function restoreDefaults({ resetScore = false, resetStartingPlayer = false, resetGameType = false }) {
   // Iterate over the keys in globals.defaults to correctly reset globals.appState
   // This ensures that mutable objects like arrays are properly re-initialized
   // and globals.defaults itself is not mutated.
   for (const key in globals.defaults) {
     if (Object.prototype.hasOwnProperty.call(globals.defaults, key)) { // [le002]
+      // Preserve game (TTT / Connect Four) if resetGameType is false
+      if ((key === STATE_KEYS.CURRENT_GAME) && !resetGameType) {
+        continue;
+      }
+
       // Skip resetting opponentLevel to preserve the user's chosen difficulty
       if (key === STATE_KEYS.OPPONENT_LEVEL) {
         continue;
@@ -17,7 +22,7 @@ export function restoreDefaults({ resetScore = false, resetStartingPlayer = fals
         continue;
       } 
 
-      // Preserve startingPlaer if resetStartPlayer is false
+      // Preserve startingPlayer if resetStartPlayer is false
       if ((key === STATE_KEYS.STARTING_PLAYER) && !resetStartingPlayer) {
         continue;
       }

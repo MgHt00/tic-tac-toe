@@ -28,8 +28,6 @@ import {
   removeHighlight, 
   makeRestartButtonFilled, 
   makeRestartButtonOutlined, 
-  removeWinningLineStyles, 
-  removePlayerMarkStyles, 
   blackoutScreen, 
   unBlackoutScreen, 
   updateScoreOnScreen, 
@@ -44,6 +42,8 @@ import {
   showConnectFourBoar,
   showTTTBoard,
   hideTTTBoard,
+  clearAllSquares,
+  changeGameInfoContent,
   } from "../utils/domHelpers.js";
   
 /**
@@ -132,20 +132,11 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
    */
   function resetGameBoard({ resetScore = false, resetStartingPlayer = false }) {
     blackoutScreen();
-    restoreDefaults({ resetScore, resetStartingPlayer });
-
-    selectors.gameInfo.textContent = PLAYERS.INITIAL_MESSAGE;
     
-    const squaresNodeList = document.querySelectorAll(_matchingID);
-    squaresNodeList.forEach(square => {
-      square.textContent = "";
-      removeWinningLineStyles(square);
-      removePlayerMarkStyles(square);
-    });
-
-    selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
-    selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
-
+    restoreDefaults({ resetScore, resetStartingPlayer });
+    changeGameInfoContent(PLAYERS.INITIAL_MESSAGE);    
+    clearAllSquares();
+    removeHighlight([selectors.playerXButton, selectors.playerOButton]);
     makeRestartButtonOutlined();
     _enableBoardInteractions(); 
 
@@ -239,7 +230,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     _disableBoardInteractions();
     setGameOverState(true);
     setWinner(PLAYERS.PLAYER_DRAW);
-    selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
+    changeGameInfoContent(INTERACTIONS.PLAYER_DRAW);
     makeRestartButtonFilled();
   }
 

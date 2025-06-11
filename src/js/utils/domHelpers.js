@@ -26,10 +26,6 @@ export function addHighlight(targetElement) {
   targetElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
 }
 
-/*export function removeHighlight(targetElement) {
-  targetElement.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
-}*/
-
 export function removeHighlight(targetElements) {
   targetElements = Array.isArray(targetElements) ? targetElements : [targetElements];
   targetElements.forEach(element => {
@@ -185,4 +181,17 @@ export function showTTTBoard() {
 export function hideTTTBoard() {
   selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
   selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+}
+
+export function clearAllSquares() {
+  const squaresNodeList = document.querySelectorAll(INTERACTIONS.SQUARES_GENERAL_ID);
+  squaresNodeList.forEach(square => {
+    square.textContent = "";
+    removeWinningLineStyles(square);
+    removePlayerMarkStyles(square);
+  });
+}
+
+export function changeGameInfoContent(content) {
+  selectors.gameInfo.textContent = content;
 }

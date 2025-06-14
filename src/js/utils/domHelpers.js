@@ -196,6 +196,13 @@ export function changeGameInfoContent(content) {
   selectors.gameInfo.textContent = content;
 }
 
+// Fills a square with the player's mark and applies appropriate styling.
+export function fillAndDecorateSquare(targetElement, player) {
+  targetElement.textContent = player;
+  const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
+  targetElement.classList.add(cssClass);
+}
+
 /**
  * Applies styling to indicate the winning line on the board.
  * @param {object} winningCombinationDetails - Details of the winning combination, including key and indices.

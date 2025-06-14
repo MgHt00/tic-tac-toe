@@ -44,6 +44,7 @@ import {
   hideTTTBoard,
   clearAllSquares,
   changeGameInfoContent,
+  fillAndDecorateSquare,
   strikeThroughCells,
   } from "../utils/domHelpers.js";
   
@@ -63,13 +64,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   let _boundMouseOverHandler = null;
   let _boundMouseOutHandler = null;
   let _boundMouseClickHandler = null;
-
-  // Fills a square with the player's mark and applies appropriate styling.
-  function _fillAndDecorateSquare(targetElement, player) {
-    targetElement.textContent = player;
-    const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
-    targetElement.classList.add(cssClass);
-  }
 
   // Checks if a given square element is already filled with a player's mark.
   function _isSquareFilled(targetElement) {
@@ -266,7 +260,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const targetElementId = `${INTERACTIONS.SQUARES_ID_INITIAL}${moveCoordinates.row}-${moveCoordinates.col}`;
     const targetElement = document.getElementById(targetElementId);
 
-    _fillAndDecorateSquare(targetElement, aiPlayerSymbol);
+    fillAndDecorateSquare(targetElement, aiPlayerSymbol);
     updateGameBoardState(targetElement, aiPlayerSymbol, currentGame);
 
     // Check for win using the AI's move
@@ -304,7 +298,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     setGameInProgressState(true);
 
-    _fillAndDecorateSquare(targetElement, playerMakingMove);
+    fillAndDecorateSquare(targetElement, playerMakingMove);
     updateGameBoardState(targetElement, playerMakingMove, currentGame);
 
     // Check for win using the player's move    

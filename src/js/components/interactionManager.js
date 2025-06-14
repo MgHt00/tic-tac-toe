@@ -20,7 +20,7 @@ import {
   getPlayerOScore,
   setPlayerOScore } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
-import { PLAYERS, INTERACTIONS, GAME, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
+import { PLAYERS, INTERACTIONS, GAME } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { checkWinCondition } from "../utils/boardUtils.js";
 import { 
@@ -44,6 +44,7 @@ import {
   hideTTTBoard,
   clearAllSquares,
   changeGameInfoContent,
+  strikeThroughCells,
   } from "../utils/domHelpers.js";
   
 /**
@@ -114,8 +115,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   // Checks if all squares on the board are filled.
-  function _areAllSquaresFilled() {
-    const squaresNodeList = document.querySelectorAll(_matchingID);
+  function _areAllSquaresFilled(currentGame) {
+    const selector = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;
+    const squaresNodeList = selector.querySelectorAll(_matchingID);
     for (const square of squaresNodeList) {
       if (square.textContent === "") {
         return false;
@@ -147,56 +149,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     console.warn("Game board reset.");
   }
 
-  /**
-   * Applies styling to indicate the winning line on the board.
-   * @param {object} winningCombinationDetails - Details of the winning combination, including key and indices.
-   * @param {string} winningPlayer - The player who won (PLAYER_X or PLAYER_O).
-   */
-  function _strikeThroughCells(winningCombinationDetails, winningPlayer) {
-    if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
-      console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
-      return;
-    }
-
-    const { key, indices } = winningCombinationDetails;
-    let baseWinType; // Will be "ROW", "COLUMN", "DIAGONAL_MAIN", or "DIAGONAL_SECONDARY"
-
-    if (key.startsWith("row")) {
-      baseWinType = WIN_LINE_DIRECTIONS.ROW;
-    } else if (key.startsWith("col")) {
-      baseWinType = WIN_LINE_DIRECTIONS.COLUMN;
-    } else if (key === "diag1") {
-      baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_MAIN;
-    } else if (key === "diag2") {
-      baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY;
-    } else {
-      console.error("Unknown winning combination key:", key);
-      return;
-    }
-
-    // Construct the key for CSS_CLASS_NAMES, e.g., "X_WIN_ROW" or "O_WIN_DIAGONAL_MAIN"
-    const cssClassKey = `${winningPlayer}_WIN_${baseWinType}`;
-    const cssClass = CSS_CLASS_NAMES[cssClassKey];
-
-    if (!cssClass) {
-      console.error(`CSS class not found for key: ${cssClassKey}. Ensure PLAYERS constants ('${PLAYER_X}', '${PLAYER_O}') align with CSS_CLASS_NAMES prefixes.`);
-      return;
-    }
-
-    indices.forEach(index => {
-      const domRow = Math.floor(index / 3); // Result is 0, 1, or 2
-      const domCol = (index % 3);      // Result is 0, 1, or 2
-      const cellId = `${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`; 
-      const cellElement = document.getElementById(cellId);
-
-      if (cellElement) {
-        cellElement.classList.add(cssClass);
-      } else {
-        console.error(`Cell element not found for ID: ${cellId}`);
-      }
-    });
-  }
-
   // Increments the score for the winning player.
   function _accumulateScore(winningPlayer) {
     if (winningPlayer === PLAYER_X) {
@@ -214,12 +166,14 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
    */
   function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
+    const currentGame = getCurrentGame();
+
     setGameOverState(true);
     setWinner(winningPlayer);
     _accumulateScore(winningPlayer);
     updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
     showWinnerOnScreen(winningPlayer);
-    _strikeThroughCells(winningCombinationDetails, winningPlayer);
+    strikeThroughCells(winningCombinationDetails, winningPlayer, currentGame);
     _disableBoardInteractions();
     makeRestartButtonFilled();
   }
@@ -323,7 +277,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       return;
     }
     
-    if (_areAllSquaresFilled()) {
+    if (_areAllSquaresFilled(currentGame)) {
       _handleDraw(); 
       return;
     }
@@ -361,7 +315,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       return;
     }
 
-    if (_areAllSquaresFilled()) {
+    if (_areAllSquaresFilled(currentGame)) {
       _handleDraw(); 
       return;
     }

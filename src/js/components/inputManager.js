@@ -278,9 +278,9 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
   }
 
   // Adds event listener for the restart button.
-  function _addRestartButtonListener() {
+  function _addNewGameButtonListener() {
     selectors.restartButton.addEventListener("click", () => {
-      resetGameBoard({ resetScore: false, resetStartingPlayer: false });
+      resetGameBoard({ resetScore: false, resetStartingPlayer: false, resetGameType: false });
       initializeGameInteraction();
     });
   }
@@ -333,7 +333,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     namePlayers(getCurrentGame());
     _addRangeListeners();
     _addPlayerButtonListeners();
-    _addRestartButtonListener();
+    _addNewGameButtonListener();
     _addGameSwitchButtonListeners()
   }
 

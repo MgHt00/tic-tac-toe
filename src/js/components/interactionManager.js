@@ -120,12 +120,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     return true;
   }
  
-  /**
-   * Resets the game board to its initial state.
-   * @param {object} options - Options for the reset.
-   * @param {boolean} [options.resetScore=false] - Whether to reset player scores.
-   * @param {boolean} [options.resetStartingPlayer=false] - Whether to reset the starting player to default.
-   */
   function resetGameBoard({ resetScore = false, resetStartingPlayer = false }) {
     blackoutScreen();
 
@@ -158,10 +152,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
    * @param {string} winningPlayer - The player who won.
    * @param {object} winningCombinationDetails - Details of the winning line.
    */
-  function _handleWin(winningPlayer, winningCombinationDetails) {
+  function _handleWin(winningPlayer, winningCombinationDetails, currentGame) {
     console.info(`Player ${winningPlayer} wins!`);
-    const currentGame = getCurrentGame();
-
     setGameOverState(true);
     setWinner(winningPlayer);
     _accumulateScore(winningPlayer);
@@ -218,7 +210,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       }
 
       setTimeout(() => { // AI turn for Tic-Tac-Toe
-        _playAI(currentGame);
+        _playAI();
       }, INTERACTIONS.AI_THINKING_TIME_MS);
       setGameInProgressState(true);
 
@@ -229,10 +221,11 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   // Executes the AI's move based on the selected difficulty level.
-  function _playAI(currentGame) {
+  function _playAI() {
     _enableBoardInteractions();
     let moveCoordinates; // Will be {row, col} or null
     const aiPlayerSymbol = getCurrentPlayer();
+    const currentGame = getCurrentGame();
     const opponentPlayerSymbol = aiPlayerSymbol === PLAYER_X ? PLAYER_O : PLAYER_X;
 
     switch (getOpponentLevel()) {
@@ -266,8 +259,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     // Check for win using the AI's move
     const winningBoardCombination = checkWinCondition(getGameBoard(), aiPlayerSymbol);
     
-    if (winningBoardCombination) {
-      _handleWin(aiPlayerSymbol, winningBoardCombination);
+    if (winningBoardCombination && currentGame === GAME.TIC_TAC_TOE) {
+      _handleWin(aiPlayerSymbol, winningBoardCombination, currentGame);
       return;
     }
     
@@ -304,8 +297,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     // Check for win using the player's move    
     const winningBoardCombination = checkWinCondition(getGameBoard(), playerMakingMove);
 
-    if (winningBoardCombination) {
-      _handleWin(playerMakingMove, winningBoardCombination); 
+    if (winningBoardCombination && currentGame === GAME.TIC_TAC_TOE) {
+      _handleWin(playerMakingMove, winningBoardCombination, currentGame); 
       return;
     }
 
@@ -432,7 +425,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     else {
       console.error("Unknown game type in initializeGameInteraction:", gameToPlay);
     }
-
   }
 
   return {

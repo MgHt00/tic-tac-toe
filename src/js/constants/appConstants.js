@@ -30,12 +30,17 @@ export const PLAYERS = {
   PLAYER_X: 'X',
   PLAYER_O: 'O',
   PLAYER_DRAW: 'draw',
+  CONNECT_FOUR_PLAYER_X_ID: 'White',
+  CONNECT_FOUR_PLAYER_O_ID: 'Blue',
+  CONNECT_FOUR_PLAYER_X: '<div class="player-x"></div>',
+  CONNECT_FOUR_PLAYER_O: '<div class="player-o"></div>',
 };
 
 export const INTERACTIONS = {
   TOTAL_SQUARES: 9,
   AI_THINKING_TIME_MS: 500,
   GAME_RESET_TIME_MS: 100,
+  GAME_CHANGE_TIME_MS: 1000,
   SQUARES_GENERAL_ID: '[id|="square"]',
   SQUARES_ID_INITIAL: 'square-',
   PLAYER_TURN: 'Turn',

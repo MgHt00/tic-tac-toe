@@ -30,6 +30,9 @@ export const ELEMENT_IDS = {
   RESTART_BUTTON: "restart-button",
   SWITCH_TTT_BUTTON: "switch-tic-tac-toe-button",
   SWITCH_CF_BUTTON: "switch-connect-four-button",
+  RADIO_TTT: "tic-tac-toe-radio-input",
+  RADIO_CF: "connect-four-radio-input",
+
 
   OVERLAY: "overlay",
   LOADING_WRAPPER: "loading-wrapper",

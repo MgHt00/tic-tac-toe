@@ -7,6 +7,8 @@
   --tic-tac-toe-square-size: 60px;
   --connect-four-board-size: 210px;
   --connect-four-square-size: 30px;
+  --connect-four-circle-size: 20px;
+  --connect-four-circle-border-radius: 50%;
   /*--overlay-background: rgba(0, 0, 0, 0.98);*/
   --overlay-background: rgba(27, 34, 53, 0.98);
   --text-color: rgb(255, 250, 250);
@@ -73,9 +75,16 @@ div[id|="game"] {
 #game-scores > div:not([id*='-score']) {
   background-color: var(--player-background, none);
   border-radius: var(--player-border-radius, 10px);
+  /*border-radius: var(--connect-four-circle-border-radius, 50%);*/
   box-shadow: var(--player-box-shadow, none);
   width: var(--player-width, 30px);
+  height: var(--player-width, 30px);
   text-align: center;
+}
+
+#game-scores > div.convert-to-circle {
+  border-radius: var(--connect-four-circle-border-radius, 50%);
+  box-shadow: none;
 }
 
 #game-wrapper {
@@ -235,13 +244,32 @@ div[id|="game"] {
 }
 
 #game-scores > .player-x,
-#tic-tac-toe-board > .player-x {
+#tic-tac-toe-board > .player-x,
+#connect-four-board > .player-x {
   color: var(--player-X-color, snow);
 }
 
 #game-scores > .player-o,
-#tic-tac-toe-board > .player-o {
-  color: var(--player-O-color, snow);
+#tic-tac-toe-board > .player-o,
+#connect-four-board > .player-o {
+  color: var(--player-O-color, rgb(85, 193, 251));
+}
+
+#game-scores > div > div[class|='player'],
+#connect-four-board [class|='player'] {
+  width: var(--connect-four-circle-size, 20px);
+  height: var(--connect-four-circle-size, 20px);
+  border-radius: var(--connect-four-circle-border-radius, 50%);
+}
+
+#game-scores > div > .player-x,
+#connect-four-board .player-x {
+  background-color: var(--player-X-color, snow);
+}
+
+#game-scores > div > .player-o,
+#connect-four-board .player-o {
+  background-color: var(--player-O-color, rgb(85, 193, 251));
 }
 
 .board-disabled {

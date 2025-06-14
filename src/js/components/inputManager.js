@@ -16,7 +16,10 @@ import {
   hideConfirmationAlert, 
   unBlackoutScreen, 
   updateScoreOnScreen,
-  changeGameTitle } from "../utils/domHelpers.js";
+  changeGameTitle,
+  checkGameRadioInput,
+  namePlayers, } from "../utils/domHelpers.js";
+import { globals } from "../services/globals.js";
 
 /**
  * Manages user input for game settings like AI difficulty and starting player,
@@ -41,12 +44,6 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     
     selectors.AILevelInput.setAttribute('min', minRange.toString());
     selectors.AILevelInput.setAttribute('max', maxRange.toString());
-  }
-
-  // Sets the display names for the player X and player O buttons.
-  function _namePlayers() {
-    selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
-    selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
   }
 
   // Updates the AI difficulty label based on the current slider value.
@@ -169,12 +166,18 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     _boundAlertOKHandler = () => {
       setCurrentGame(newSelectedGame);
       _confirmedGame = newSelectedGame;
+      resetGameBoard({ resetScore: true, resetStartingPlayer: true });
+      updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
+      hideConfirmationAlert(); 
+      _removeConfirmationAlertListeners(); // Clean up after action
+      initializeGameInteraction();
       console.info("%cNew Game: ", "color: orange;", _confirmedGame);
-      // and upcoming procedures
     };
 
     _boundAlertCancelHandler = () => {
       setCurrentGame(gameToRevertTo);
+      checkGameRadioInput(gameToRevertTo);
+      _confirmedGame = gameToRevertTo;
       unBlackoutScreen();
       hideConfirmationAlert();
     };
@@ -247,9 +250,11 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
 
     if (!_isGameInProgress()){
       if(newSelectedGame !== _confirmedGame) {
+        resetGameBoard({ resetScore: true, resetStartingPlayer: true });
+        setCurrentGame(newSelectedGame);
         _confirmedGame = newSelectedGame;
         console.info("%cNew Game: ", "color: orange;", _confirmedGame);
-        changeGameTitle(newSelectedGame);
+        initializeGameInteraction();
       }
       return;
     }
@@ -273,9 +278,9 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
   }
 
   // Adds event listener for the restart button.
-  function _addRestartButtonListener() {
+  function _addNewGameButtonListener() {
     selectors.restartButton.addEventListener("click", () => {
-      resetGameBoard({ resetScore: false, resetStartingPlayer: false });
+      resetGameBoard({ resetScore: false, resetStartingPlayer: false, resetGameType: false });
       initializeGameInteraction();
     });
   }
@@ -325,10 +330,10 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     _initializeCurrentGame();
     _initializeOpponentSettings();
     _initializeStartingPlayer();
-    _namePlayers();
+    namePlayers(getCurrentGame());
     _addRangeListeners();
     _addPlayerButtonListeners();
-    _addRestartButtonListener();
+    _addNewGameButtonListener();
     _addGameSwitchButtonListeners()
   }
 

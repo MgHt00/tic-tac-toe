@@ -1,7 +1,8 @@
 import { selectors } from "../services/selectors.js";
 
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
-import { GAME, PLAYERS, INTERACTIONS } from "../constants/appConstants.js";
+import { GAME, PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
+import { globals } from "../services/globals.js";
 
 const { PLAYER_X, PLAYER_O } = PLAYERS;
 
@@ -25,8 +26,11 @@ export function addHighlight(targetElement) {
   targetElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
 }
 
-export function removeHighlight(targetElement) {
-  targetElement.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
+export function removeHighlight(targetElements) {
+  targetElements = Array.isArray(targetElements) ? targetElements : [targetElements];
+  targetElements.forEach(element => {
+    element.classList.remove(CSS_CLASS_NAMES.HIGHLIGHT);
+  });
 }
 
 export function showRecentMove(targetElement) {
@@ -89,7 +93,9 @@ export function hideConfirmationAlert() {
 }
 
 export function displayCurrentPlayer(currentPlayer) {
-  selectors.gameInfo.textContent = `${currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
+  if (globals.appState[STATE_KEYS.GAME_IN_PROGRESS]) { // shows default message if the game is new
+      selectors.gameInfo.textContent = `${currentPlayer} ${INTERACTIONS.PLAYER_TURN}`;
+  }
 }
 
 export function highlightCurrentPlayer(currentPlayer) {
@@ -117,4 +123,75 @@ export function changeGameTitle(game) {
 
   const htmlElement = game === GAME.TIC_TAC_TOE ? GAME.TIC_TAC_TOE_TITLE_ELEMENT : GAME.CONNECT_FOUR_TITLE_ELEMENT;
   selectors.gameTitle.innerHTML = htmlElement;
+}
+
+export function checkGameRadioInput(game) {
+  if (game !== GAME.TIC_TAC_TOE && game !== GAME.CONNECT_FOUR) {
+    console.error("Invalid game:", game);
+    return;
+  }
+  if (game === GAME.TIC_TAC_TOE) {
+    selectors.radioTTT.checked = true;
+    selectors.radioTTT.focus();
+
+  } else if (game === GAME.CONNECT_FOUR) {
+    selectors.radioCF.checked = true; 
+    selectors.radioCF.focus();
+  } 
+}
+
+// Sets the display names for the player X and player O buttons.
+export function namePlayers(currentGame) {
+  if (currentGame === GAME.TIC_TAC_TOE) {
+    selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
+    selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
+  } else if (currentGame === GAME.CONNECT_FOUR) {
+    selectors.playerXButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_X;
+    selectors.playerOButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_O;
+  } else {
+    console.error("Invalid game:", currentGame);
+  }
+}
+
+export function convertPlayerBoxToCircle() {
+  selectors.playerXButton.classList.add(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
+  selectors.playerOButton.classList.add(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
+}
+
+export function convertPlayerBoxToSquare() {
+  selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
+  selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.CONVERT_TO_CIRCLE);
+}
+
+export function showConnectFourBoar() {
+  selectors.CFBoard.classList.remove(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
+  selectors.CFBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+}
+
+export function hideConnectFourBoard() {
+  selectors.CFBoard.classList.add(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
+  selectors.CFBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+}
+
+export function showTTTBoard() {
+  selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
+  selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
+}
+
+export function hideTTTBoard() {
+  selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.VISUALLY_HIDDEN);
+  selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
+}
+
+export function clearAllSquares() {
+  const squaresNodeList = document.querySelectorAll(INTERACTIONS.SQUARES_GENERAL_ID);
+  squaresNodeList.forEach(square => {
+    square.textContent = "";
+    removeWinningLineStyles(square);
+    removePlayerMarkStyles(square);
+  });
+}
+
+export function changeGameInfoContent(content) {
+  selectors.gameInfo.textContent = content;
 }

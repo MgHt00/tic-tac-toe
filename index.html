@@ -9,15 +9,15 @@
 <body>
   <div id="game-switch-wrapper" class="position-absolute top-0 end-0 d-flex justify-content-center">
     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-      <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
-      <label id="switch-tic-tac-toe-button" class="btn btn-sm btn-outline-secondary" for="btnradio1">Tic Tac Toe</label>
+      <input type="radio" class="btn-check" name="btnradio" id="tic-tac-toe-radio-input" autocomplete="off" checked>
+      <label id="switch-tic-tac-toe-button" class="btn btn-sm btn-outline-secondary" for="tic-tac-toe-radio-input">Tic Tac Toe</label>
 
-      <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
-      <label id="switch-connect-four-button" class="btn btn-sm btn-outline-secondary" for="btnradio2">Connect Four</label>
+      <input type="radio" class="btn-check" name="btnradio" id="connect-four-radio-input" autocomplete="off">
+      <label id="switch-connect-four-button" class="btn btn-sm btn-outline-secondary" for="connect-four-radio-input">Connect Four</label>
     </div>
   </div>
   <div id="main-container" class="d-flex flex-column justify-content-center align-items-center h-100">
-    <div id="game-title" class="w-100 p-1"><h3>Tic Tac Toe</h3></div>
+    <div id="game-title" class="w-100 p-1"></div>
     <div id="game-settings" class="w-100">
       <div class="d-flex">
         <label for="game-settings-difficulty-range" class="form-label">Opponent:&nbsp;</label>
@@ -26,10 +26,10 @@
       <input type="range" id="game-settings-difficulty-range" min="0" max="0" value="1" class="form-range">
     </div>
     <div id="game-scores" class="d-flex w-100 justify-content-evenly">
-      <div id="player-x" class="player-x"></div>
+      <div class="d-flex justify-content-center align-items-center player-x" id="player-x"></div>
       <div id="player-x-score">0</div>
       <div id="player-score-divider">:</div>
-      <div id="player-o" class="player-o"></div>
+      <div class="d-flex justify-content-center align-items-center player-o" id="player-o"></div>
       <div id="player-o-score">0</div>
     </div>
     <div id="game-info">Start game or select player</div>
@@ -48,8 +48,8 @@
 
       <div id="connect-four-board" class="d-flex flex-wrap visually-hidden">
         <div id="" data-row="" data-col="" class="d-flex justify-content-center align-items-center"></div>
-        <div id="" data-row="" data-col="" class="d-flex justify-content-center align-items-center"></div>
-        <div id="" data-row="" data-col="" class="d-flex justify-content-center align-items-center"></div>
+        <div id="" data-row="" data-col="" class="d-flex justify-content-center align-items-center"><!--<div class="player-x"></div>--></div>
+        <div id="" data-row="" data-col="" class="d-flex justify-content-center align-items-center"><!--<div class="player-o"></div>--></div>
         <div id="" data-row="" data-col="" class="d-flex justify-content-center align-items-center"></div>
         <div id="" data-row="" data-col="" class="d-flex justify-content-center align-items-center"></div>
         <div id="" data-row="" data-col="" class="d-flex justify-content-center align-items-center"></div>

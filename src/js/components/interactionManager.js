@@ -132,7 +132,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
    */
   function resetGameBoard({ resetScore = false, resetStartingPlayer = false }) {
     blackoutScreen();
-    
+
     restoreDefaults({ resetScore, resetStartingPlayer });
     changeGameInfoContent(PLAYERS.INITIAL_MESSAGE);    
     clearAllSquares();
@@ -335,6 +335,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   // Handles a click event on a square of the Tic-Tac-Toe board.
   function _handleSquareClick(targetElement) {
+    console.info("_handleSquareClick");
     if (isGameOverState()) {
       console.info("Game is already over.");
       return;
@@ -375,7 +376,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   function _removeSquareListeners() {
     const currentGame = getCurrentGame();
-    const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;
+    // When switching games, currentGame is already updated to the NEW game.
+    // So, to remove listeners from the PREVIOUS board, we need to flip our conditonal check
+    const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.CFBoard : selectors.TTTBoard;
 
     if (_boundMouseOverHandler) {
        gameBoard.removeEventListener("mouseover", _boundMouseOverHandler);
@@ -396,7 +399,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const currentGame = getCurrentGame();
     const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CONNECT_FOUR;
     if (currentGame === GAME.TIC_TAC_TOE) {
-
       _boundMouseOverHandler = (event) => {
         if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
           addHighlight(event.target);

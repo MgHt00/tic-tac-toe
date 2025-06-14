@@ -250,6 +250,7 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
 
     if (!_isGameInProgress()){
       if(newSelectedGame !== _confirmedGame) {
+        resetGameBoard({ resetScore: true, resetStartingPlayer: true });
         setCurrentGame(newSelectedGame);
         _confirmedGame = newSelectedGame;
         console.info("%cNew Game: ", "color: orange;", _confirmedGame);

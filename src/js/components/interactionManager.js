@@ -270,7 +270,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       }
 
       setTimeout(() => { // AI turn for Tic-Tac-Toe
-        _playAI();
+        _playAI(currentGame);
       }, INTERACTIONS.AI_THINKING_TIME_MS);
       setGameInProgressState(true);
 
@@ -281,7 +281,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   // Executes the AI's move based on the selected difficulty level.
-  function _playAI() {
+  function _playAI(currentGame) {
     _enableBoardInteractions();
     let moveCoordinates; // Will be {row, col} or null
     const aiPlayerSymbol = getCurrentPlayer();
@@ -313,7 +313,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const targetElement = document.getElementById(targetElementId);
 
     _fillAndDecorateSquare(targetElement, aiPlayerSymbol);
-    updateGameBoardState(targetElement, aiPlayerSymbol);
+    updateGameBoardState(targetElement, aiPlayerSymbol, currentGame);
 
     // Check for win using the AI's move
     const winningBoardCombination = checkWinCondition(getGameBoard(), aiPlayerSymbol);
@@ -334,7 +334,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   // Handles a click event on a square of the Tic-Tac-Toe board.
-  function _handleSquareClick(targetElement) {
+  function _handleSquareClick(targetElement, currentGame) {
     console.info("_handleSquareClick");
     if (isGameOverState()) {
       console.info("Game is already over.");
@@ -351,7 +351,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     setGameInProgressState(true);
 
     _fillAndDecorateSquare(targetElement, playerMakingMove);
-    updateGameBoardState(targetElement, playerMakingMove);
+    updateGameBoardState(targetElement, playerMakingMove, currentGame);
 
     // Check for win using the player's move    
     const winningBoardCombination = checkWinCondition(getGameBoard(), playerMakingMove);
@@ -413,7 +413,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
       _boundMouseClickHandler = (event) => {
         if (event.target.matches(_matchingID)) {
-          _handleSquareClick(event.target);
+          _handleSquareClick(event.target, currentGame);
           highlightCurrentPlayer(getCurrentPlayer());
         }
       }

@@ -119,6 +119,18 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
     return true;
   }
+
+  // Checks whether the square below is filled. For Connect Four board
+  function _isBelowSquareFilled(targetElement) {
+    const row = parseInt(targetElement.dataset.row, 10);
+    const col = parseInt(targetElement.dataset.col, 10);
+    if (row === 5) { // checking whether it is the bottom most row
+      return true;
+    };
+
+    const elementToCheck = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row + 1}-${col}`);
+    return elementToCheck && elementToCheck.textContent !== "";
+  }
  
   function resetGameBoard({ resetScore = false, resetStartingPlayer = false }) {
     blackoutScreen();
@@ -305,7 +317,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
     
     if (currentGame === GAME.CONNECT_FOUR) {
-      fillAndDecorateSquare(targetElement, playerMakingMove);
+      if (_isBelowSquareFilled(targetElement)) {
+        fillAndDecorateSquare(targetElement, playerMakingMove);
+      }
+      
 
       // Check for win using the player's move
       return;

@@ -44,6 +44,7 @@ export const INTERACTIONS = {
   GAME_CHANGE_TIME_MS: 1000,
   SQUARES_GENERAL_ID: '[id|="square"]',
   SQUARES_ID_INITIAL: 'square-',
+  CF_SQUARES_ID_INITIAL: 'square-CF-',
   PLAYER_TURN: 'Turn',
   PLAYER_WIN: 'wins!',
   PLAYER_DRAW: 'Game is a draw!',

@@ -321,7 +321,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
         fillAndDecorateSquare(targetElement, playerMakingMove);
       }
       
-
       // Check for win using the player's move
       return;
     }
@@ -383,7 +382,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     _boundMouseOverHandler = (event) => {
-      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
+      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target) && _isBelowSquareFilled(event.target)) { // Only highlight if game not over and square not filled
         addHighlight(event.target);
       }
     }

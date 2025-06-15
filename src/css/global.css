@@ -230,7 +230,8 @@ div[id|="game"] {
   transform: translate(-15%, -15%) rotate(-45deg);
 }
 
-#tic-tac-toe-board > .highlight {
+#tic-tac-toe-board > .highlight,
+#connect-four-board > .highlight {
   background-color: var(--tic-tac-toe-border-color);
 }
 

@@ -291,16 +291,25 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     setGameInProgressState(true);
 
-    fillAndDecorateSquare(targetElement, playerMakingMove);
     updateGameBoardState(targetElement, playerMakingMove, currentGame);
 
-    // Check for win using the player's move    
-    const winningBoardCombination = checkWinCondition(getGameBoard(), playerMakingMove);
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      fillAndDecorateSquare(targetElement, playerMakingMove);
 
-    if (winningBoardCombination && currentGame === GAME.TIC_TAC_TOE) {
-      _handleWin(playerMakingMove, winningBoardCombination, currentGame); 
+      // Check for win using the player's move    
+      const winningBoardCombination = checkWinCondition(getGameBoard(), playerMakingMove);
+      if (winningBoardCombination) {
+        _handleWin(playerMakingMove, winningBoardCombination, currentGame);
+        return;
+      }
+    }
+    
+    if (currentGame === GAME.CONNECT_FOUR) {
+      //_handleWin(playerMakingMove, winningBoardCombination, currentGame); 
       return;
     }
+
+    
 
     if (_areAllSquaresFilled(currentGame)) {
       _handleDraw(); 
@@ -315,22 +324,21 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     _handleAITurn();
   }
 
+  // Attempt to remove listeners from both boards.
   function _removeSquareListeners() {
-    const currentGame = getCurrentGame();
-    // When switching games, currentGame is already updated to the NEW game.
-    // So, to remove listeners from the PREVIOUS board, we need to flip our conditonal check
-    const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.CFBoard : selectors.TTTBoard;
-
     if (_boundMouseOverHandler) {
-       gameBoard.removeEventListener("mouseover", _boundMouseOverHandler);
+       selectors.TTTBoard.removeEventListener("mouseover", _boundMouseOverHandler);
+       selectors.CFBoard.removeEventListener("mouseover", _boundMouseOverHandler);
        _boundMouseOverHandler = null;
     }
     if (_boundMouseOutHandler) {
-      gameBoard.removeEventListener("mouseout", _boundMouseOutHandler);
+      selectors.TTTBoard.removeEventListener("mouseout", _boundMouseOutHandler);
+      selectors.CFBoard.removeEventListener("mouseout", _boundMouseOutHandler);
       _boundMouseOutHandler = null;
     }
     if (_boundMouseClickHandler) {
-      gameBoard.removeEventListener("click", _boundMouseClickHandler);
+      selectors.TTTBoard.removeEventListener("click", _boundMouseClickHandler);
+      selectors.CFBoard.removeEventListener("click", _boundMouseClickHandler);
       _boundMouseClickHandler = null;
     }
   }
@@ -338,20 +346,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   // Adds event listeners to the squares on the Tic-Tac-Toe board for mouseover, mouseout, and click events.
   function _addSquareListeners() {
     const currentGame = getCurrentGame();
-    const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CONNECT_FOUR;
+    const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;
     if (currentGame === GAME.TIC_TAC_TOE) {
-      _boundMouseOverHandler = (event) => {
-        if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
-          addHighlight(event.target);
-        }
-      }
-
-      _boundMouseOutHandler = (event) => {
-        if (event.target.matches(_matchingID)) {
-          removeHighlight(event.target);
-        }
-      }
-
       _boundMouseClickHandler = (event) => {
         if (event.target.matches(_matchingID)) {
           _handleSquareClick(event.target, currentGame);
@@ -359,6 +355,29 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
         }
       }
     }
+
+    if (currentGame === GAME.CONNECT_FOUR) {
+      console.info("Connect Four")
+      _boundMouseClickHandler = (event) => {
+        if (event.target.matches(_matchingID)) {
+          //_handleSquareClick(event.target, currentGame);
+          console.info("Connect Four Click");
+        }
+      }
+    }
+
+    _boundMouseOverHandler = (event) => {
+      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
+        addHighlight(event.target);
+      }
+    }
+
+    _boundMouseOutHandler = (event) => {
+      if (event.target.matches(_matchingID)) {
+        removeHighlight(event.target);
+      }
+    }
+
     
     gameBoard.addEventListener("mouseover", _boundMouseOverHandler);
     gameBoard.addEventListener("mouseout", _boundMouseOutHandler);
@@ -409,6 +428,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     if (gameToPlay === GAME.CONNECT_FOUR) {
       _enableConnectFour();
+      _addSquareListeners();
     } 
     
     else if (gameToPlay === GAME.TIC_TAC_TOE) {

@@ -61,7 +61,7 @@ export function updateGameBoardState(targetElement, player, currentGame) {
   // data-row and data-col are 0-indexed strings, parse them to integers.
   const row = parseInt(targetElement.dataset.row, 10);
   const col = parseInt(targetElement.dataset.col, 10);
-
+  console.info({row, col});
   gameBoard[row][col] = player;  
 }
 

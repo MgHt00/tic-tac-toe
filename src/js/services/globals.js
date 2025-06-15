@@ -5,8 +5,19 @@ const defaults = {
   [STATE_KEYS.STARTING_PLAYER] : PLAYERS.PLAYER_X,
   [STATE_KEYS.CURRENT_PLAYER] : PLAYERS.PLAYER_X,
   [STATE_KEYS.OPPONENT_LEVEL]: 1, // Default AI level
-  [STATE_KEYS.GAME_BOARD_TTT]: [[null, null, null], [null, null, null], [null, null, null]],
-  [STATE_KEYS.GAME_BOARD_CF]: [],
+  [STATE_KEYS.GAME_BOARD_TTT]: [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null]
+  ],
+  [STATE_KEYS.GAME_BOARD_CF]: [
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null]
+  ],
   [STATE_KEYS.GAME_OVER]: false,
   [STATE_KEYS.WINNER]: null,
   [STATE_KEYS.GAME_IN_PROGRESS]: false,

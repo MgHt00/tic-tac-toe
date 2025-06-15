@@ -305,7 +305,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
     
     if (currentGame === GAME.CONNECT_FOUR) {
-      //_handleWin(playerMakingMove, winningBoardCombination, currentGame); 
+      fillAndDecorateSquare(targetElement, playerMakingMove);
+
+      // Check for win using the player's move
       return;
     }
 
@@ -360,8 +362,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       console.info("Connect Four")
       _boundMouseClickHandler = (event) => {
         if (event.target.matches(_matchingID)) {
-          //_handleSquareClick(event.target, currentGame);
-          console.info("Connect Four Click");
+          _handleSquareClick(event.target, currentGame);
         }
       }
     }

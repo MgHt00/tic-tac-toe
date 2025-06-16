@@ -132,11 +132,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const currentGame = getCurrentGame();
     _disableBoardInteractions(); 
 
-    // Example: _enableConnectFourBoardInteractions(); // (Needs to be created)
-    // Example: const move = getConnectFourAIMove(getConnectFourGameBoard(), getCurrentPlayer(), ...);
-    // Example: if (move) { _applyConnectFourMove(move, getCurrentPlayer()); ... } // (Needs to be created)
-    // Example: _checkConnectFourWinOrDraw(); // (Needs to be created)
-    // Example: _flipPlayer(); displayCurrentPlayer(getCurrentPlayer()); highlightCurrentPlayer(getCurrentPlayer());
+    if (getOpponentLevel() === 3) { // 2-Player mode
+      _handle2PlayerMode(); // enables the board for the next human player.
+      return;
+    }
   }
     
   // Manages the AI's turn, including thinking time and invoking the AI move logic.

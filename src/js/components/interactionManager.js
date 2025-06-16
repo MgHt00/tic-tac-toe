@@ -97,8 +97,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
    * @param {string} winningPlayer - The player who won.
    * @param {object} winningCombinationDetails - Details of the winning line.
    */
-  function _handleWin(winningPlayer, winningCombinationDetails, currentGame) {
+  function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
+    const currentGame = getCurrentGame();
+    
     setGameOverState(true);
     setWinner(winningPlayer);
     _accumulateScore(winningPlayer);
@@ -124,35 +126,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     _enableBoardInteractions();
     displayCurrentPlayer(getCurrentPlayer());
     highlightCurrentPlayer(getCurrentPlayer());
-  }
-
-  function _handleConnectFourAITurn() {
-    console.log("Connect Four AI is thinking...");
-    if (isGameOverState()) return; // Don't proceed if game is over
-    const currentGame = getCurrentGame();
-    _disableBoardInteractions(); 
-
-    if (getOpponentLevel() === 3) { // 2-Player mode
-      _handle2PlayerMode(); // enables the board for the next human player.
-      return;
-    }
-  }
-    
-  // Manages the AI's turn, including thinking time and invoking the AI move logic.
-  function _handleAITurn() {
-    if (isGameOverState()) return; // Don't proceed if game is over
-    const currentGame = getCurrentGame();
-    _disableBoardInteractions();
-
-    if (getOpponentLevel() === 3) { // 2-Player mode for TTT
-      _handle2PlayerMode(); // enables the board for the next human player.
-      return;
-    }
-
-    setTimeout(() => { // AI turn for Tic-Tac-Toe
-      _playAI();
-    }, INTERACTIONS.AI_THINKING_TIME_MS);
-    setGameInProgressState(true);
   }
 
   // Executes the AI's move based on the selected difficulty level.
@@ -195,7 +168,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), aiPlayerSymbol);
     
     if (winningBoardCombination && currentGame === GAME.TIC_TAC_TOE) {
-      _handleWin(aiPlayerSymbol, winningBoardCombination, currentGame);
+      _handleWin(aiPlayerSymbol, winningBoardCombination);
       return;
     }
     
@@ -209,6 +182,23 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     highlightCurrentPlayer(getCurrentPlayer());
   }
 
+  // Manages the TTT AI's turn, including thinking time and invoking the AI move logic.
+  function _handleAITurn() {
+    if (isGameOverState()) return; // Don't proceed if game is over
+
+    _disableBoardInteractions();
+
+    if (getOpponentLevel() === 3) { // 2-Player mode for TTT
+      _handle2PlayerMode(); // enables the board for the next human player.
+      return;
+    }
+
+    setTimeout(() => { // AI turn for Tic-Tac-Toe
+      _playAI();
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    setGameInProgressState(true);
+  }
+
   // Processes a player's move for Tic-Tac-Toe.
   function _processTicTacToeMove(targetElement, playerMakingMove, currentGame) {
     fillAndDecorateSquare(targetElement, playerMakingMove);
@@ -216,10 +206,23 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     // Check for win using the player's move    
     const winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), playerMakingMove);
     if (winningBoardCombination) {
-      _handleWin(playerMakingMove, winningBoardCombination, currentGame);
+      _handleWin(playerMakingMove, winningBoardCombination);
       return true; // Game ended
     }
     return false; // Game continues
+  }
+
+  // Manages the Connect Four AI's turn
+  function _handleConnectFourAITurn() {
+    console.log("Connect Four AI is thinking...");
+    if (isGameOverState()) return; // Don't proceed if game is over
+
+    _disableBoardInteractions();
+
+    if (getOpponentLevel() === 3) { // 2-Player mode
+      _handle2PlayerMode(); // enables the board for the next human player.
+      return;
+    }
   }
 
   // Processes a player's move for Connect Four
@@ -241,7 +244,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   // Handles a click event on a square of the game board.
-  function _handleSquareClick(targetElement, currentGame) {
+  function _handleSquareClick(targetElement) {
     if (isGameOverState()) {
       console.info("Game is already over.");
       return;
@@ -252,6 +255,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       return; 
     }
 
+    const currentGame = getCurrentGame();
     const playerMakingMove = getCurrentPlayer();
     let gameEnded = false;
     let validMoveMade = true;
@@ -326,7 +330,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     if (currentGame === GAME.TIC_TAC_TOE) {
       _boundMouseClickHandler = (event) => {
         if (event.target.matches(_matchingID)) {
-          _handleSquareClick(event.target, currentGame);
+          _handleSquareClick(event.target);
           highlightCurrentPlayer(getCurrentPlayer());
         }
       }
@@ -335,7 +339,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     if (currentGame === GAME.CONNECT_FOUR) {
       _boundMouseClickHandler = (event) => {
         if (event.target.matches(_matchingID)) {
-          _handleSquareClick(event.target, currentGame);
+          _handleSquareClick(event.target);
           highlightCurrentPlayer(getCurrentPlayer());
         }
       }

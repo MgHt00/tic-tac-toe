@@ -4,7 +4,15 @@ import { STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
 import { PLAYERS, INTERACTIONS, GAME } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 
-import { getCurrentGame, setCurrentGame, getCurrentPlayer, setCurrentPlayer } from "../services/globalDataManager.js";
+import { 
+  getCurrentGame, 
+  setCurrentGame, 
+  getCurrentPlayer, 
+  setCurrentPlayer, 
+  setPlayerXScore, 
+  getPlayerXScore, 
+  setPlayerOScore, 
+  getPlayerOScore } from "../services/globalDataManager.js";
 
 const _matchingID = INTERACTIONS.SQUARES_GENERAL_ID;
 const { PLAYER_X, PLAYER_O } = PLAYERS;

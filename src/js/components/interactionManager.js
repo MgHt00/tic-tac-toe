@@ -233,7 +233,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const playerMakingMove = getCurrentPlayer();
 
     setGameInProgressState(true);
-
     updateGameBoardState(targetElement, playerMakingMove, currentGame);
 
     if (currentGame === GAME.TIC_TAC_TOE) {
@@ -254,10 +253,11 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       
       // Check for win using the player's move
       const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), targetElement, playerMakingMove);
-
-      return;
+      if (winningBoardCombination) {
+        _handleWin(playerMakingMove, winningBoardCombination, currentGame);
+        return;
+      }
     }
-
 
     if (_areAllSquaresFilled(currentGame)) {
       _handleDraw(); 
@@ -269,7 +269,13 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     displayCurrentPlayer(getCurrentPlayer());
     highlightCurrentPlayer(getCurrentPlayer());
 
-    _handleAITurn();
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      _handleAITurn();
+    }
+
+    if (currentGame === GAME.CONNECT_FOUR) {
+      _handleConnectFourAITurn();
+    }
   }
 
   // Attempt to remove listeners from both boards.

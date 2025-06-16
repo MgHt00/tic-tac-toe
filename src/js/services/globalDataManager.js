@@ -109,8 +109,11 @@ export function setGameInProgressState(isInProgress) {
   globals.appState[STATE_KEYS.GAME_IN_PROGRESS] = isInProgress;
 }
 
-export function getGameBoard() {
-  return globals.appState[STATE_KEYS.GAME_BOARD_TTT];
+export function getGameBoard(currentGame) {
+  const gameBoard = currentGame === GAME.TIC_TAC_TOE ? 
+                                    globals.appState[STATE_KEYS.GAME_BOARD_TTT] : 
+                                    globals.appState[STATE_KEYS.GAME_BOARD_CF];
+  return gameBoard;
 }
 
 export function isGameOverState() {

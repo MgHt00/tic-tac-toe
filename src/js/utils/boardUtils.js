@@ -1,8 +1,8 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
-import { PLAYERS, INTERACTIONS, GAME } from "../constants/appConstants.js";
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
+import { PLAYERS, INTERACTIONS, GAME, BOARD_CONSTANTS } from "../constants/appConstants.js";
+import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js"; // Import BOARD_CONSTANTS
 
 import { 
   getCurrentGame, 
@@ -163,7 +163,7 @@ export function flipPlayer() {
 export function isBelowSquareFilled(targetElement) {
   const row = parseInt(targetElement.dataset.row, 10);
   const col = parseInt(targetElement.dataset.col, 10);
-  if (row === 5) { // checking whether it is the bottom most row
+  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) { // checking whether it is the bottom most row
     return true;
   };
 

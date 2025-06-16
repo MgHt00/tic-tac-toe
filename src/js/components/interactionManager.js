@@ -128,6 +128,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   function _handleConnectFourAITurn() {
     console.log("Connect Four AI is thinking...");
+    if (isGameOverState()) return; // Don't proceed if game is over
+    const currentGame = getCurrentGame();
+    _disableBoardInteractions(); 
+
     // Example: _enableConnectFourBoardInteractions(); // (Needs to be created)
     // Example: const move = getConnectFourAIMove(getConnectFourGameBoard(), getCurrentPlayer(), ...);
     // Example: if (move) { _applyConnectFourMove(move, getCurrentPlayer()); ... } // (Needs to be created)
@@ -141,13 +145,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const currentGame = getCurrentGame();
     _disableBoardInteractions(); 
 
-    if (currentGame === GAME.CONNECT_FOUR) { // AI turn for Connect Four
-      setTimeout(() => {
-        _handleConnectFourAITurn(); 
-      }, INTERACTIONS.AI_THINKING_TIME_MS); 
-      setGameInProgressState(true); 
-      
-    } else if (currentGame === GAME.TIC_TAC_TOE) {
+    if (currentGame === GAME.TIC_TAC_TOE) {
       if (getOpponentLevel() === 3) { // 2-Player mode for TTT
         _handle2PlayerMode(); // enables the board for the next human player.
         return; 
@@ -218,7 +216,38 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     highlightCurrentPlayer(getCurrentPlayer());
   }
 
-  // Handles a click event on a square of the Tic-Tac-Toe board.
+  // Processes a player's move for Tic-Tac-Toe.
+  function _processTicTacToeMove(targetElement, playerMakingMove, currentGame) {
+    fillAndDecorateSquare(targetElement, playerMakingMove);
+
+    // Check for win using the player's move    
+    const winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), playerMakingMove);
+    if (winningBoardCombination) {
+      _handleWin(playerMakingMove, winningBoardCombination, currentGame);
+      return true; // Game ended
+    }
+    return false; // Game continues
+  }
+
+  // Processes a player's move for Connect Four
+  function _processConnectFourMove(targetElement, playerMakingMove, currentGame) {
+    if (!_isBelowSquareFilled(targetElement)) {
+      //console.info("Connect Four move invalid: square below is empty.");
+      return null;
+    }
+
+    fillAndDecorateSquare(targetElement, playerMakingMove);
+
+    // Check for win using the player's move
+    const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), targetElement, playerMakingMove);
+    if (winningBoardCombination) {
+      _handleWin(playerMakingMove, winningBoardCombination, currentGame);
+      return true; // game ended
+    }
+    return false; // game continues
+  }
+
+  // Handles a click event on a square of the game board.
   function _handleSquareClick(targetElement, currentGame) {
     if (isGameOverState()) {
       console.info("Game is already over.");
@@ -231,34 +260,31 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     const playerMakingMove = getCurrentPlayer();
+    let gameEnded = false;
+    let validMoveMade = true;
 
     setGameInProgressState(true);
     updateGameBoardState(targetElement, playerMakingMove, currentGame);
 
     if (currentGame === GAME.TIC_TAC_TOE) {
-      fillAndDecorateSquare(targetElement, playerMakingMove);
-
-      // Check for win using the player's move    
-      const winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), playerMakingMove);
-      if (winningBoardCombination) {
-        _handleWin(playerMakingMove, winningBoardCombination, currentGame);
-        return;
-      }
+      gameEnded = _processTicTacToeMove(targetElement, playerMakingMove, currentGame);
     }
     
     if (currentGame === GAME.CONNECT_FOUR) {
-      if (_isBelowSquareFilled(targetElement)) {
-        fillAndDecorateSquare(targetElement, playerMakingMove);
-      }
-      
-      // Check for win using the player's move
-      const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), targetElement, playerMakingMove);
-      if (winningBoardCombination) {
-        _handleWin(playerMakingMove, winningBoardCombination, currentGame);
-        return;
+      const connectFourResult = _processConnectFourMove(targetElement, playerMakingMove, currentGame);
+      if (connectFourResult === null) { // If the move was invalid (e.g., C4 piece dropped in air), don't proceed to next turn.
+        validMoveMade = false;
+      } else {
+        gameEnded = connectFourResult;
       }
     }
 
+    // If the game ended due to a win in the game-specific logic, return.
+    if (gameEnded) {
+      return;
+    }
+
+    // Check for a draw if the game hasn't already ended with a win.
     if (_areAllSquaresFilled(currentGame)) {
       _handleDraw(); 
       return;
@@ -273,7 +299,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       _handleAITurn();
     }
 
-    if (currentGame === GAME.CONNECT_FOUR) {
+    if (validMoveMade && currentGame === GAME.CONNECT_FOUR) {
       _handleConnectFourAITurn();
     }
   }

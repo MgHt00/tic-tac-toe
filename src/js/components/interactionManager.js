@@ -143,23 +143,17 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   function _handleAITurn() {
     if (isGameOverState()) return; // Don't proceed if game is over
     const currentGame = getCurrentGame();
-    _disableBoardInteractions(); 
+    _disableBoardInteractions();
 
-    if (currentGame === GAME.TIC_TAC_TOE) {
-      if (getOpponentLevel() === 3) { // 2-Player mode for TTT
-        _handle2PlayerMode(); // enables the board for the next human player.
-        return; 
-      }
-
-      setTimeout(() => { // AI turn for Tic-Tac-Toe
-        _playAI();
-      }, INTERACTIONS.AI_THINKING_TIME_MS);
-      setGameInProgressState(true);
-
-    } else {
-      console.error("Unknown game type in _handleAITurn:", currentGame);
-      _enableBoardInteractions(); // Or game-specific enable
+    if (getOpponentLevel() === 3) { // 2-Player mode for TTT
+      _handle2PlayerMode(); // enables the board for the next human player.
+      return;
     }
+
+    setTimeout(() => { // AI turn for Tic-Tac-Toe
+      _playAI();
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    setGameInProgressState(true);
   }
 
   // Executes the AI's move based on the selected difficulty level.

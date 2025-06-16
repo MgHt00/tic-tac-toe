@@ -285,7 +285,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     // Prepare for AI turn
-    _flipPlayer();
+    if (validMoveMade) {
+      _flipPlayer();
+    }
     displayCurrentPlayer(getCurrentPlayer());
     highlightCurrentPlayer(getCurrentPlayer());
 

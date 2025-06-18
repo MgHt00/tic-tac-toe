@@ -10,13 +10,19 @@ export const STATE_KEYS = {
   STARTING_PLAYER: 'startingPlayer',
   CURRENT_PLAYER: 'currentPlayer',
   OPPONENT_LEVEL: 'opponentLevel',
-  GAME_BOARD: 'gameBoard',
+  GAME_BOARD_TTT: 'gameBoard-TTT',
+  GAME_BOARD_CF: 'gameBoard-CF',
   GAME_OVER: 'gameOver',
   WINNER: 'winner',
   GAME_IN_PROGRESS: 'gameInProgress',
   PLAYER_X_SCORE: 'playerXScore',
   PLAYER_O_SCORE: 'playerOScore',
 };
+
+// Constants related to board structure/dimensions
+export const BOARD_CONSTANTS = {
+  CONNECT_FOUR_MAX_ROW_INDEX: 5, // Top row is 0, bottom row is 5
+}
 
 export const GAME = {
   TIC_TAC_TOE: "Tic-Tac-Toe",
@@ -43,6 +49,7 @@ export const INTERACTIONS = {
   GAME_CHANGE_TIME_MS: 1000,
   SQUARES_GENERAL_ID: '[id|="square"]',
   SQUARES_ID_INITIAL: 'square-',
+  CF_SQUARES_ID_INITIAL: 'square-CF-',
   PLAYER_TURN: 'Turn',
   PLAYER_WIN: 'wins!',
   PLAYER_DRAW: 'Game is a draw!',

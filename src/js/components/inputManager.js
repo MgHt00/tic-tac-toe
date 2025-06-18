@@ -330,11 +330,12 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
     _initializeCurrentGame();
     _initializeOpponentSettings();
     _initializeStartingPlayer();
+    checkGameRadioInput(_confirmedGame);
     namePlayers(getCurrentGame());
     _addRangeListeners();
     _addPlayerButtonListeners();
     _addNewGameButtonListener();
-    _addGameSwitchButtonListeners()
+    _addGameSwitchButtonListeners();
   }
 
   return {

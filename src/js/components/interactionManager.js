@@ -20,9 +20,19 @@ import {
   getPlayerOScore,
   setPlayerOScore } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
-import { PLAYERS, INTERACTIONS, GAME, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
+import { PLAYERS, INTERACTIONS, GAME } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
-import { checkWinCondition } from "../utils/boardUtils.js";
+import { 
+  checkWinCondition as _checkWinCondition,
+  checkConnectFourWinCondition as _checkConnectFourWinCondition,
+  isSquareFilled as _isSquareFilled,
+  disableBoardInteractions as _disableBoardInteractions,
+  enableBoardInteractions as _enableBoardInteractions,
+  flipPlayer as _flipPlayer,
+  isBelowSquareFilled as _isBelowSquareFilled,
+  areAllSquaresFilled as _areAllSquaresFilled,
+  accumulateScore as _accumulateScore,
+ } from "../utils/boardUtils.js";
 import { 
   addHighlight, 
   removeHighlight, 
@@ -44,6 +54,9 @@ import {
   hideTTTBoard,
   clearAllSquares,
   changeGameInfoContent,
+  fillAndDecorateSquare,
+  strikeThroughCells,
+  highlightWinningCells,
   } from "../utils/domHelpers.js";
   
 /**
@@ -62,74 +75,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   let _boundMouseOverHandler = null;
   let _boundMouseOutHandler = null;
   let _boundMouseClickHandler = null;
-
-  // Fills a square with the player's mark and applies appropriate styling.
-  function _fillAndDecorateSquare(targetElement, player) {
-    targetElement.textContent = player;
-    const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
-    targetElement.classList.add(cssClass);
-  }
-
-  // Checks if a given square element is already filled with a player's mark.
-  function _isSquareFilled(targetElement) {
-    return targetElement.textContent !== "";
-  }
-
-  // Disables interactions with the Tic-Tac-Toe and Connect Four board.
-  function _disableBoardInteractions() {
-    const currentGame = getCurrentGame();
-    if (currentGame === GAME.TIC_TAC_TOE) {
-      if (selectors.TTTBoard) {
-      selectors.TTTBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
-    }
-    } else if (currentGame === GAME.CONNECT_FOUR) {
-      if (selectors.CFBoard) {
-        selectors.CFBoard.classList.add(CSS_CLASS_NAMES.BOARD_DISABLED);
-      }
-    } else {
-      console.error("Invalid game:", currentGame);
-    }
-  }
-
-  // Enables interactions with the Tic-Tac-Toe and Connect Four board.
-  function _enableBoardInteractions() {
-    const currentGame = getCurrentGame();
-    if (currentGame === GAME.TIC_TAC_TOE) {
-      if (selectors.TTTBoard) {
-      selectors.TTTBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
-    }
-    } else if (currentGame === GAME.CONNECT_FOUR) {
-      if (selectors.CFBoard) {
-        selectors.CFBoard.classList.remove(CSS_CLASS_NAMES.BOARD_DISABLED);
-      }
-    } else {
-      console.error("Invalid game:", currentGame);
-    }
-  }
-
-  // Switches the current player.
-  function _flipPlayer() {
-    const newPlayer = getCurrentPlayer() === PLAYER_X ? PLAYER_O : PLAYER_X;
-    setCurrentPlayer(newPlayer);
-  }
-
-  // Checks if all squares on the board are filled.
-  function _areAllSquaresFilled() {
-    const squaresNodeList = document.querySelectorAll(_matchingID);
-    for (const square of squaresNodeList) {
-      if (square.textContent === "") {
-        return false;
-      }
-    }
-    return true;
-  }
  
-  /**
-   * Resets the game board to its initial state.
-   * @param {object} options - Options for the reset.
-   * @param {boolean} [options.resetScore=false] - Whether to reset player scores.
-   * @param {boolean} [options.resetStartingPlayer=false] - Whether to reset the starting player to default.
-   */
   function resetGameBoard({ resetScore = false, resetStartingPlayer = false }) {
     blackoutScreen();
 
@@ -148,79 +94,29 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   /**
-   * Applies styling to indicate the winning line on the board.
-   * @param {object} winningCombinationDetails - Details of the winning combination, including key and indices.
-   * @param {string} winningPlayer - The player who won (PLAYER_X or PLAYER_O).
-   */
-  function _strikeThroughCells(winningCombinationDetails, winningPlayer) {
-    if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
-      console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
-      return;
-    }
-
-    const { key, indices } = winningCombinationDetails;
-    let baseWinType; // Will be "ROW", "COLUMN", "DIAGONAL_MAIN", or "DIAGONAL_SECONDARY"
-
-    if (key.startsWith("row")) {
-      baseWinType = WIN_LINE_DIRECTIONS.ROW;
-    } else if (key.startsWith("col")) {
-      baseWinType = WIN_LINE_DIRECTIONS.COLUMN;
-    } else if (key === "diag1") {
-      baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_MAIN;
-    } else if (key === "diag2") {
-      baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY;
-    } else {
-      console.error("Unknown winning combination key:", key);
-      return;
-    }
-
-    // Construct the key for CSS_CLASS_NAMES, e.g., "X_WIN_ROW" or "O_WIN_DIAGONAL_MAIN"
-    const cssClassKey = `${winningPlayer}_WIN_${baseWinType}`;
-    const cssClass = CSS_CLASS_NAMES[cssClassKey];
-
-    if (!cssClass) {
-      console.error(`CSS class not found for key: ${cssClassKey}. Ensure PLAYERS constants ('${PLAYER_X}', '${PLAYER_O}') align with CSS_CLASS_NAMES prefixes.`);
-      return;
-    }
-
-    indices.forEach(index => {
-      const domRow = Math.floor(index / 3); // Result is 0, 1, or 2
-      const domCol = (index % 3);      // Result is 0, 1, or 2
-      const cellId = `${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`; 
-      const cellElement = document.getElementById(cellId);
-
-      if (cellElement) {
-        cellElement.classList.add(cssClass);
-      } else {
-        console.error(`Cell element not found for ID: ${cellId}`);
-      }
-    });
-  }
-
-  // Increments the score for the winning player.
-  function _accumulateScore(winningPlayer) {
-    if (winningPlayer === PLAYER_X) {
-      setPlayerXScore(getPlayerXScore() + 1);
-    }
-    if (winningPlayer === PLAYER_O) {
-      setPlayerOScore(getPlayerOScore() + 1);
-    }
-  }
-
-  /**
    * Handles the game win scenario.
    * @param {string} winningPlayer - The player who won.
    * @param {object} winningCombinationDetails - Details of the winning line.
    */
   function _handleWin(winningPlayer, winningCombinationDetails) {
     console.info(`Player ${winningPlayer} wins!`);
+    const currentGame = getCurrentGame();
+    
     setGameOverState(true);
     setWinner(winningPlayer);
     _accumulateScore(winningPlayer);
     updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
     showWinnerOnScreen(winningPlayer);
-    _strikeThroughCells(winningCombinationDetails, winningPlayer);
     _disableBoardInteractions();
+    
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      strikeThroughCells(winningCombinationDetails, winningPlayer, currentGame);  
+    } else if (currentGame === GAME.CONNECT_FOUR) {
+      highlightWinningCells(winningCombinationDetails, winningPlayer, currentGame);
+    } else {
+      console.error("Invalid game:", currentGame);
+    }
+    
     makeRestartButtonFilled();
   }
 
@@ -241,61 +137,23 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     highlightCurrentPlayer(getCurrentPlayer());
   }
 
-  function _handleConnectFourAITurn() {
-    console.log("Connect Four AI is thinking...");
-    // Example: _enableConnectFourBoardInteractions(); // (Needs to be created)
-    // Example: const move = getConnectFourAIMove(getConnectFourGameBoard(), getCurrentPlayer(), ...);
-    // Example: if (move) { _applyConnectFourMove(move, getCurrentPlayer()); ... } // (Needs to be created)
-    // Example: _checkConnectFourWinOrDraw(); // (Needs to be created)
-    // Example: _flipPlayer(); displayCurrentPlayer(getCurrentPlayer()); highlightCurrentPlayer(getCurrentPlayer());
-  }
-    
-  // Manages the AI's turn, including thinking time and invoking the AI move logic.
-  function _handleAITurn() {
-    if (isGameOverState()) return; // Don't proceed if game is over
-    _disableBoardInteractions(); 
-
-    const currentGame = getCurrentGame();
-
-    if (currentGame === GAME.CONNECT_FOUR) { // AI turn for Connect Four
-      setTimeout(() => {
-        _handleConnectFourAITurn(); 
-      }, INTERACTIONS.AI_THINKING_TIME_MS); 
-      setGameInProgressState(true); 
-      
-    } else if (currentGame === GAME.TIC_TAC_TOE) {
-      if (getOpponentLevel() === 3) { // 2-Player mode for TTT
-        _handle2PlayerMode(); // enables the board for the next human player.
-        return; 
-      }
-
-      setTimeout(() => { // AI turn for Tic-Tac-Toe
-        _playAI();
-      }, INTERACTIONS.AI_THINKING_TIME_MS);
-      setGameInProgressState(true);
-
-    } else {
-      console.error("Unknown game type in _handleAITurn:", currentGame);
-      _enableBoardInteractions(); // Or game-specific enable
-    }
-  }
-
   // Executes the AI's move based on the selected difficulty level.
   function _playAI() {
     _enableBoardInteractions();
     let moveCoordinates; // Will be {row, col} or null
     const aiPlayerSymbol = getCurrentPlayer();
+    const currentGame = getCurrentGame();
     const opponentPlayerSymbol = aiPlayerSymbol === PLAYER_X ? PLAYER_O : PLAYER_X;
 
     switch (getOpponentLevel()) {
       case 0:
-        moveCoordinates = getAILevel0Move(getGameBoard());
+        moveCoordinates = getAILevel0Move(getGameBoard(currentGame));
         break;
       case 1:
-        moveCoordinates = getAILevel1Move(getGameBoard(), aiPlayerSymbol, opponentPlayerSymbol);
+        moveCoordinates = getAILevel1Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol);
         break;
       case 2:
-        moveCoordinates = getAILevel2Move(getGameBoard(), aiPlayerSymbol, opponentPlayerSymbol);
+        moveCoordinates = getAILevel2Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol);
         break; 
       default:
         console.error("Unknown AI opponent level:", getOpponentLevel(), "AI will not move.");
@@ -312,18 +170,18 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const targetElementId = `${INTERACTIONS.SQUARES_ID_INITIAL}${moveCoordinates.row}-${moveCoordinates.col}`;
     const targetElement = document.getElementById(targetElementId);
 
-    _fillAndDecorateSquare(targetElement, aiPlayerSymbol);
-    updateGameBoardState(targetElement, aiPlayerSymbol);
+    fillAndDecorateSquare(targetElement, aiPlayerSymbol);
+    updateGameBoardState(targetElement, aiPlayerSymbol, currentGame);
 
     // Check for win using the AI's move
-    const winningBoardCombination = checkWinCondition(getGameBoard(), aiPlayerSymbol);
+    const winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), aiPlayerSymbol);
     
-    if (winningBoardCombination) {
+    if (winningBoardCombination && currentGame === GAME.TIC_TAC_TOE) {
       _handleWin(aiPlayerSymbol, winningBoardCombination);
       return;
     }
     
-    if (_areAllSquaresFilled()) {
+    if (_areAllSquaresFilled(currentGame)) {
       _handleDraw(); 
       return;
     }
@@ -333,9 +191,69 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     highlightCurrentPlayer(getCurrentPlayer());
   }
 
-  // Handles a click event on a square of the Tic-Tac-Toe board.
+  // Manages the TTT AI's turn, including thinking time and invoking the AI move logic.
+  function _handleAITurn() {
+    if (isGameOverState()) return; // Don't proceed if game is over
+
+    _disableBoardInteractions();
+
+    if (getOpponentLevel() === 3) { // 2-Player mode for TTT
+      _handle2PlayerMode(); // enables the board for the next human player.
+      return;
+    }
+
+    setTimeout(() => { // AI turn for Tic-Tac-Toe
+      _playAI();
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    setGameInProgressState(true);
+  }
+
+  // Processes a player's move for Tic-Tac-Toe.
+  function _processTicTacToeMove(targetElement, playerMakingMove, currentGame) {
+    fillAndDecorateSquare(targetElement, playerMakingMove);
+
+    // Check for win using the player's move    
+    const winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), playerMakingMove);
+    if (winningBoardCombination) {
+      _handleWin(playerMakingMove, winningBoardCombination);
+      return true; // Game ended
+    }
+    return false; // Game continues
+  }
+
+  // Manages the Connect Four AI's turn
+  function _handleConnectFourAITurn() {
+    console.log("Connect Four AI is thinking...");
+    if (isGameOverState()) return; // Don't proceed if game is over
+
+    _disableBoardInteractions();
+
+    if (getOpponentLevel() === 3) { // 2-Player mode
+      _handle2PlayerMode(); // enables the board for the next human player.
+      return;
+    }
+  }
+
+  // Processes a player's move for Connect Four
+  function _processConnectFourMove(targetElement, playerMakingMove, currentGame) {
+    if (!_isBelowSquareFilled(targetElement)) {
+      //console.info("Connect Four move invalid: square below is empty.");
+      return null;
+    }
+
+    fillAndDecorateSquare(targetElement, playerMakingMove);
+
+    // Check for win using the player's move
+    const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), targetElement, playerMakingMove);
+    if (winningBoardCombination) {
+      _handleWin(playerMakingMove, winningBoardCombination, currentGame);
+      return true; // game ended
+    }
+    return false; // game continues
+  }
+
+  // Handles a click event on a square of the game board.
   function _handleSquareClick(targetElement) {
-    console.info("_handleSquareClick");
     if (isGameOverState()) {
       console.info("Game is already over.");
       return;
@@ -346,50 +264,69 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       return; 
     }
 
+    const currentGame = getCurrentGame();
     const playerMakingMove = getCurrentPlayer();
+    let gameEnded = false;
+    let validMoveMade = true;
 
     setGameInProgressState(true);
+    updateGameBoardState(targetElement, playerMakingMove, currentGame);
 
-    _fillAndDecorateSquare(targetElement, playerMakingMove);
-    updateGameBoardState(targetElement, playerMakingMove);
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      gameEnded = _processTicTacToeMove(targetElement, playerMakingMove, currentGame);
+    }
+    
+    if (currentGame === GAME.CONNECT_FOUR) {
+      const connectFourResult = _processConnectFourMove(targetElement, playerMakingMove, currentGame);
+      if (connectFourResult === null) { // If the move was invalid (e.g., C4 piece dropped in air), don't proceed to next turn.
+        validMoveMade = false;
+      } else {
+        gameEnded = connectFourResult;
+      }
+    }
 
-    // Check for win using the player's move    
-    const winningBoardCombination = checkWinCondition(getGameBoard(), playerMakingMove);
-
-    if (winningBoardCombination) {
-      _handleWin(playerMakingMove, winningBoardCombination); 
+    // If the game ended due to a win in the game-specific logic, return.
+    if (gameEnded) {
       return;
     }
 
-    if (_areAllSquaresFilled()) {
+    // Check for a draw if the game hasn't already ended with a win.
+    if (_areAllSquaresFilled(currentGame)) {
       _handleDraw(); 
       return;
     }
 
     // Prepare for AI turn
-    _flipPlayer();
+    if (validMoveMade) {
+      _flipPlayer();
+    }
     displayCurrentPlayer(getCurrentPlayer());
     highlightCurrentPlayer(getCurrentPlayer());
 
-    _handleAITurn();
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      _handleAITurn();
+    }
+
+    if (validMoveMade && currentGame === GAME.CONNECT_FOUR) {
+      _handleConnectFourAITurn();
+    }
   }
 
+  // Attempt to remove listeners from both boards.
   function _removeSquareListeners() {
-    const currentGame = getCurrentGame();
-    // When switching games, currentGame is already updated to the NEW game.
-    // So, to remove listeners from the PREVIOUS board, we need to flip our conditonal check
-    const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.CFBoard : selectors.TTTBoard;
-
     if (_boundMouseOverHandler) {
-       gameBoard.removeEventListener("mouseover", _boundMouseOverHandler);
+       selectors.TTTBoard.removeEventListener("mouseover", _boundMouseOverHandler);
+       selectors.CFBoard.removeEventListener("mouseover", _boundMouseOverHandler);
        _boundMouseOverHandler = null;
     }
     if (_boundMouseOutHandler) {
-      gameBoard.removeEventListener("mouseout", _boundMouseOutHandler);
+      selectors.TTTBoard.removeEventListener("mouseout", _boundMouseOutHandler);
+      selectors.CFBoard.removeEventListener("mouseout", _boundMouseOutHandler);
       _boundMouseOutHandler = null;
     }
     if (_boundMouseClickHandler) {
-      gameBoard.removeEventListener("click", _boundMouseClickHandler);
+      selectors.TTTBoard.removeEventListener("click", _boundMouseClickHandler);
+      selectors.CFBoard.removeEventListener("click", _boundMouseClickHandler);
       _boundMouseClickHandler = null;
     }
   }
@@ -397,20 +334,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   // Adds event listeners to the squares on the Tic-Tac-Toe board for mouseover, mouseout, and click events.
   function _addSquareListeners() {
     const currentGame = getCurrentGame();
-    const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CONNECT_FOUR;
+    const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;
+    
     if (currentGame === GAME.TIC_TAC_TOE) {
-      _boundMouseOverHandler = (event) => {
-        if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
-          addHighlight(event.target);
-        }
-      }
-
-      _boundMouseOutHandler = (event) => {
-        if (event.target.matches(_matchingID)) {
-          removeHighlight(event.target);
-        }
-      }
-
       _boundMouseClickHandler = (event) => {
         if (event.target.matches(_matchingID)) {
           _handleSquareClick(event.target);
@@ -418,7 +344,28 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
         }
       }
     }
-    
+
+    if (currentGame === GAME.CONNECT_FOUR) {
+      _boundMouseClickHandler = (event) => {
+        if (event.target.matches(_matchingID)) {
+          _handleSquareClick(event.target);
+          highlightCurrentPlayer(getCurrentPlayer());
+        }
+      }
+    }
+
+    _boundMouseOverHandler = (event) => {
+      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target) && _isBelowSquareFilled(event.target)) { // Only highlight if game not over and square not filled
+        addHighlight(event.target);
+      }
+    }
+
+    _boundMouseOutHandler = (event) => {
+      if (event.target.matches(_matchingID)) {
+        removeHighlight(event.target);
+      }
+    }
+
     gameBoard.addEventListener("mouseover", _boundMouseOverHandler);
     gameBoard.addEventListener("mouseout", _boundMouseOutHandler);
     gameBoard.addEventListener("click", _boundMouseClickHandler);
@@ -468,6 +415,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     if (gameToPlay === GAME.CONNECT_FOUR) {
       _enableConnectFour();
+      _addSquareListeners();
     } 
     
     else if (gameToPlay === GAME.TIC_TAC_TOE) {
@@ -484,7 +432,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     else {
       console.error("Unknown game type in initializeGameInteraction:", gameToPlay);
     }
-
   }
 
   return {

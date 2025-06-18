@@ -1,7 +1,7 @@
 import { selectors } from "../services/selectors.js";
 
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
-import { GAME, PLAYERS, INTERACTIONS, STATE_KEYS } from "../constants/appConstants.js";
+import { GAME, PLAYERS, INTERACTIONS, STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
 import { globals } from "../services/globals.js";
 
 const { PLAYER_X, PLAYER_O } = PLAYERS;
@@ -194,4 +194,98 @@ export function clearAllSquares() {
 
 export function changeGameInfoContent(content) {
   selectors.gameInfo.textContent = content;
+}
+
+// Fills a square with the player's mark and applies appropriate styling.
+export function fillAndDecorateSquare(targetElement, player) {
+  targetElement.textContent = player;
+  const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
+  targetElement.classList.add(cssClass);
+}
+
+/**
+ * Applies styling to indicate the winning line on the board.
+ * @param {object} winningCombinationDetails - Details of the winning combination, including key and indices.
+ * @param {string} winningPlayer - The player who won (PLAYER_X or PLAYER_O).
+ */
+export function strikeThroughCells(winningCombinationDetails, winningPlayer) {
+  if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
+    console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
+    return;
+  }
+
+  const { key, indices } = winningCombinationDetails;
+  let baseWinType; // Will be "ROW", "COLUMN", "DIAGONAL_MAIN", or "DIAGONAL_SECONDARY"
+
+  if (key.startsWith("row")) {
+    baseWinType = WIN_LINE_DIRECTIONS.ROW;
+  } else if (key.startsWith("col")) {
+    baseWinType = WIN_LINE_DIRECTIONS.COLUMN;
+  } else if (key === "diag1") {
+    baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_MAIN;
+  } else if (key === "diag2") {
+    baseWinType = WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY;
+  } else {
+    console.error("Unknown winning combination key:", key);
+    return;
+  }
+
+  // Construct the key for CSS_CLASS_NAMES, e.g., "X_WIN_ROW" or "O_WIN_DIAGONAL_MAIN"
+  const cssClassKey = `${winningPlayer}_WIN_${baseWinType}`;
+  const cssStrikeClass = CSS_CLASS_NAMES[cssClassKey];
+  const cssAccentClass = CSS_CLASS_NAMES.WINNING_CELL_ACCENT
+
+  if (!cssStrikeClass) {
+    console.error(`CSS class not found for key: ${cssClassKey}. Ensure PLAYERS constants ('${PLAYER_X}', '${PLAYER_O}') align with CSS_CLASS_NAMES prefixes.`);
+    return;
+  }
+
+  indices.forEach(index => {
+    const domRow = Math.floor(index / 3); // Result is 0, 1, or 2
+    const domCol = (index % 3);      // Result is 0, 1, or 2
+    const cellId = `${INTERACTIONS.SQUARES_ID_INITIAL}${domRow}-${domCol}`;
+    const cellElement = document.getElementById(cellId);
+
+    if (cellElement) {
+      cellElement.classList.add(cssStrikeClass, cssAccentClass);
+    } else {
+      console.error(`Cell element not found for ID: ${cellId}`);
+    }
+  });
+}
+
+export function highlightWinningCells(winningCombinationDetails, winningPlayer, currentGame) {
+  if (!winningCombinationDetails || !winningCombinationDetails.indices) {
+    console.error("Invalid winningCombinationDetails for highlightWinningCells:", winningCombinationDetails);
+    return;
+  }
+
+  if (currentGame === GAME.TIC_TAC_TOE) {
+    console.warn("highlightWinningCells currently optimized for Connect Four. TTT uses strikeThroughCells.");
+    return;
+  }
+
+  if (currentGame !== GAME.CONNECT_FOUR) {
+    console.error("Invalid game:", currentGame);
+    return;
+  }
+
+  const cellIDPrefix = INTERACTIONS.CF_SQUARES_ID_INITIAL;
+  let winningCellIDs = [];
+  
+  const { indices } = winningCombinationDetails;
+  indices.forEach(coord => {
+    const cellID = `${cellIDPrefix}${coord[0]}-${coord[1]}`;
+    winningCellIDs.push(cellID);
+  });
+
+  winningCellIDs.forEach(cellID => {
+    const cellElement = document.getElementById(cellID);
+    if (cellElement) {
+      cellElement.classList.add(CSS_CLASS_NAMES.WINNING_CELL_ACCENT);
+    } else {
+      console.error(`Cell element not found for ID: ${cellID}`);
+    }
+  });
+
 }

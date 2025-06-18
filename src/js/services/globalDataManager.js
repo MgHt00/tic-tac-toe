@@ -51,12 +51,17 @@ export function restoreDefaults({ resetScore = false, resetStartingPlayer = fals
   }
 }
 
-export function updateGameBoardState(targetElement, player) {
+export function updateGameBoardState(targetElement, player, currentGame) {
+  if (currentGame !== GAME.TIC_TAC_TOE && currentGame !== GAME.CONNECT_FOUR) {
+    console.error("Invalid game value:", currentGame);
+    return;
+  }
+  const gameBoard = currentGame === GAME.TIC_TAC_TOE ? globals.appState[STATE_KEYS.GAME_BOARD_TTT] : globals.appState[STATE_KEYS.GAME_BOARD_CF];
+  
   // data-row and data-col are 0-indexed strings, parse them to integers.
   const row = parseInt(targetElement.dataset.row, 10);
   const col = parseInt(targetElement.dataset.col, 10);
-
-  globals.appState.gameBoard[row][col] = player;
+  gameBoard[row][col] = player;  
 }
 
 export function getStartingPlayer() {
@@ -104,8 +109,11 @@ export function setGameInProgressState(isInProgress) {
   globals.appState[STATE_KEYS.GAME_IN_PROGRESS] = isInProgress;
 }
 
-export function getGameBoard() {
-  return globals.appState[STATE_KEYS.GAME_BOARD];
+export function getGameBoard(currentGame) {
+  const gameBoard = currentGame === GAME.TIC_TAC_TOE ? 
+                                    globals.appState[STATE_KEYS.GAME_BOARD_TTT] : 
+                                    globals.appState[STATE_KEYS.GAME_BOARD_CF];
+  return gameBoard;
 }
 
 export function isGameOverState() {

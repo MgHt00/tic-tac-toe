@@ -38,7 +38,7 @@ export function loadingManager(initializeInput) {
     _initializeGameDisplay(globals.appState.currentGame);
     
     const _initializeInput = _asyncWrapper(initializeInput);
-    const _restoreDefaults = _asyncWrapper(() => restoreDefaults({ resetScore : true, resetStartingPlayer: true })); // [le004]
+    const _restoreDefaults = _asyncWrapper(() => restoreDefaults({  resetScore: true, resetStartingPlayer: true, resetGameType: true })); // [le004]
 
     blackoutScreen();
 

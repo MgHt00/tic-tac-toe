@@ -208,7 +208,7 @@ export function fillAndDecorateSquare(targetElement, player) {
  * @param {object} winningCombinationDetails - Details of the winning combination, including key and indices.
  * @param {string} winningPlayer - The player who won (PLAYER_X or PLAYER_O).
  */
-export function strikeThroughCells(winningCombinationDetails, winningPlayer, currentGame) {
+export function strikeThroughCells(winningCombinationDetails, winningPlayer) {
   if (!winningCombinationDetails || !winningCombinationDetails.key || !winningCombinationDetails.indices) {
     console.error("Invalid winningCombinationDetails for strikeThroughCells:", winningCombinationDetails);
     return;
@@ -216,10 +216,6 @@ export function strikeThroughCells(winningCombinationDetails, winningPlayer, cur
 
   const { key, indices } = winningCombinationDetails;
   let baseWinType; // Will be "ROW", "COLUMN", "DIAGONAL_MAIN", or "DIAGONAL_SECONDARY"
-
-  if (currentGame === GAME.CONNECT_FOUR) {
-    console.info(key);
-  }
 
   if (key.startsWith("row")) {
     baseWinType = WIN_LINE_DIRECTIONS.ROW;
@@ -255,4 +251,41 @@ export function strikeThroughCells(winningCombinationDetails, winningPlayer, cur
       console.error(`Cell element not found for ID: ${cellId}`);
     }
   });
+}
+
+export function highlightWinningCells(winningCombinationDetails, winningPlayer, currentGame) {
+  if (!winningCombinationDetails || !winningCombinationDetails.indices) {
+    console.error("Invalid winningCombinationDetails for highlightWinningCells:", winningCombinationDetails);
+    return;
+  }
+
+  if (currentGame === GAME.TIC_TAC_TOE) {
+    console.warn("highlightWinningCells currently optimized for Connect Four. TTT uses strikeThroughCells.");
+    return;
+  }
+
+  if (currentGame !== GAME.CONNECT_FOUR) {
+    console.error("Invalid game:", currentGame);
+    return;
+  }
+
+  const cellIDPrefix = INTERACTIONS.CF_SQUARES_ID_INITIAL;
+  let winningCellIDs = [];
+  
+  const { indices } = winningCombinationDetails;
+  indices.forEach(coord => {
+    const cellID = `${cellIDPrefix}${coord[0]}-${coord[1]}`;
+    winningCellIDs.push(cellID);
+  });
+
+  winningCellIDs.forEach(cellID => {
+    const cellElement = document.getElementById(cellID);
+    console.info(cellElement);
+    if (cellElement) {
+      cellElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
+    } else {
+      console.error(`Cell element not found for ID: ${cellID}`);
+    }
+  });
+
 }

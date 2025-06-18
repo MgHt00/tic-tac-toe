@@ -232,9 +232,10 @@ export function strikeThroughCells(winningCombinationDetails, winningPlayer) {
 
   // Construct the key for CSS_CLASS_NAMES, e.g., "X_WIN_ROW" or "O_WIN_DIAGONAL_MAIN"
   const cssClassKey = `${winningPlayer}_WIN_${baseWinType}`;
-  const cssClass = CSS_CLASS_NAMES[cssClassKey];
+  const cssStrikeClass = CSS_CLASS_NAMES[cssClassKey];
+  const cssAccentClass = CSS_CLASS_NAMES.WINNING_CELL_ACCENT
 
-  if (!cssClass) {
+  if (!cssStrikeClass) {
     console.error(`CSS class not found for key: ${cssClassKey}. Ensure PLAYERS constants ('${PLAYER_X}', '${PLAYER_O}') align with CSS_CLASS_NAMES prefixes.`);
     return;
   }
@@ -246,7 +247,7 @@ export function strikeThroughCells(winningCombinationDetails, winningPlayer) {
     const cellElement = document.getElementById(cellId);
 
     if (cellElement) {
-      cellElement.classList.add(cssClass);
+      cellElement.classList.add(cssStrikeClass, cssAccentClass);
     } else {
       console.error(`Cell element not found for ID: ${cellId}`);
     }
@@ -280,9 +281,8 @@ export function highlightWinningCells(winningCombinationDetails, winningPlayer, 
 
   winningCellIDs.forEach(cellID => {
     const cellElement = document.getElementById(cellID);
-    console.info(cellElement);
     if (cellElement) {
-      cellElement.classList.add(CSS_CLASS_NAMES.HIGHLIGHT);
+      cellElement.classList.add(CSS_CLASS_NAMES.WINNING_CELL_ACCENT);
     } else {
       console.error(`Cell element not found for ID: ${cellID}`);
     }

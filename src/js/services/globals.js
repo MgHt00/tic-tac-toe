@@ -29,7 +29,7 @@ const appState = {
   [STATE_KEYS.CURRENT_GAME]: GAME.TIC_TAC_TOE,
   [STATE_KEYS.STARTING_PLAYER] : PLAYERS.PLAYER_X,
   [STATE_KEYS.CURRENT_PLAYER] : PLAYERS.PLAYER_X,
-  [STATE_KEYS.OPPONENT_LEVEL]: 1,
+  [STATE_KEYS.OPPONENT_LEVEL]: 3, // Default AI level
   [STATE_KEYS.GAME_BOARD_TTT]: [[null, null, null], [null, null, null], [null, null, null]],
   [STATE_KEYS.GAME_BOARD_CF]: [],
   [STATE_KEYS.GAME_OVER]: false,

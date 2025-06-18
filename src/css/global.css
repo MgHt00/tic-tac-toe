@@ -31,6 +31,9 @@
   --board-disabled-opacity: 0.3;
   --loading-wrapper-font-size: 24px;
   --alert-wrapper-font-size: 16px;
+  --transition-time: 0.3s;
+  --full-opacity: 1;
+  --half-opacity: 0.5;
 }
 
 /*@layer debug {
@@ -230,8 +233,12 @@ div[id|="game"] {
   transform: translate(-15%, -15%) rotate(-45deg);
 }
 
-#tic-tac-toe-board > .highlight,
-#connect-four-board > .highlight {
+#tic-tac-toe-board > .highlight {
+  background-color: var(--tic-tac-toe-border-color);
+}
+
+#connect-four-board > .winning-cell-accent {
+  opacity: 1;
   background-color: var(--tic-tac-toe-border-color);
 }
 
@@ -273,7 +280,25 @@ div[id|="game"] {
   background-color: var(--player-O-color, rgb(85, 193, 251));
 }
 
+/* This is the class added by disableBoardInteractions() to the board container */
 .board-disabled {
   pointer-events: none;
+}
+
+/* Default style for all cells when the board is disabled: make them dim */
+.board-disabled [id|="square"] {
   opacity: var(--board-disabled-opacity, 0.6); 
+  transition: opacity var(----transition-time, 0.3s) ease-in-out;
+}
+
+/* Style for winning cells when the board is disabled: make them stand out */
+.board-disabled [id|="square"].winning-cell-accent {
+  opacity: var(--full-opacity, 1);
+}
+
+/* Base style for cells (when board is not disabled) */
+[id|="square"] {
+  opacity: var(--full-opacity, 1);
+  transition: opacity var(----transition-time, 0.3s) ease-in-out;
+  cursor: pointer;
 }

@@ -56,6 +56,7 @@ import {
   changeGameInfoContent,
   fillAndDecorateSquare,
   strikeThroughCells,
+  highlightWinningCells,
   } from "../utils/domHelpers.js";
   
 /**
@@ -106,8 +107,16 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     _accumulateScore(winningPlayer);
     updateScoreOnScreen(getPlayerXScore(), getPlayerOScore());
     showWinnerOnScreen(winningPlayer);
-    strikeThroughCells(winningCombinationDetails, winningPlayer, currentGame);
     _disableBoardInteractions();
+    
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      strikeThroughCells(winningCombinationDetails, winningPlayer, currentGame);  
+    } else if (currentGame === GAME.CONNECT_FOUR) {
+      highlightWinningCells(winningCombinationDetails, winningPlayer, currentGame);
+    } else {
+      console.error("Invalid game:", currentGame);
+    }
+    
     makeRestartButtonFilled();
   }
 

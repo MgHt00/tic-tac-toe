@@ -19,6 +19,7 @@ export const CSS_CLASS_NAMES = {
   O_WIN_COLUMN: "o-winning-square-column", 
   O_WIN_DIAGONAL_MAIN: "o-winning-square-diagonal-main",
   O_WIN_DIAGONAL_SECONDARY: "o-winning-square-diagonal-secondary", 
+  WINNING_CELL_ACCENT: "winning-cell-accent",
 
   BOARD_DISABLED: "board-disabled",
 

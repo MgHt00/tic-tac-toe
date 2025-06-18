@@ -217,6 +217,10 @@ export function strikeThroughCells(winningCombinationDetails, winningPlayer, cur
   const { key, indices } = winningCombinationDetails;
   let baseWinType; // Will be "ROW", "COLUMN", "DIAGONAL_MAIN", or "DIAGONAL_SECONDARY"
 
+  if (currentGame === GAME.CONNECT_FOUR) {
+    console.info(key);
+  }
+
   if (key.startsWith("row")) {
     baseWinType = WIN_LINE_DIRECTIONS.ROW;
   } else if (key.startsWith("col")) {

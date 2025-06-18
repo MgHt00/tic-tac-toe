@@ -1,10 +1,10 @@
 import { PLAYERS, STATE_KEYS, GAME } from "../constants/appConstants.js";
 
 const defaults = {
-  [STATE_KEYS.CURRENT_GAME]: GAME.TIC_TAC_TOE,
+  [STATE_KEYS.CURRENT_GAME]: GAME.CONNECT_FOUR, // Default: GAME.TIC_TAC_TOE,
   [STATE_KEYS.STARTING_PLAYER] : PLAYERS.PLAYER_X,
   [STATE_KEYS.CURRENT_PLAYER] : PLAYERS.PLAYER_X,
-  [STATE_KEYS.OPPONENT_LEVEL]: 1, // Default AI level
+  [STATE_KEYS.OPPONENT_LEVEL]: 3, // Default AI level
   [STATE_KEYS.GAME_BOARD_TTT]: [
     [null, null, null],
     [null, null, null],

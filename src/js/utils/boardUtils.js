@@ -78,29 +78,29 @@ export function checkConnectFourWinCondition(gameBoard, targetElement, currentPl
            gameBoard[row][col] === player;
   }
 
-  const row1Indices = [ [row, col - 1], [row, col - 2], [row, col - 3] ]; // current square to left
+  const row1Indices = [ [row, col], [row, col - 1], [row, col - 2], [row, col - 3] ]; // current square to left
   if (row1Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.ROW, indices: [[row, col], ...row1Indices] };
+    return { key: WIN_LINE_DIRECTIONS.ROW, indices: row1Indices };
   }
 
-  const row2Indices = [ [row, col + 1], [row, col + 2], [row, col + 3] ]; // current square to right
+  const row2Indices = [ [row, col], [row, col + 1], [row, col + 2], [row, col + 3] ]; // current square to right
   if (row2Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.ROW, indices: [[row, col], ...row2Indices] };
+    return { key: WIN_LINE_DIRECTIONS.ROW, indices: row2Indices };
   }
 
-  const columnIndices = [ [row - 1, col], [row - 2, col], [row - 3, col] ]; // current square to bottom
+  const columnIndices = [ [row, col], [row + 1, col], [row + 2, col], [row + 3, col] ]; // current square to bottom
   if (columnIndices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-      return { key: WIN_LINE_DIRECTIONS.COLUMN, indices: [[row, col], ...columnIndices] };
+      return { key: WIN_LINE_DIRECTIONS.COLUMN, indices: columnIndices };
   }
 
-  const diagonal1Indices = [ [row - 1, col - 1], [row - 2, col - 2], [row - 3, col - 3] ]; // Top-left to bottom-right (e.g., \)
+  const diagonal1Indices = [ [row, col], [row - 1, col - 1], [row - 2, col - 2], [row - 3, col - 3] ]; // Top-left to bottom-right (e.g., \)
   if (diagonal1Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.DIAGONAL_MAIN, indices: [[row, col], ...diagonal1Indices] };
+    return { key: WIN_LINE_DIRECTIONS.DIAGONAL_MAIN, indices: diagonal1Indices };
   }
 
-  const diagonal2Indices = [ [row - 1, col + 1], [row - 2, col + 2], [row - 3, col + 3] ]; // Top-right to bottom-left (e.g., /)
+  const diagonal2Indices = [ [row, col], [row - 1, col + 1], [row - 2, col + 2], [row - 3, col + 3] ]; // Top-right to bottom-left (e.g., /)
   if (diagonal2Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY, indices: [[row, col], ...diagonal2Indices] };
+    return { key: WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY, indices: diagonal2Indices };
   }
 
   return false; // No win after checking all combinations

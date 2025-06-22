@@ -47,7 +47,7 @@ export function getAILevel0Move(gameBoard, currentGame) {
   const coordinates = currentGame === GAME.CONNECT_FOUR ? 
                     _getConnectFourCoordinates(gameBoard) : 
                     _findRandomEmptySquareCoordinates(gameBoard);
-  console.info(`AI Level 0: Make a random move at [${coordinates.row}, ${coordinates.col}]`);
+  console.info(`AI Level 0: Make a random move at [row; col]: [${coordinates.row}, ${coordinates.col}]`);
   return coordinates;
 }
 

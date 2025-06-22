@@ -1,4 +1,5 @@
-import { getEmptySquares, checkWinCondition, constructVirtualGameBoard } from "../utils/boardUtils.js";
+import { GAME, INTERACTIONS } from "../constants/appConstants.js";
+import { getEmptySquares, checkWinCondition, constructVirtualGameBoard, isBelowSquareFilled } from "../utils/boardUtils.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { minimaxMove } from "./minimax.js";
 
@@ -18,13 +19,33 @@ function _findRandomEmptySquareCoordinates(gameBoard) {
   return { row, col };
 }
 
+function _getConnectFourCoordinates(gameBoard) {
+  let coordinates, targetElement;
+
+  do {
+    coordinates = _findRandomEmptySquareCoordinates(gameBoard);
+    // If the board is full, _findRandomEmptySquareCoordinates returns null.
+    if (!coordinates) {
+      console.error("_getConnectFourCoordinates: No empty squares on the board.");
+      return null;
+    }
+    targetElement = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${coordinates.row}-${coordinates.col}`);
+  } while (!targetElement || !isBelowSquareFilled(targetElement));
+  
+  return coordinates;
+}
+
 /**
  * AI Level 0: Chooses a random empty square.
  * @param {Array<Array<string|null>>} gameBoard - The current game board state.
  * @returns {{row: number, col: number} | null} Coordinates for the AI's move, or null.
  */
-export function getAILevel0Move(gameBoard) {
-  return _findRandomEmptySquareCoordinates(gameBoard);
+export function getAILevel0Move(gameBoard, currentGame) {
+  const coordinates = currentGame === GAME.CONNECT_FOUR ? 
+                    _getConnectFourCoordinates(gameBoard) : 
+                    _findRandomEmptySquareCoordinates(gameBoard);
+  console.info(`AI Level 0: Make a random move at [${coordinates.row}, ${coordinates.col}]`);
+  return coordinates;
 }
 
 /**

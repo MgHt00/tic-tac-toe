@@ -1,5 +1,5 @@
 import { GAME, INTERACTIONS } from "../constants/appConstants.js";
-import { getEmptySquares, checkWinCondition, constructVirtualGameBoard, isBelowSquareFilled } from "../utils/boardUtils.js";
+import { getEmptySquares, checkWinCondition, constructVirtualGameBoard, isValidConnectFourSquare, isSquareFilled } from "../utils/boardUtils.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { minimaxMove } from "./minimax.js";
 
@@ -30,8 +30,11 @@ function _getConnectFourCoordinates(gameBoard) {
       return null;
     }
     targetElement = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${coordinates.row}-${coordinates.col}`);
-  } while (!targetElement || !isBelowSquareFilled(targetElement));
-  
+  } while (!targetElement || !isValidConnectFourSquare(targetElement) || isSquareFilled(targetElement));
+  // "Keep picking random squares while...
+  //...the square's HTML element can't be found, OR
+  //...the square below it is empty (it's a floating, illegal move), OR
+  //...the square is already taken."
   return coordinates;
 }
 

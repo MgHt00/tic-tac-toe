@@ -29,7 +29,7 @@ import {
   disableBoardInteractions as _disableBoardInteractions,
   enableBoardInteractions as _enableBoardInteractions,
   flipPlayer as _flipPlayer,
-  isBelowSquareFilled as _isBelowSquareFilled,
+  isValidConnectFourSquare as _isValidConnectFourSquare,
   areAllSquaresFilled as _areAllSquaresFilled,
   accumulateScore as _accumulateScore,
  } from "../utils/boardUtils.js";
@@ -246,7 +246,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   // Processes a player's move for Connect Four
   function _processConnectFourMove(targetElement, playerMakingMove, currentGame) {
-    if (!_isBelowSquareFilled(targetElement)) {
+    if (!_isValidConnectFourSquare(targetElement)) {
       //console.info("Connect Four move invalid: square below is empty.");
       return null;
     }
@@ -365,7 +365,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     _boundMouseOverHandler = (event) => {
-      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target) && _isBelowSquareFilled(event.target)) { // Only highlight if game not over and square not filled
+      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target) && _isValidConnectFourSquare(event.target)) { // Only highlight if game not over and square not filled
         addHighlight(event.target);
       }
     }

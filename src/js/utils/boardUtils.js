@@ -159,11 +159,13 @@ export function flipPlayer() {
   setCurrentPlayer(newPlayer);
 }
 
-// Checks whether the square below is filled. For Connect Four board
-export function isBelowSquareFilled(targetElement) {
+// Checks whether the square is the bottom-most or below is filled. For Connect Four board
+export function isValidConnectFourSquare(targetElement) {
   const row = parseInt(targetElement.dataset.row, 10);
   const col = parseInt(targetElement.dataset.col, 10);
-  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) { // checking whether it is the bottom most row
+
+  // checking whether it is the bottom most row
+  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) { 
     return true;
   };
 

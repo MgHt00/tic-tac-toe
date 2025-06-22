@@ -71,6 +71,10 @@ export function removePlayerMarkStyles(squareElement) {
   );
 }
 
+function _removeCellAccent(squareElement) {
+  squareElement.classList.remove(CSS_CLASS_NAMES.WINNING_CELL_ACCENT);
+}
+
 export function blackoutScreen() {
   _showOverlay();
   _showLoadingSpinner();
@@ -189,6 +193,7 @@ export function clearAllSquares() {
     square.textContent = "";
     removeWinningLineStyles(square);
     removePlayerMarkStyles(square);
+    _removeCellAccent(square);
   });
 }
 

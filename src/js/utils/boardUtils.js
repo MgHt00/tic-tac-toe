@@ -69,41 +69,54 @@ export function checkConnectFourWinCondition(gameBoard, targetElement, currentPl
     return false;
   }
 
-  const maxRowIndex = gameBoard.length - 1;
-  const maxColIndex = gameBoard[0].length - 1;
-
-  function _isCellValidAndMatch(row, col, player) {
-    return row >= 0 && row <= maxRowIndex && 
-           col >= 0 && col <= maxColIndex &&
-           gameBoard[row][col] === player;
+  function _isCellValidAndMatch(r, c, player) {
+    return r >= 0 && r < numRows &&
+           c >= 0 && c < numCols &&
+           gameBoard[r][c] === player;
   }
 
-  const row1Indices = [ [row, col], [row, col - 1], [row, col - 2], [row, col - 3] ]; // current square to left
-  if (row1Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.ROW, indices: row1Indices };
+  // Directions to check: horizontal, vertical, diagonal down-right, diagonal down-left
+  const directions = [
+    { dRow: 0, dCol: 1, key: WIN_LINE_DIRECTIONS.ROW }, // Horizontal
+    { dRow: 1, dCol: 0, key: WIN_LINE_DIRECTIONS.COLUMN }, // Vertical
+    { dRow: 1, dCol: 1, key: WIN_LINE_DIRECTIONS.DIAGONAL_MAIN }, // Diagonal \
+    { dRow: 1, dCol: -1, key: WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY } // Diagonal /
+  ];
+
+  for (const { dRow, dCol, key } of directions) {
+    let count = 1;
+    let winningIndices = [[row, col]];
+
+    // Check in the positive direction (e.g., right, down, down-right, down-left)
+    for (let i = 1; i < 4; i++) {
+      const r = row + i * dRow;
+      const c = col + i * dCol;
+      if (_isCellValidAndMatch(r, c, currentPlayer)) {
+        count++;
+        winningIndices.push([r, c]);
+      } else {
+        break;
+      }
+    }
+
+    // Check in the negative direction (e.g., left, up, up-left, up-right)
+    for (let i = 1; i < 4; i++) {
+      const r = row - i * dRow;
+      const c = col - i * dCol;
+      if (_isCellValidAndMatch(r, c, currentPlayer)) {
+        count++;
+        winningIndices.push([r, c]);
+      } else {
+        break;
+      }
+    }
+
+    if (count >= 4) {
+      return { key, indices: winningIndices };
+    }
   }
 
-  const row2Indices = [ [row, col], [row, col + 1], [row, col + 2], [row, col + 3] ]; // current square to right
-  if (row2Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.ROW, indices: row2Indices };
-  }
-
-  const columnIndices = [ [row, col], [row + 1, col], [row + 2, col], [row + 3, col] ]; // current square to bottom
-  if (columnIndices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-      return { key: WIN_LINE_DIRECTIONS.COLUMN, indices: columnIndices };
-  }
-
-  const diagonal1Indices = [ [row, col], [row - 1, col - 1], [row - 2, col - 2], [row - 3, col - 3] ]; // Top-left to bottom-right (e.g., \)
-  if (diagonal1Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.DIAGONAL_MAIN, indices: diagonal1Indices };
-  }
-
-  const diagonal2Indices = [ [row, col], [row - 1, col + 1], [row - 2, col + 2], [row - 3, col + 3] ]; // Top-right to bottom-left (e.g., /)
-  if (diagonal2Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY, indices: diagonal2Indices };
-  }
-
-  return false; // No win after checking all combinations
+  return false; // No win found
 }
 
 /* Creates a deep copy of the game board. */

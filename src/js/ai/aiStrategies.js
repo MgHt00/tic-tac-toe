@@ -4,6 +4,7 @@ import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { minimaxMove } from "./minimax.js";
 
 /**
+ * Majorly for tic tac toe game, but used with connect four's random coordinate function.
  * Finds coordinates of a random empty square on the board.
  * @param {Array<Array<string|null>>} gameBoard - The current game board state.
  * @returns {{row: number, col: number} | null} Coordinates of an empty square, or null if none.
@@ -19,14 +20,14 @@ function _findRandomEmptySquareCoordinates(gameBoard) {
   return { row, col };
 }
 
-function _getConnectFourCoordinates(gameBoard) {
+function _getConnectFourRandomCoordinates(gameBoard) {
   let coordinates, targetElement;
 
   do {
     coordinates = _findRandomEmptySquareCoordinates(gameBoard);
     // If the board is full, _findRandomEmptySquareCoordinates returns null.
     if (!coordinates) {
-      console.error("_getConnectFourCoordinates: No empty squares on the board.");
+      console.error("_getConnectFourRandomCoordinates: No empty squares on the board.");
       return null;
     }
     targetElement = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${coordinates.row}-${coordinates.col}`);
@@ -45,7 +46,7 @@ function _getConnectFourCoordinates(gameBoard) {
  */
 export function getAILevel0Move(gameBoard, currentGame) {
   const coordinates = currentGame === GAME.CONNECT_FOUR ? 
-                    _getConnectFourCoordinates(gameBoard) : 
+                    _getConnectFourRandomCoordinates(gameBoard) : 
                     _findRandomEmptySquareCoordinates(gameBoard);
   console.info(`AI Level 0: Make a random move at [row; col]: [${coordinates.row}, ${coordinates.col}]`);
   return coordinates;

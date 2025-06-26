@@ -9,7 +9,7 @@ export function interactionManager() {
   const { PLAYER_X, PLAYER_O } = PLAYERS;
 
   function _isSquareFilled(targetElement) {
-    return globals.appState.filledSquares.includes(targetElement.id.replace("square-", "")); // to remove the "square-" prefix from targetElement.id 
+    return globals.appState.filledSquares.includes(targetElement.id.replace(INTERACTIONS.SQUARES_ID_INITIAL, "")); 
   }
 
   function _fillSquare(targetElement, player) {
@@ -17,7 +17,7 @@ export function interactionManager() {
   }
 
   function _markSquareAsFilled(targetElement) {
-    globals.appState.filledSquares.push(targetElement.id.replace("square-", "")); 
+    globals.appState.filledSquares.push(targetElement.id.replace(INTERACTIONS.SQUARES_ID_INITIAL, "")); 
     console.info(globals.appState.currentPlayer, globals.appState.filledSquares);
   }
 
@@ -47,18 +47,67 @@ export function interactionManager() {
     do {
       const row = generateRandomNumber(1, 3);
       const col = generateRandomNumber(1, 3);
-      targetElement = document.getElementById(`square-${row}-${col}`);
+      targetElement = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${row}-${col}`);
     } while (_isSquareFilled(targetElement)); // loop as long as the square is filled
     return targetElement;
   }
 
+  const winningCombinations = [
+    // Rows
+    ["1-1", "1-2", "1-3"],
+    ["2-1", "2-2", "2-3"],
+    ["3-1", "3-2", "3-3"],
+    // Columns
+    ["1-1", "2-1", "3-1"],
+    ["1-2", "2-2", "3-2"],
+    ["1-3", "2-3", "3-3"],
+    // Diagonals
+    ["1-1", "2-2", "3-3"],
+    ["1-3", "2-2", "3-1"],
+  ];
+
+  function _checkWinCondition(currentPlayer) {
+    for (const combination of winningCombinations) {
+      const [a, b, c] = combination;
+      const squareA = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${a}`);
+      const squareB = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${b}`);
+      const squareC = document.getElementById(`${INTERACTIONS.SQUARES_ID_INITIAL}${c}`);
+
+      if (squareA && squareB && squareC && // Ensure elements exist
+          squareA.textContent === currentPlayer &&
+          squareB.textContent === currentPlayer &&
+          squareC.textContent === currentPlayer) {
+        return true; // Player has won
+      }
+    }
+    return false; // No win
+  }
+
+  function _handleWin(winningPlayer) {
+    console.info(`Player ${winningPlayer} wins!`);
+    globals.appState.gameOver = true;
+    globals.appState.winner = winningPlayer;
+    selectors.gameInfo.textContent = `${winningPlayer} ${INTERACTIONS.PLAYER_WIN}`;
+    // Consider disabling board interactions here or by checking globals.appState.gameOver in listeners
+  }
+
+  function _handleDraw() { // Specifically for draws
+    console.info("Game is a draw!");
+    globals.appState.gameOver = true;
+    globals.appState.winner = PLAYERS.PLAYER_DRAW;
+    selectors.gameInfo.textContent = INTERACTIONS.PLAYER_DRAW;
+  }
+
   function _handleAITurn() {
+    if (globals.appState.gameOver) return; // Don't proceed if game is over
     setTimeout(() => {
         _playAI();
       }, 1000);
   }
 
   function _playAI() {
+    //if (globals.appState.gameOver) return;
+
     let targetElement;
 
     switch (globals.appState.opponentLevel) {
@@ -66,68 +115,73 @@ export function interactionManager() {
         targetElement = _findRandomEmptySquare();
         break;
       case 1:
+        // Smarter AI will be here.
         break;
+      case 2: 
+        // Minimax will be here.
       default:
         break;
     }
 
-    _fillSquare(targetElement, globals.appState.currentPlayer);
+    const aiPlayer = globals.appState.currentPlayer; // AI is the current player here
+    _fillSquare(targetElement, aiPlayer);
     _markSquareAsFilled(targetElement);
-    _flipPlayer();
+
+    if (_checkWinCondition(aiPlayer)) {
+      _handleWin(aiPlayer);
+      return;
+    }
+
+    if (_areAllSquaresFilled()) {
+      _handleDraw(); // Draw
+      return;
+    }
+
+    _flipPlayer(); // Switch back to human player
     _displayCurrentPlayer();
     _highlightCurrentPlayer();
   }
 
-  function _handleGameOver() {
-    console.info("ALL FILLED");
-    // Add game over decorations/logic here (e.g., display message, disable clicks)
-  }
-
-  function _handleWin() {
-    // Add win logic here
-  }
-
-  function _checkWinCondition(currentPlayer) {
-    // Add win condition checking logic here
-  }
-
   function _handleSquareClick(targetElement) {
-    if (_areAllSquaresFilled()) {
-      _handleGameOver();
+    if (globals.appState.gameOver) {
+      console.info("Game is already over.");
       return;
     }
 
     if (_isSquareFilled(targetElement)) {
       console.info("Square is already filled");
-      return; // Square is already filled, do nothing
+      return; 
     }
 
-    _fillSquare(targetElement, globals.appState.currentPlayer);
+    const playerMakingMove = globals.appState.currentPlayer;
+    _fillSquare(targetElement, playerMakingMove);
     _markSquareAsFilled(targetElement);
 
-    if(_checkWinCondition(globals.appState.currentPlayer)) {
-      _handleWin();
+    if (_checkWinCondition(playerMakingMove)) {
+      _handleWin(playerMakingMove);
       return;
     }
 
+    if (_areAllSquaresFilled()) {
+      _handleDraw(); // Draw
+      return;
+    }
+
+    // Prepare for AI turn
     _flipPlayer();
     _displayCurrentPlayer();
     _highlightCurrentPlayer();
-    _flipPlayer()
 
-    if (_areAllSquaresFilled()) { // No more moves if the board is full
-      _handleGameOver();
-      return;
-    }
-
+    // The second _flipPlayer() was removed as AI turn logic will use the current player (which is now AI)
     _handleAITurn();
   }
+
 
   function _addSquareListeners() {
     const gameBoard = selectors.TTTBoard;
 
     gameBoard.addEventListener("mouseover", (event) => {
-      if(event.target.matches(_matchingID)) {
+      if(event.target.matches(_matchingID) && !globals.appState.gameOver && !_isSquareFilled(event.target)) { // Only highlight if game not over and square not filled
         addHighlight(event.target);
       }
     });
@@ -147,6 +201,11 @@ export function interactionManager() {
   
   function initializeGameInteraction() {
     _addSquareListeners();
+    // You might want to call _displayCurrentPlayer() and _highlightCurrentPlayer() here
+    // if the game starts immediately without a "start game" button,
+    // or after globals.appState is reset for a new game.
+    _displayCurrentPlayer();
+    _highlightCurrentPlayer();
   }
 
   return {

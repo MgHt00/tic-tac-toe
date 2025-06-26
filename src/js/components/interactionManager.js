@@ -150,7 +150,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
         moveCoordinates = getAILevel0Move(getGameBoard(currentGame), currentGame);
         break;
       case 1:
-        moveCoordinates = getAILevel1Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol);
+        moveCoordinates = getAILevel1Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol, currentGame);
         break;
       case 2:
         moveCoordinates = getAILevel2Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol);

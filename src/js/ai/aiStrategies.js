@@ -1,5 +1,5 @@
 import { GAME, INTERACTIONS } from "../constants/appConstants.js";
-import { getEmptySquares, checkWinCondition, constructVirtualGameBoard, isValidConnectFourSquare, isSquareFilled } from "../utils/boardUtils.js";
+import { getEmptySquares, checkWinCondition, checkConnectFourWinCondition, constructVirtualGameBoard, isValidConnectFourSquare, isSquareFilled } from "../utils/boardUtils.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { minimaxMove } from "./minimax.js";
 
@@ -62,25 +62,36 @@ export function getAILevel0Move(gameBoard, currentGame) {
  * @param {string} opponentPlayer - The symbol of the opponent player.
  * @returns {{row: number, col: number} | null} Coordinates for the AI's move, or null.
  */
-export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer) {
+export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer, currentGame) {
   const emptySquares = getEmptySquares(gameBoard); // Array of [row, col]
 
   for (const [row, col] of emptySquares) { // Check for AI win
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, aiPlayer);
-    if (checkWinCondition(virtualGameBoard, aiPlayer)) {
+    const connectFourtargetElement = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`);
+    const winningCombination = currentGame === GAME.TIC_TAC_TOE ? 
+                             checkWinCondition(virtualGameBoard, aiPlayer) : 
+                             checkConnectFourWinCondition(virtualGameBoard, connectFourtargetElement, aiPlayer);
+
+    if (winningCombination) {
       console.info(`AI Level 1: Found winning move at [${row}, ${col}]`);
       return { row, col };
     }
   }
   for (const [row, col] of emptySquares) { // Check for opponent win to block
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, opponentPlayer);
-    if (checkWinCondition(virtualGameBoard, opponentPlayer)) {
+    const connectFourtargetElement = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`);
+    const winningCombination = currentGame === GAME.TIC_TAC_TOE ? 
+                             checkWinCondition(virtualGameBoard, opponentPlayer) : 
+                             checkConnectFourWinCondition(virtualGameBoard, connectFourtargetElement, opponentPlayer);
+    if (winningCombination) {
       console.info(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
       return { row, col };
     }
   }
   console.info("AI Level 1: No immediate strategic move. Picking a random empty square.");
-  return _findRandomEmptySquareCoordinates(gameBoard);
+  return currentGame === GAME.TIC_TAC_TOE?
+                        _findRandomEmptySquareCoordinates(gameBoard) : 
+                        _getConnectFourRandomCoordinates(gameBoard);
 }
 
 export function getAILevel2Move(gameBoard, aiPlayer, opponentPlayer) {

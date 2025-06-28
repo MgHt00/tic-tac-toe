@@ -25,7 +25,13 @@ function _evaluateBoard({ gameBoard, aiPlayerSymbol, opponentPlayerSymbol, curre
   return emptySquares.length === 0 ? 0 : null;
 }
 
-function _minimax(param, depth, isMaximizingPlayer) {
+/**
+ * The recursive Minimax function with Alpha-Beta Pruning.
+ * @param {object} param - The parameters for the current game state.
+ * @param {number} alpha - The best score for the Maximizer.
+ * @param {number} beta - The best score for the Minimizer.
+ */
+function _minimax(param, depth, isMaximizingPlayer, alpha, beta) {
   const score = _evaluateBoard(param);
 
   // Terminal state check
@@ -36,6 +42,13 @@ function _minimax(param, depth, isMaximizingPlayer) {
   }
 
   const { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame } = param;
+
+  // Add a depth limit for Connect Four to prevent performance issues (which can seem like an infinite loop).
+  // A depth of 5 is a good balance of strength and speed. Tic-Tac-Toe is simple enough to search to the end.
+  if (currentGame === GAME.CONNECT_FOUR && depth > 4) {
+    return 0; // Return a neutral score because the search depth is reached.
+  }
+
   const validMoves = getValidMoves(gameBoard, currentGame);
 
   if (validMoves.length === 0) {
@@ -47,9 +60,13 @@ function _minimax(param, depth, isMaximizingPlayer) {
     for (const [row, col] of validMoves) {
       gameBoard[row][col] = aiPlayerSymbol; // AI makes a move
       const newParam = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
-      const currentScore = _minimax(newParam, depth + 1, false); // It's now minimizer's turn
+      const currentScore = _minimax(newParam, depth + 1, false, alpha, beta); // It's now minimizer's turn
       gameBoard[row][col] = null; // Undo the move
       bestScore = Math.max(bestScore, currentScore);
+      alpha = Math.max(alpha, bestScore);
+      if (beta <= alpha) {
+        break; // Beta cutoff: Minimizer has a better option, so Maximizer won't choose this path.
+      }
     }
     return bestScore;
   } else { // Opponent's turn
@@ -57,9 +74,13 @@ function _minimax(param, depth, isMaximizingPlayer) {
     for (const [row, col] of validMoves) {
       gameBoard[row][col] = opponentPlayerSymbol; // Opponent
       const newParam = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
-      const currentScore = _minimax(newParam, depth + 1, true); // It's now maximizer's turn
+      const currentScore = _minimax(newParam, depth + 1, true, alpha, beta); // It's now maximizer's turn
       gameBoard[row][col] = null; // Undo the move
       bestScore = Math.min(bestScore, currentScore);
+      beta = Math.min(beta, bestScore);
+      if (beta <= alpha) {
+        break; // Alpha cutoff: Maximizer has a better option, so Minimizer won't choose this path.
+      }
     }
     return bestScore;
   }
@@ -67,12 +88,14 @@ function _minimax(param, depth, isMaximizingPlayer) {
 
 export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame) {
   let bestScore = -Infinity;
-  let isMaximizingPlayer = true;
-  let depth = 1;
   let bestNextMove = null;
+  let depth = 0;
+  let isMaximizingPlayer = true;
+  let alpha = -Infinity;
+  let beta = Infinity;
 
   const gameBoard = deepCopyGameBoard(initialBoard); // Create a mutable copy, so the original isn't changed.
-  const validMoves = getValidMoves(gameBoard, currentGame); // For Connect Four(lowest empty cell per column), For Tic-Tac-Toe, all empty squares
+  const validMoves = getValidMoves(gameBoard, currentGame);
 
   if (validMoves.length === 0) {
     return null; // No moves left, should be a draw or win, handled by _evaluateBoard
@@ -83,7 +106,7 @@ export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol, 
     const param = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
     
     // After AI's move, it's opponent's (minimizer's) turn.
-    const score = _minimax(param, depth, !isMaximizingPlayer);
+    const score = _minimax(param, depth, !isMaximizingPlayer, alpha, beta);
 
     gameBoard[row][col] = null; // Undo the move
 

@@ -1,80 +1,90 @@
-import { checkWinCondition, getEmptySquares, deepCopyGameBoard } from "../utils/boardUtils.js";
+import { GAME } from "../constants/appConstants.js";
+import { 
+  checkWinCondition, 
+  checkConnectFourWinCondition, 
+  getEmptySquares, 
+  deepCopyGameBoard, 
+  getConnectFourSquareElement,
+  getValidMoves } from "../utils/boardUtils.js";
 
-function _evaluateBoard(board, aiPlayerSymbol, opponentPlayerSymbol) {
-  if (checkWinCondition(board, aiPlayerSymbol)) {
+function _evaluateBoard({ gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col }) {
+  if (currentGame === GAME.TIC_TAC_TOE ?
+    checkWinCondition(gameBoard, aiPlayerSymbol) :
+    checkConnectFourWinCondition(gameBoard, getConnectFourSquareElement(row, col), aiPlayerSymbol)
+  ) {
     return 10;
   }
 
-  if (checkWinCondition(board, opponentPlayerSymbol)) {
+  if (currentGame === GAME.TIC_TAC_TOE ?
+    checkWinCondition(gameBoard, opponentPlayerSymbol) :
+    checkConnectFourWinCondition(gameBoard, getConnectFourSquareElement(row, col), opponentPlayerSymbol)
+  ) {
     return -10;
   }
 
-  const emptySquares = getEmptySquares(board);
+  const emptySquares = getEmptySquares(gameBoard);
   return emptySquares.length === 0 ? 0 : null;
 }
 
-function _minimax(board, depth, isMaximizingPlayer, aiPlayerSymbol, opponentPlayerSymbol) {
-  // Pre-checks
-  const score = _evaluateBoard(board, aiPlayerSymbol, opponentPlayerSymbol);
+function _minimax(param, depth, isMaximizingPlayer) {
+  const score = _evaluateBoard(param);
+
+  // Terminal state check
+  if (score !== null) {
     if (score === 10) return score - depth; // AI wins, prioritize faster wins
     if (score === -10) return score + depth; // Opponent wins, prioritize delaying losses
     if (score === 0) return 0; // Draw
-
-  const emptySquares = getEmptySquares(board);
-
-  // If it is a Maximizer's move
-  if (isMaximizingPlayer) {
-    let bestScore = -Infinity;
-
-    for (const coordinates of emptySquares) {
-      const [row, col] = coordinates;
-      
-      board[row][col] = aiPlayerSymbol; // AI makes a move
-      const currentScore = _minimax(board, depth + 1, !isMaximizingPlayer, aiPlayerSymbol, opponentPlayerSymbol);
-      board[row][col] = null; // Undo the move
-
-      bestScore = Math.max(currentScore, bestScore);
-    }
-
-    return bestScore;
   }
 
-  // If it is a Minimizer's move
-  else { 
-    let bestScore = Infinity;
+  const { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame } = param;
+  const validMoves = getValidMoves(gameBoard, currentGame);
 
-    for (const coordinates of emptySquares) {
-      const [row, col] = coordinates;
-      
-      board[row][col] = opponentPlayerSymbol; // Opponent
-      const currentScore = _minimax(board, depth + 1, !isMaximizingPlayer, aiPlayerSymbol, opponentPlayerSymbol);
-      board[row][col] = null; // Undo the move
+  if (validMoves.length === 0) {
+    return 0; // No moves left, it's a draw.
+  }
 
-      bestScore = Math.min(currentScore, bestScore);
+  if (isMaximizingPlayer) { // AI's turn
+    let bestScore = -Infinity;
+    for (const [row, col] of validMoves) {
+      gameBoard[row][col] = aiPlayerSymbol; // AI makes a move
+      const newParam = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
+      const currentScore = _minimax(newParam, depth + 1, false); // It's now minimizer's turn
+      gameBoard[row][col] = null; // Undo the move
+      bestScore = Math.max(bestScore, currentScore);
     }
-
+    return bestScore;
+  } else { // Opponent's turn
+    let bestScore = Infinity;
+    for (const [row, col] of validMoves) {
+      gameBoard[row][col] = opponentPlayerSymbol; // Opponent
+      const newParam = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
+      const currentScore = _minimax(newParam, depth + 1, true); // It's now maximizer's turn
+      gameBoard[row][col] = null; // Undo the move
+      bestScore = Math.min(bestScore, currentScore);
+    }
     return bestScore;
   }
 }
 
-export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol) {
+export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame) {
   let bestScore = -Infinity;
   let isMaximizingPlayer = true;
   let depth = 1;
   let bestNextMove = null;
 
   const gameBoard = deepCopyGameBoard(initialBoard); // Create a mutable copy, so the original isn't changed.
+  const validMoves = getValidMoves(gameBoard, currentGame); // For Connect Four(lowest empty cell per column), For Tic-Tac-Toe, all empty squares
 
-  const emptySquares = getEmptySquares(gameBoard);
-  if (emptySquares.length === 0) {
-    return null;
+  if (validMoves.length === 0) {
+    return null; // No moves left, should be a draw or win, handled by _evaluateBoard
   }
 
-  for (const coordinates of emptySquares) {
-    const [row, col] = coordinates;
-
+  for (const [row, col] of validMoves) {
     gameBoard[row][col] = aiPlayerSymbol;
-    const score = _minimax(gameBoard, depth, !isMaximizingPlayer, aiPlayerSymbol, opponentPlayerSymbol);
+    const param = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
+    
+    // After AI's move, it's opponent's (minimizer's) turn.
+    const score = _minimax(param, depth, !isMaximizingPlayer);
 
     gameBoard[row][col] = null; // Undo the move
 

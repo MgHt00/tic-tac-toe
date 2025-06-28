@@ -30,6 +30,33 @@ export function getEmptySquares(gameBoard) {
   return emptySquares;
 }
 
+/**
+ * Determines valid moves for Connect Four from the board state.
+ * This is more efficient than checking every empty square, as it only identifies
+ * the lowest available cell in each column.
+ * @param {Array<Array<string|null>>} gameBoard - The current game board state.
+ * @returns {Array<[number, number]>} An array of [row, col] coordinates for valid moves.
+ */
+export function getValidConnectFourMoves(gameBoard) {
+  const validMoves = [];
+  if (!gameBoard || gameBoard.length === 0 || !gameBoard[0] || gameBoard[0].length === 0) {
+    return validMoves;
+  }
+  const numCols = gameBoard[0].length;
+  const numRows = gameBoard.length;
+
+  for (let col = 0; col < numCols; col++) {
+    // Find the lowest empty row in the current column by iterating from the bottom up.
+    for (let row = numRows - 1; row >= 0; row--) {
+      if (gameBoard[row][col] === null) {
+        validMoves.push([row, col]);
+        break; // Move to the next column once the valid move is found. [le002]
+      }
+    }
+  }
+  return validMoves;
+}
+
 /* Checks if the current player has won the game. */
 export function checkWinCondition(gameBoard, currentPlayer) {
   // Defines all possible winning combinations on a 3x3 Tic-Tac-Toe board.
@@ -206,4 +233,16 @@ export function accumulateScore(winningPlayer) {
   if (winningPlayer === PLAYER_O) {
     setPlayerOScore(getPlayerOScore() + 1);
   }
+}
+
+export function getConnectFourSquareElement(row, col) {
+  return document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`);
+}
+
+export function getValidMoves(gameBoard, currentGame){
+  // For Connect Four, get only valid moves (lowest empty cell per column).
+  // For Tic-Tac-Toe, all empty squares are valid.
+  return currentGame === GAME.CONNECT_FOUR
+    ? getValidConnectFourMoves(gameBoard)
+    : getEmptySquares(gameBoard);
 }

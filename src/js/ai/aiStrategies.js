@@ -1,5 +1,5 @@
 import { GAME, INTERACTIONS } from "../constants/appConstants.js";
-import { getEmptySquares, checkWinCondition, checkConnectFourWinCondition, constructVirtualGameBoard, isValidConnectFourSquare, isSquareFilled } from "../utils/boardUtils.js";
+import { getEmptySquares, checkWinCondition, checkConnectFourWinCondition, constructVirtualGameBoard } from "../utils/boardUtils.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { minimaxMove } from "./minimax.js";
 
@@ -20,23 +20,46 @@ function _findRandomEmptySquareCoordinates(gameBoard) {
   return { row, col };
 }
 
-function _getConnectFourRandomCoordinates(gameBoard) {
-  let coordinates, targetElement;
+function _getConnectFourSquareElement(row, col) {
+  return document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`);
+}
 
-  do {
-    coordinates = _findRandomEmptySquareCoordinates(gameBoard);
-    // If the board is full, _findRandomEmptySquareCoordinates returns null.
-    if (!coordinates) {
-      console.error("_getConnectFourRandomCoordinates: No empty squares on the board.");
-      return null;
+/**
+ * Determines valid moves for Connect Four from the board state.
+ * This is more efficient than checking every empty square, as it only identifies
+ * the lowest available cell in each column.
+ * @param {Array<Array<string|null>>} gameBoard - The current game board state.
+ * @returns {Array<[number, number]>} An array of [row, col] coordinates for valid moves.
+ */
+function _getValidConnectFourMoves(gameBoard) {
+  const validMoves = [];
+  if (!gameBoard || gameBoard.length === 0 || !gameBoard[0] || gameBoard[0].length === 0) {
+    return validMoves;
+  }
+  const numCols = gameBoard[0].length;
+  const numRows = gameBoard.length;
+
+  for (let col = 0; col < numCols; col++) {
+    // Find the lowest empty row in the current column by iterating from the bottom up.
+    for (let row = numRows - 1; row >= 0; row--) {
+      if (gameBoard[row][col] === null) {
+        validMoves.push([row, col]);
+        break; // Move to the next column once the valid move is found. [le002]
+      }
     }
-    targetElement = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${coordinates.row}-${coordinates.col}`);
-  } while (!targetElement || !isValidConnectFourSquare(targetElement) || isSquareFilled(targetElement));
-  // "Keep picking random squares while...
-  //...the square's HTML element can't be found, OR
-  //...the square below it is empty (it's a floating, illegal move), OR
-  //...the square is already taken."
-  return coordinates;
+  }
+  return validMoves;
+}
+
+function _getConnectFourRandomCoordinates(gameBoard) {
+  const validMoves = _getValidConnectFourMoves(gameBoard);
+  if (validMoves.length === 0) {
+    console.error("_getConnectFourRandomCoordinates: No valid moves found.");
+    return null;
+  }
+  const randomIndex = generateRandomNumber(0, validMoves.length - 1);
+  const [row, col] = validMoves[randomIndex];
+  return { row, col };
 }
 
 /**
@@ -63,31 +86,38 @@ export function getAILevel0Move(gameBoard, currentGame) {
  * @returns {{row: number, col: number} | null} Coordinates for the AI's move, or null.
  */
 export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer, currentGame) {
-  const emptySquares = getEmptySquares(gameBoard); // Array of [row, col]
+  // For Connect Four, get only valid moves (lowest empty cell per column).
+  // For Tic-Tac-Toe, all empty squares are valid.
+  const validMoves = currentGame === GAME.CONNECT_FOUR
+    ? _getValidConnectFourMoves(gameBoard)
+    : getEmptySquares(gameBoard);
 
-  for (const [row, col] of emptySquares) { // Check for AI win
+  // Check for AI win
+  for (const [row, col] of validMoves) { 
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, aiPlayer);
-    const connectFourtargetElement = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`);
     const winningCombination = currentGame === GAME.TIC_TAC_TOE ? 
                              checkWinCondition(virtualGameBoard, aiPlayer) : 
-                             checkConnectFourWinCondition(virtualGameBoard, connectFourtargetElement, aiPlayer);
+                             checkConnectFourWinCondition(virtualGameBoard, _getConnectFourSquareElement(row, col), aiPlayer);
 
     if (winningCombination) {
       console.info(`AI Level 1: Found winning move at [${row}, ${col}]`);
       return { row, col };
     }
   }
-  for (const [row, col] of emptySquares) { // Check for opponent win to block
+  
+  // Check for opponent win to block
+  for (const [row, col] of validMoves) {
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, opponentPlayer);
-    const connectFourtargetElement = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`);
     const winningCombination = currentGame === GAME.TIC_TAC_TOE ? 
                              checkWinCondition(virtualGameBoard, opponentPlayer) : 
-                             checkConnectFourWinCondition(virtualGameBoard, connectFourtargetElement, opponentPlayer);
+                             checkConnectFourWinCondition(virtualGameBoard, _getConnectFourSquareElement(row, col), opponentPlayer);
     if (winningCombination) {
       console.info(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
       return { row, col };
     }
   }
+
+  // No immediate strategic move
   console.info("AI Level 1: No immediate strategic move. Picking a random empty square.");
   return currentGame === GAME.TIC_TAC_TOE?
                         _findRandomEmptySquareCoordinates(gameBoard) : 

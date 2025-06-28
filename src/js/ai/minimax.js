@@ -5,6 +5,7 @@ import {
   getEmptySquares,
   deepCopyGameBoard,
   getValidMoves } from "../utils/boardUtils.js";
+import { generateRandomNumber } from "../utils/mathHelpers.js";
 
 function _evaluateBoard({ gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col }) {
   if (currentGame === GAME.TIC_TAC_TOE ?
@@ -101,6 +102,24 @@ export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol, 
     return null; // No moves left, should be a draw or win, handled by _evaluateBoard
   }
 
+  // Optimization: On the first move of the game, pick a strategic or random-but-fast move.
+  const totalSquares = currentGame === GAME.TIC_TAC_TOE ? 9 : 42;
+  
+  if (getEmptySquares(gameBoard).length === totalSquares) {
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      console.info("Minimax: First move, picking center.");
+      return { row: 1, col: 1 }; // TTT center is a strong opening
+    } else {
+      // For C4, the center columns are strongest. Pick a random move from the center 3 columns.
+      const centerCols = [2, 3, 4];
+      const centerMoves = validMoves.filter(
+        ([_row, col]) => centerCols.includes(col)
+      );
+      const [row, col] = centerMoves[generateRandomNumber(0, centerMoves.length - 1)];
+      return { row, col };
+    }
+  }
+
   for (const [row, col] of validMoves) {
     gameBoard[row][col] = aiPlayerSymbol;
     const param = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
@@ -116,5 +135,12 @@ export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol, 
     }
   }
 
+  // If no move was chosen (e.g., all moves lead to a loss),
+  // and there are valid moves, pick the first one as a fallback.
+  if (!bestNextMove && validMoves.length > 0) {
+    console.warn("Minimax: All moves lead to a loss. Picking first available move.");
+    const [row, col] = validMoves[0];
+    bestNextMove = { row, col };
+  }
   return bestNextMove;
 }

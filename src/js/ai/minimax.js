@@ -2,22 +2,21 @@ import { GAME } from "../constants/appConstants.js";
 import { 
   checkWinCondition, 
   checkConnectFourWinCondition, 
-  getEmptySquares, 
-  deepCopyGameBoard, 
-  getConnectFourSquareElement,
+  getEmptySquares,
+  deepCopyGameBoard,
   getValidMoves } from "../utils/boardUtils.js";
 
 function _evaluateBoard({ gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col }) {
   if (currentGame === GAME.TIC_TAC_TOE ?
     checkWinCondition(gameBoard, aiPlayerSymbol) :
-    checkConnectFourWinCondition(gameBoard, getConnectFourSquareElement(row, col), aiPlayerSymbol)
+    checkConnectFourWinCondition(gameBoard, row, col, aiPlayerSymbol)
   ) {
     return 10;
   }
 
   if (currentGame === GAME.TIC_TAC_TOE ?
     checkWinCondition(gameBoard, opponentPlayerSymbol) :
-    checkConnectFourWinCondition(gameBoard, getConnectFourSquareElement(row, col), opponentPlayerSymbol)
+    checkConnectFourWinCondition(gameBoard, row, col, opponentPlayerSymbol)
   ) {
     return -10;
   }

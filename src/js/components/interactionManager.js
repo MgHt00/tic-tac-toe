@@ -178,7 +178,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     if (currentGame === GAME.TIC_TAC_TOE) {
       winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), aiPlayerSymbol);
     } else if (currentGame === GAME.CONNECT_FOUR) {
-      winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), targetElement, aiPlayerSymbol);
+      winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), moveCoordinates.row, moveCoordinates.col, aiPlayerSymbol);
     }
     
     if (winningBoardCombination) {
@@ -254,7 +254,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     fillAndDecorateSquare(targetElement, playerMakingMove);
 
     // Check for win using the player's move
-    const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), targetElement, playerMakingMove);
+    const row = parseInt(targetElement.dataset.row, 10);
+    const col = parseInt(targetElement.dataset.col, 10);
+    const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), row, col, playerMakingMove);
     if (winningBoardCombination) {
       _handleWin(playerMakingMove, winningBoardCombination, currentGame);
       return true; // game ended

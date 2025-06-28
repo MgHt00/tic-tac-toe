@@ -1,5 +1,5 @@
 import { GAME, INTERACTIONS } from "../constants/appConstants.js";
-import { getEmptySquares, getValidConnectFourMoves, checkWinCondition, checkConnectFourWinCondition, constructVirtualGameBoard, getValidMoves } from "../utils/boardUtils.js";
+import { getEmptySquares, getValidConnectFourMoves, checkWinCondition, checkConnectFourWinCondition, constructVirtualGameBoard, getValidMoves, getConnectFourSquareElement } from "../utils/boardUtils.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { minimaxMove } from "./minimax.js";
 
@@ -63,7 +63,7 @@ export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer, currentGame
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, aiPlayer);
     const winningCombination = currentGame === GAME.TIC_TAC_TOE ? 
                              checkWinCondition(virtualGameBoard, aiPlayer) : 
-                             checkConnectFourWinCondition(virtualGameBoard, getConnectFourSquareElement(row, col), aiPlayer);
+                             checkConnectFourWinCondition(virtualGameBoard, row, col, aiPlayer);
 
     if (winningCombination) {
       console.info(`AI Level 1: Found winning move at [${row}, ${col}]`);
@@ -76,7 +76,7 @@ export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer, currentGame
     const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, opponentPlayer);
     const winningCombination = currentGame === GAME.TIC_TAC_TOE ? 
                              checkWinCondition(virtualGameBoard, opponentPlayer) : 
-                             checkConnectFourWinCondition(virtualGameBoard, getConnectFourSquareElement(row, col), opponentPlayer);
+                             checkConnectFourWinCondition(virtualGameBoard, row, col, opponentPlayer);
     if (winningCombination) {
       console.info(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
       return { row, col };

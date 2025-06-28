@@ -81,10 +81,7 @@ export function checkWinCondition(gameBoard, currentPlayer) {
   return false; // No win after checking all combinations
 }
 
-export function checkConnectFourWinCondition(gameBoard, targetElement, currentPlayer) {
-  const row = parseInt(targetElement.dataset.row, 10);
-  const col = parseInt(targetElement.dataset.col, 10);
-
+export function checkConnectFourWinCondition(gameBoard, row, col, currentPlayer) {
   const numRows = gameBoard.length;
   if (numRows === 0) {
     console.error("checkConnectFourWinCondition: gameBoard has no rows.");

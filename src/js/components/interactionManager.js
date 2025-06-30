@@ -29,7 +29,7 @@ import {
   disableBoardInteractions as _disableBoardInteractions,
   enableBoardInteractions as _enableBoardInteractions,
   flipPlayer as _flipPlayer,
-  isBelowSquareFilled as _isBelowSquareFilled,
+  isValidConnectFourSquare as _isValidConnectFourSquare,
   areAllSquaresFilled as _areAllSquaresFilled,
   accumulateScore as _accumulateScore,
  } from "../utils/boardUtils.js";
@@ -147,13 +147,13 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     switch (getOpponentLevel()) {
       case 0:
-        moveCoordinates = getAILevel0Move(getGameBoard(currentGame));
+        moveCoordinates = getAILevel0Move(getGameBoard(currentGame), currentGame);
         break;
       case 1:
-        moveCoordinates = getAILevel1Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol);
+        moveCoordinates = getAILevel1Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol, currentGame);
         break;
       case 2:
-        moveCoordinates = getAILevel2Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol);
+        moveCoordinates = getAILevel2Move(getGameBoard(currentGame), aiPlayerSymbol, opponentPlayerSymbol, currentGame);
         break; 
       default:
         console.error("Unknown AI opponent level:", getOpponentLevel(), "AI will not move.");
@@ -166,17 +166,22 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       _enableBoardInteractions();
       return;
     }
-
-    const targetElementId = `${INTERACTIONS.SQUARES_ID_INITIAL}${moveCoordinates.row}-${moveCoordinates.col}`;
+    const squareInitial = currentGame === GAME.TIC_TAC_TOE ? INTERACTIONS.SQUARES_ID_INITIAL : INTERACTIONS.CF_SQUARES_ID_INITIAL;
+    const targetElementId = `${squareInitial}${moveCoordinates.row}-${moveCoordinates.col}`;
     const targetElement = document.getElementById(targetElementId);
 
     fillAndDecorateSquare(targetElement, aiPlayerSymbol);
     updateGameBoardState(targetElement, aiPlayerSymbol, currentGame);
 
     // Check for win using the AI's move
-    const winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), aiPlayerSymbol);
+    let winningBoardCombination;
+    if (currentGame === GAME.TIC_TAC_TOE) {
+      winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), aiPlayerSymbol);
+    } else if (currentGame === GAME.CONNECT_FOUR) {
+      winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), moveCoordinates.row, moveCoordinates.col, aiPlayerSymbol);
+    }
     
-    if (winningBoardCombination && currentGame === GAME.TIC_TAC_TOE) {
+    if (winningBoardCombination) {
       _handleWin(aiPlayerSymbol, winningBoardCombination);
       return;
     }
@@ -192,7 +197,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   // Manages the TTT AI's turn, including thinking time and invoking the AI move logic.
-  function _handleAITurn() {
+  function _handleTicTacToeAITurn() {
     if (isGameOverState()) return; // Don't proceed if game is over
 
     _disableBoardInteractions();
@@ -232,11 +237,16 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       _handle2PlayerMode(); // enables the board for the next human player.
       return;
     }
+
+    setTimeout(() => { // AI turn for Tic-Tac-Toe
+      _playAI();
+    }, INTERACTIONS.AI_THINKING_TIME_MS);
+    setGameInProgressState(true);
   }
 
   // Processes a player's move for Connect Four
   function _processConnectFourMove(targetElement, playerMakingMove, currentGame) {
-    if (!_isBelowSquareFilled(targetElement)) {
+    if (!_isValidConnectFourSquare(targetElement)) {
       //console.info("Connect Four move invalid: square below is empty.");
       return null;
     }
@@ -244,7 +254,9 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     fillAndDecorateSquare(targetElement, playerMakingMove);
 
     // Check for win using the player's move
-    const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), targetElement, playerMakingMove);
+    const row = parseInt(targetElement.dataset.row, 10);
+    const col = parseInt(targetElement.dataset.col, 10);
+    const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), row, col, playerMakingMove);
     if (winningBoardCombination) {
       _handleWin(playerMakingMove, winningBoardCombination, currentGame);
       return true; // game ended
@@ -304,7 +316,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     highlightCurrentPlayer(getCurrentPlayer());
 
     if (currentGame === GAME.TIC_TAC_TOE) {
-      _handleAITurn();
+      _handleTicTacToeAITurn();
     }
 
     if (validMoveMade && currentGame === GAME.CONNECT_FOUR) {
@@ -355,7 +367,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     _boundMouseOverHandler = (event) => {
-      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target) && _isBelowSquareFilled(event.target)) { // Only highlight if game not over and square not filled
+      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target) && _isValidConnectFourSquare(event.target)) { // Only highlight if game not over and square not filled
         addHighlight(event.target);
       }
     }
@@ -425,7 +437,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       highlightCurrentPlayer(getCurrentPlayer()); 
       // If the current player is O (AI) and it's not 2-player mode, AI makes the first move.
       if (getCurrentPlayer() === PLAYER_O && opponentLevel < 3) { 
-        _handleAITurn();
+        _handleTicTacToeAITurn();
       }
     } 
     

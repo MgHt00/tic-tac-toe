@@ -30,20 +30,47 @@ export function getEmptySquares(gameBoard) {
   return emptySquares;
 }
 
-// Defines all possible winning combinations on a 3x3 Tic-Tac-Toe board.
-const _winningCombinationsByBoard = {
-  row1: [0, 1, 2],
-  row2: [3, 4, 5],
-  row3: [6, 7, 8],
-  col1: [0, 3, 6],
-  col2: [1, 4, 7],
-  col3: [2, 5, 8],
-  diag1: [0, 4, 8],
-  diag2: [2, 4, 6],
-};
+/**
+ * Determines valid moves for Connect Four from the board state.
+ * This is more efficient than checking every empty square, as it only identifies
+ * the lowest available cell in each column.
+ * @param {Array<Array<string|null>>} gameBoard - The current game board state.
+ * @returns {Array<[number, number]>} An array of [row, col] coordinates for valid moves.
+ */
+export function getValidConnectFourMoves(gameBoard) {
+  const validMoves = [];
+  if (!gameBoard || gameBoard.length === 0 || !gameBoard[0] || gameBoard[0].length === 0) {
+    return validMoves;
+  }
+  const numCols = gameBoard[0].length;
+  const numRows = gameBoard.length;
+
+  for (let col = 0; col < numCols; col++) {
+    // Find the lowest empty row in the current column by iterating from the bottom up.
+    for (let row = numRows - 1; row >= 0; row--) {
+      if (gameBoard[row][col] === null) {
+        validMoves.push([row, col]);
+        break; // Move to the next column once the valid move is found. [le002]
+      }
+    }
+  }
+  return validMoves;
+}
 
 /* Checks if the current player has won the game. */
 export function checkWinCondition(gameBoard, currentPlayer) {
+  // Defines all possible winning combinations on a 3x3 Tic-Tac-Toe board.
+  const _winningCombinationsByBoard = {
+    row1: [0, 1, 2],
+    row2: [3, 4, 5],
+    row3: [6, 7, 8],
+    col1: [0, 3, 6],
+    col2: [1, 4, 7],
+    col3: [2, 5, 8],
+    diag1: [0, 4, 8],
+    diag2: [2, 4, 6],
+  };
+
   const _flatGameBoard = gameBoard.flat();
   for (const key in _winningCombinationsByBoard) {
     const indices = _winningCombinationsByBoard[key];
@@ -54,10 +81,7 @@ export function checkWinCondition(gameBoard, currentPlayer) {
   return false; // No win after checking all combinations
 }
 
-export function checkConnectFourWinCondition(gameBoard, targetElement, currentPlayer) {
-  const row = parseInt(targetElement.dataset.row, 10);
-  const col = parseInt(targetElement.dataset.col, 10);
-
+export function checkConnectFourWinCondition(gameBoard, row, col, currentPlayer) {
   const numRows = gameBoard.length;
   if (numRows === 0) {
     console.error("checkConnectFourWinCondition: gameBoard has no rows.");
@@ -69,41 +93,54 @@ export function checkConnectFourWinCondition(gameBoard, targetElement, currentPl
     return false;
   }
 
-  const maxRowIndex = gameBoard.length - 1;
-  const maxColIndex = gameBoard[0].length - 1;
-
-  function _isCellValidAndMatch(row, col, player) {
-    return row >= 0 && row <= maxRowIndex && 
-           col >= 0 && col <= maxColIndex &&
-           gameBoard[row][col] === player;
+  function _isCellValidAndMatch(r, c, player) {
+    return r >= 0 && r < numRows &&
+           c >= 0 && c < numCols &&
+           gameBoard[r][c] === player;
   }
 
-  const row1Indices = [ [row, col], [row, col - 1], [row, col - 2], [row, col - 3] ]; // current square to left
-  if (row1Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.ROW, indices: row1Indices };
+  // Directions to check: horizontal, vertical, diagonal down-right, diagonal down-left
+  const directions = [
+    { dRow: 0, dCol: 1, key: WIN_LINE_DIRECTIONS.ROW }, // Horizontal
+    { dRow: 1, dCol: 0, key: WIN_LINE_DIRECTIONS.COLUMN }, // Vertical
+    { dRow: 1, dCol: 1, key: WIN_LINE_DIRECTIONS.DIAGONAL_MAIN }, // Diagonal \
+    { dRow: 1, dCol: -1, key: WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY } // Diagonal /
+  ];
+
+  for (const { dRow, dCol, key } of directions) {
+    let count = 1;
+    let winningIndices = [[row, col]];
+
+    // Check in the positive direction (e.g., right, down, down-right, down-left)
+    for (let i = 1; i < 4; i++) {
+      const r = row + i * dRow;
+      const c = col + i * dCol;
+      if (_isCellValidAndMatch(r, c, currentPlayer)) {
+        count++;
+        winningIndices.push([r, c]);
+      } else {
+        break;
+      }
+    }
+
+    // Check in the negative direction (e.g., left, up, up-left, up-right)
+    for (let i = 1; i < 4; i++) {
+      const r = row - i * dRow;
+      const c = col - i * dCol;
+      if (_isCellValidAndMatch(r, c, currentPlayer)) {
+        count++;
+        winningIndices.push([r, c]);
+      } else {
+        break;
+      }
+    }
+
+    if (count >= 4) {
+      return { key, indices: winningIndices };
+    }
   }
 
-  const row2Indices = [ [row, col], [row, col + 1], [row, col + 2], [row, col + 3] ]; // current square to right
-  if (row2Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.ROW, indices: row2Indices };
-  }
-
-  const columnIndices = [ [row, col], [row + 1, col], [row + 2, col], [row + 3, col] ]; // current square to bottom
-  if (columnIndices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-      return { key: WIN_LINE_DIRECTIONS.COLUMN, indices: columnIndices };
-  }
-
-  const diagonal1Indices = [ [row, col], [row - 1, col - 1], [row - 2, col - 2], [row - 3, col - 3] ]; // Top-left to bottom-right (e.g., \)
-  if (diagonal1Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.DIAGONAL_MAIN, indices: diagonal1Indices };
-  }
-
-  const diagonal2Indices = [ [row, col], [row - 1, col + 1], [row - 2, col + 2], [row - 3, col + 3] ]; // Top-right to bottom-left (e.g., /)
-  if (diagonal2Indices.every(index => _isCellValidAndMatch(index[0], index[1], currentPlayer))) {
-    return { key: WIN_LINE_DIRECTIONS.DIAGONAL_SECONDARY, indices: diagonal2Indices };
-  }
-
-  return false; // No win after checking all combinations
+  return false; // No win found
 }
 
 /* Creates a deep copy of the game board. */
@@ -159,11 +196,13 @@ export function flipPlayer() {
   setCurrentPlayer(newPlayer);
 }
 
-// Checks whether the square below is filled. For Connect Four board
-export function isBelowSquareFilled(targetElement) {
+// Checks whether the square is the bottom-most or below is filled. For Connect Four board
+export function isValidConnectFourSquare(targetElement) {
   const row = parseInt(targetElement.dataset.row, 10);
   const col = parseInt(targetElement.dataset.col, 10);
-  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) { // checking whether it is the bottom most row
+
+  // checking whether it is the bottom most row
+  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) { 
     return true;
   };
 
@@ -191,4 +230,16 @@ export function accumulateScore(winningPlayer) {
   if (winningPlayer === PLAYER_O) {
     setPlayerOScore(getPlayerOScore() + 1);
   }
+}
+
+export function getConnectFourSquareElement(row, col) {
+  return document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`);
+}
+
+export function getValidMoves(gameBoard, currentGame){
+  // For Connect Four, get only valid moves (lowest empty cell per column).
+  // For Tic-Tac-Toe, all empty squares are valid.
+  return currentGame === GAME.CONNECT_FOUR
+    ? getValidConnectFourMoves(gameBoard)
+    : getEmptySquares(gameBoard);
 }

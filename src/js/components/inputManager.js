@@ -293,7 +293,6 @@ export function inputManager(resetGameBoard, initializeGameInteraction) {
 
     scoreBoard.addEventListener("click", (event) => {
       const clickedElement = event.target;
-      console.info(clickedElement);
       let playerSymbolToSet = null;
 
       if (clickedElement === playerXBtn) {

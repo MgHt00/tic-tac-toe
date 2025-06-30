@@ -142,10 +142,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     _enableBoardInteractions();
     let moveCoordinates; // Will be {row, col} or null
     const aiPlayerSymbol = getCurrentPlayer();
-    console.info("aiPlayerSymbol:",aiPlayerSymbol);
     const currentGame = getCurrentGame();
     const opponentPlayerSymbol = aiPlayerSymbol === PLAYER_X ? PLAYER_O : PLAYER_X;
-    console.info("opponentPlayerSymbol:",opponentPlayerSymbol);
 
     switch (getOpponentLevel()) {
       case 0:

@@ -238,7 +238,7 @@ div[id|="game"] {
 }
 
 #connect-four-board > .winning-cell-accent {
-  opacity: 1;
+  opacity: var(--full-opacity, 1);
   background-color: var(--tic-tac-toe-border-color);
 }
 

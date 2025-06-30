@@ -32,6 +32,41 @@ function _getConnectFourRandomCoordinates(gameBoard) {
 }
 
 /**
+ * Checks for immediate strategic moves: a winning move for the AI or a blocking move against the opponent.
+ * @param {Array<Array<string|null>>} gameBoard - The current game board state.
+ * @param {string} aiPlayer - The symbol of the AI player.
+ * @param {string} opponentPlayer - The symbol of the opponent player.
+ * @param {string} currentGame - The current game being played.
+ * @returns {{move: {row: number, col: number}, type: string} | null} An object with the move and its type ('win' or 'block'), or null if no immediate move is found.
+ */
+function _findImmediateStrategicMove(gameBoard, aiPlayer, opponentPlayer, currentGame) {
+  const validMoves = getValidMoves(gameBoard, currentGame);
+
+  // Check for AI win
+  for (const [row, col] of validMoves) {
+    const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, aiPlayer);
+    const winningCombination = currentGame === GAME.TIC_TAC_TOE
+      ? checkWinCondition(virtualGameBoard, aiPlayer)
+      : checkConnectFourWinCondition(virtualGameBoard, row, col, aiPlayer);
+
+    if (winningCombination) {
+      return { move: { row, col }, type: 'win' };
+    }
+  }
+
+  // Check for opponent win to block
+  for (const [row, col] of validMoves) {
+    const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, opponentPlayer);
+    const winningCombination = currentGame === GAME.TIC_TAC_TOE
+      ? checkWinCondition(virtualGameBoard, opponentPlayer)
+      : checkConnectFourWinCondition(virtualGameBoard, row, col, opponentPlayer);
+    if (winningCombination) {
+      return { move: { row, col }, type: 'block' };
+    }
+  }
+  return null; // No immediate strategic move
+}
+/**
  * AI Level 0: Chooses a random empty square.
  * @param {Array<Array<string|null>>} gameBoard - The current game board state.
  * @returns {{row: number, col: number} | null} Coordinates for the AI's move, or null.
@@ -55,36 +90,21 @@ export function getAILevel0Move(gameBoard, currentGame) {
  * @returns {{row: number, col: number} | null} Coordinates for the AI's move, or null.
  */
 export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer, currentGame) {
-  // For Connect Four, get only valid moves (lowest empty cell per column).
-  const validMoves = getValidMoves(gameBoard, currentGame);
-
-  // Check for AI win
-  for (const [row, col] of validMoves) { 
-    const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, aiPlayer);
-    const winningCombination = currentGame === GAME.TIC_TAC_TOE ? 
-                             checkWinCondition(virtualGameBoard, aiPlayer) : 
-                             checkConnectFourWinCondition(virtualGameBoard, row, col, aiPlayer);
-
-    if (winningCombination) {
+  const strategicMoveResult = _findImmediateStrategicMove(gameBoard, aiPlayer, opponentPlayer, currentGame);
+  if (strategicMoveResult) {
+    const { move, type } = strategicMoveResult;
+    const { row, col } = move;
+    if (type === 'win') {
       console.info(`AI Level 1: Found winning move at [${row}, ${col}]`);
-      return { row, col };
-    }
-  }
-  
-  // Check for opponent win to block
-  for (const [row, col] of validMoves) {
-    const virtualGameBoard = constructVirtualGameBoard(gameBoard, row, col, opponentPlayer);
-    const winningCombination = currentGame === GAME.TIC_TAC_TOE ? 
-                             checkWinCondition(virtualGameBoard, opponentPlayer) : 
-                             checkConnectFourWinCondition(virtualGameBoard, row, col, opponentPlayer);
-    if (winningCombination) {
+    } else {
       console.info(`AI Level 1: Blocking opponent's winning move at [${row}, ${col}]`);
-      return { row, col };
     }
+    return { row, col };
   }
 
-  // No immediate strategic move
+  // No immediate strategic move, so pick a random valid move.
   console.info("AI Level 1: No immediate strategic move. Picking a random empty square.");
+  const validMoves = getValidMoves(gameBoard, currentGame);
   if (validMoves.length === 0) {
     return null;
   }
@@ -94,7 +114,28 @@ export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer, currentGame
 }
 
 export function getAILevel2Move(gameBoard, aiPlayer, opponentPlayer, currentGame) {
-  const { row, col } =  minimaxMove(gameBoard, aiPlayer, opponentPlayer, currentGame);
-  console.info(`AI Level 2: Make a minimax move at [${row}, ${col}]`);
-  return { row, col };
+  // First, check for any immediate winning or blocking moves.
+  const strategicMoveResult = _findImmediateStrategicMove(gameBoard, aiPlayer, opponentPlayer, currentGame);
+  if (strategicMoveResult) {
+    const { move, type } = strategicMoveResult;
+    const { row, col } = move;
+    if (type === 'win') {
+      console.info(`AI Level 2: Found immediate winning move at [${row}, ${col}].`);
+    } else {
+      console.info(`AI Level 2: Blocking opponent's winning move at [${row}, ${col}].`);
+    }
+    return { row, col };
+  }
+
+  // If no immediate threats, use Minimax for the optimal long-term move.
+  const minimaxBestMove = minimaxMove(gameBoard, aiPlayer, opponentPlayer, currentGame);
+  if (minimaxBestMove) {
+    const { row, col } = minimaxBestMove;
+    console.info(`AI Level 2: Make a minimax move at [${row}, ${col}]`);
+    return { row, col };
+  }
+  
+  // Fallback in case minimax returns null (e.g., no moves left).
+  console.warn("AI Level 2: Minimax returned no move. This shouldn't happen if there are valid moves. Falling back to random move.");
+  return getAILevel0Move(gameBoard, currentGame);
 }

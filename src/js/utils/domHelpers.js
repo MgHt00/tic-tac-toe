@@ -146,15 +146,18 @@ export function checkGameRadioInput(game) {
 
 // Sets the display names for the player X and player O buttons.
 export function namePlayers(currentGame) {
-  if (currentGame === GAME.TIC_TAC_TOE) {
-    selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
-    selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
-  } else if (currentGame === GAME.CONNECT_FOUR) {
-    selectors.playerXButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_X;
-    selectors.playerOButton.innerHTML = PLAYERS.CONNECT_FOUR_PLAYER_O;
-  } else {
-    console.error("Invalid game:", currentGame);
-  }
+  // Reset buttons to a default state by clearing content and removing C4-specific classes
+  selectors.playerXButton.innerHTML = '';
+  selectors.playerOButton.innerHTML = '';
+  selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.C4_PLAYER_X_BG);
+  selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.C4_PLAYER_O_BG);
+
+ selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
+ selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
+ if (currentGame === GAME.CONNECT_FOUR) {
+  selectors.playerXButton.classList.add(CSS_CLASS_NAMES.C4_PLAYER_X_BG);
+  selectors.playerOButton.classList.add(CSS_CLASS_NAMES.C4_PLAYER_O_BG);
+ }
 }
 
 export function convertPlayerBoxToCircle() {
@@ -202,10 +205,15 @@ export function changeGameInfoContent(content) {
 }
 
 // Fills a square with the player's mark and applies appropriate styling.
-export function fillAndDecorateSquare(targetElement, player) {
-  targetElement.textContent = player;
-  const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
-  targetElement.classList.add(cssClass);
+export function fillAndDecorateSquare(targetElement, player, currentGame) {
+  if (currentGame === GAME.CONNECT_FOUR) {
+    const playerMark = player === PLAYER_X ? PLAYERS.CONNECT_FOUR_PLAYER_X : PLAYERS.CONNECT_FOUR_PLAYER_O;
+    targetElement.innerHTML = playerMark;
+  } else {
+    targetElement.textContent = player;
+    const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;
+    targetElement.classList.add(cssClass);
+  }
 }
 
 /**

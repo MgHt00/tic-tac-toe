@@ -170,7 +170,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const targetElementId = `${squareInitial}${moveCoordinates.row}-${moveCoordinates.col}`;
     const targetElement = document.getElementById(targetElementId);
 
-    fillAndDecorateSquare(targetElement, aiPlayerSymbol);
+    fillAndDecorateSquare(targetElement, aiPlayerSymbol, currentGame);
     updateGameBoardState(targetElement, aiPlayerSymbol, currentGame);
 
     // Check for win using the AI's move
@@ -215,7 +215,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   // Processes a player's move for Tic-Tac-Toe.
   function _processTicTacToeMove(targetElement, playerMakingMove, currentGame) {
-    fillAndDecorateSquare(targetElement, playerMakingMove);
+    fillAndDecorateSquare(targetElement, playerMakingMove, currentGame);
 
     // Check for win using the player's move    
     const winningBoardCombination = _checkWinCondition(getGameBoard(currentGame), playerMakingMove);
@@ -251,7 +251,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       return null;
     }
 
-    fillAndDecorateSquare(targetElement, playerMakingMove);
+    fillAndDecorateSquare(targetElement, playerMakingMove, currentGame);
 
     // Check for win using the player's move
     const row = parseInt(targetElement.dataset.row, 10);
@@ -428,6 +428,12 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     if (gameToPlay === GAME.CONNECT_FOUR) {
       _enableConnectFour();
       _addSquareListeners();
+      displayCurrentPlayer(getCurrentPlayer()); 
+      highlightCurrentPlayer(getCurrentPlayer()); 
+      // If the current player is O (AI) and it's not 2-player mode, AI makes the first move.
+      if (getCurrentPlayer() === PLAYER_O && opponentLevel < 3) { 
+        _handleConnectFourAITurn();
+      }
     } 
     
     else if (gameToPlay === GAME.TIC_TAC_TOE) {

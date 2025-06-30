@@ -347,24 +347,12 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   function _addSquareListeners() {
     const currentGame = getCurrentGame();
     const gameBoard = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;
-    
-    if (currentGame === GAME.TIC_TAC_TOE) {
-      _boundMouseClickHandler = (event) => {
-        if (event.target.matches(_matchingID)) {
-          _handleSquareClick(event.target);
-          highlightCurrentPlayer(getCurrentPlayer());
-        }
-      }
-    }
 
-    if (currentGame === GAME.CONNECT_FOUR) {
-      _boundMouseClickHandler = (event) => {
-        if (event.target.matches(_matchingID)) {
-          _handleSquareClick(event.target);
-          highlightCurrentPlayer(getCurrentPlayer());
-        }
+    _boundMouseClickHandler = (event) => {
+      if (event.target.matches(_matchingID)) {
+        _handleSquareClick(event.target);
       }
-    }
+    };
 
     _boundMouseOverHandler = (event) => {
       if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target) && _isValidConnectFourSquare(event.target)) { // Only highlight if game not over and square not filled

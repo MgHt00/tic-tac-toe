@@ -280,6 +280,14 @@ div[id|="game"] {
   background-color: var(--player-O-color, rgb(85, 193, 251));
 }
 
+#game-scores > #player-x {
+  background-color: var(--player-X-color, snow);
+}
+
+#game-scores > #player-o {
+  background-color: var(--player-O-color, rgb(85, 193, 251));
+}
+
 /* This is the class added by disableBoardInteractions() to the board container */
 .board-disabled {
   pointer-events: none;

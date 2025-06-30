@@ -161,7 +161,9 @@ export function constructVirtualGameBoard(gameBoard, row, col, player) {
 
 // Checks if a given square element is already filled with a player's mark.
 export function isSquareFilled(targetElement) {
-  return targetElement.textContent !== "";
+  // A square is filled if it has a child element (Connect Four piece)
+  // or if it has non-empty text content (Tic-Tac-Toe mark).
+  return targetElement.children.length > 0 || targetElement.textContent.trim() !== "";
 }
 
 // Disables interactions with the Tic-Tac-Toe and Connect Four board.
@@ -198,24 +200,27 @@ export function flipPlayer() {
 
 // Checks whether the square is the bottom-most or below is filled. For Connect Four board
 export function isValidConnectFourSquare(targetElement) {
+  // This check is only relevant for Connect Four.
+  if (getCurrentGame() !== GAME.CONNECT_FOUR) return true;
+
   const row = parseInt(targetElement.dataset.row, 10);
   const col = parseInt(targetElement.dataset.col, 10);
 
-  // checking whether it is the bottom most row
-  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) { 
+  // If it's the bottom-most row, it's always a valid move.
+  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) {
     return true;
-  };
-
-  const elementToCheck = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row + 1}-${col}`);
-  return elementToCheck && elementToCheck.textContent !== "";
+  }
+  // Otherwise, the move is valid if the square directly below is filled.
+  const elementBelow = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row + 1}-${col}`);
+  return !!(elementBelow && isSquareFilled(elementBelow));
 }
 
 // Checks if all squares on the board are filled.
 export function areAllSquaresFilled(currentGame) {
-  const selector = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;
-  const squaresNodeList = selector.querySelectorAll(_matchingID);
+  const boardSelector = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;
+  const squaresNodeList = boardSelector.querySelectorAll(_matchingID);
   for (const square of squaresNodeList) {
-    if (square.textContent === "") {
+    if (!isSquareFilled(square)) {
       return false;
     }
   }

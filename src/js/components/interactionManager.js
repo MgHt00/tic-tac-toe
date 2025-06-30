@@ -430,6 +430,12 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     if (gameToPlay === GAME.CONNECT_FOUR) {
       _enableConnectFour();
       _addSquareListeners();
+      displayCurrentPlayer(getCurrentPlayer()); 
+      highlightCurrentPlayer(getCurrentPlayer()); 
+      // If the current player is O (AI) and it's not 2-player mode, AI makes the first move.
+      if (getCurrentPlayer() === PLAYER_O && opponentLevel < 3) { 
+        _handleConnectFourAITurn();
+      }
     } 
     
     else if (gameToPlay === GAME.TIC_TAC_TOE) {

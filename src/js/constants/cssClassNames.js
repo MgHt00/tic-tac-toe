@@ -31,4 +31,8 @@ export const CSS_CLASS_NAMES = {
 
   REMOVE_PLAYER_BOX_SHADOW: "remove-box-shadow",
   CONVERT_TO_CIRCLE: "convert-to-circle",
+
+  C4_PLAYER_X_BG: "c4-player-x-bg",
+  C4_PLAYER_O_BG: "c4-player-o-bg",
+
 }

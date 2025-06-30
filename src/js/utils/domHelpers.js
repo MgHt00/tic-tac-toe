@@ -145,9 +145,19 @@ export function checkGameRadioInput(game) {
 }
 
 // Sets the display names for the player X and player O buttons.
-export function namePlayers() {
+export function namePlayers(currentGame) {
+  // Reset buttons to a default state by clearing content and removing C4-specific classes
+  selectors.playerXButton.innerHTML = '';
+  selectors.playerOButton.innerHTML = '';
+  selectors.playerXButton.classList.remove(CSS_CLASS_NAMES.C4_PLAYER_X_BG);
+  selectors.playerOButton.classList.remove(CSS_CLASS_NAMES.C4_PLAYER_O_BG);
+
  selectors.playerXButton.textContent = PLAYERS.PLAYER_X;
  selectors.playerOButton.textContent = PLAYERS.PLAYER_O;
+ if (currentGame === GAME.CONNECT_FOUR) {
+  selectors.playerXButton.classList.add(CSS_CLASS_NAMES.C4_PLAYER_X_BG);
+  selectors.playerOButton.classList.add(CSS_CLASS_NAMES.C4_PLAYER_O_BG);
+ }
 }
 
 export function convertPlayerBoxToCircle() {

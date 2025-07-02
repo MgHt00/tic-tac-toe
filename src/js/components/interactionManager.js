@@ -30,6 +30,7 @@ import {
   enableBoardInteractions as _enableBoardInteractions,
   flipPlayer as _flipPlayer,
   findLowestAvailableRowInColumn as _findLowestAvailableRowInColumn,
+  getAnimatableCells as _getAnimatableCells,
   areAllSquaresFilled as _areAllSquaresFilled,
   accumulateScore as _accumulateScore,
  } from "../utils/boardUtils.js";
@@ -246,8 +247,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   // Processes a player's move for Connect Four
-  function _processConnectFourMove(targetElement, playerMakingMove, currentGame) {
-    fillAndDecorateSquare(targetElement, playerMakingMove, currentGame);
+  function _processConnectFourMove(targetElement, playerMakingMove, currentGame, cellsToAnimate) {
+    fillAndDecorateSquare(targetElement, playerMakingMove, currentGame, cellsToAnimate);
 
     // Check for win using the player's move
     const row = parseInt(targetElement.dataset.row, 10);
@@ -272,6 +273,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     let moveTargetElement = targetElement;
     let row = parseInt(targetElement.dataset.row, 10);
     let col = parseInt(targetElement.dataset.col, 10);
+    let cellsToAnimate = [];
 
     if (currentGame === GAME.CONNECT_FOUR) {
       const availableRow = _findLowestAvailableRowInColumn(gameBoard, col);
@@ -284,6 +286,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
       const correctElementId = `${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`;
       moveTargetElement = document.getElementById(correctElementId);
+      cellsToAnimate = _getAnimatableCells(row, col);
+      console.info("cellsToAnimate:", cellsToAnimate);
     } 
     
     else { // Tic-Tac-Toe
@@ -306,7 +310,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
     
     if (currentGame === GAME.CONNECT_FOUR) {
-      gameEnded = _processConnectFourMove(moveTargetElement, playerMakingMove, currentGame);
+      gameEnded = _processConnectFourMove(moveTargetElement, playerMakingMove, currentGame, cellsToAnimate);
     }
 
     // If the game ended due to a win in the game-specific logic, return.

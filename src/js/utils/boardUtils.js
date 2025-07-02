@@ -212,6 +212,20 @@ export function findLowestAvailableRowInColumn(gameBoard, col) {
   return -1; // Column is full
 }
 
+/**
+ * Generates a top-to-bottom path of cell coordinates for the drop animation.
+ * @param {number} row - The final row of the piece.
+ * @param {number} col - The column of the piece.
+ * @returns {Array<[number, number]>} An array of [row, col] coordinates.
+ */
+export function getAnimatableCells(row, col) {
+  let animatableCells = [];
+  for (let r = 0; r <= row; r++) {
+    animatableCells.push([r, col]);
+  }
+  return animatableCells;
+}
+
 // Checks if all squares on the board are filled.
 export function areAllSquaresFilled(currentGame) {
   const boardSelector = currentGame === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;

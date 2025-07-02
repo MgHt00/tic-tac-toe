@@ -204,11 +204,46 @@ export function changeGameInfoContent(content) {
   selectors.gameInfo.textContent = content;
 }
 
+function _sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function _animateConnectFourDrop(cellsToAnimate, playerMark) {
+  for (let i = 0; i < cellsToAnimate.length; i++) {
+    const [row, col] = cellsToAnimate[i];
+    const cellId = `${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`;
+    const cellElement = document.getElementById(cellId);
+
+    if (!cellElement) continue;
+
+    // Add the piece to the current cell
+    cellElement.innerHTML = playerMark;
+
+    // If it's not the last cell, wait and then clear it to create the "moving" effect
+    if (i < cellsToAnimate.length - 1) {
+      // We don't await this so the animation runs in the background
+      // without blocking subsequent game logic (like checking for a win).
+      await _sleep(INTERACTIONS.CIRCLE_DROP_TIME_MS);
+      cellElement.innerHTML = "";
+    }
+    // The piece remains in the final cell
+  }
+}
+
 // Fills a square with the player's mark and applies appropriate styling.
-export function fillAndDecorateSquare(targetElement, player, currentGame) {
+export function fillAndDecorateSquare(targetElement, player, currentGame, cellsToAnimate = []) {
   if (currentGame === GAME.CONNECT_FOUR) {
     const playerMark = player === PLAYER_X ? PLAYERS.CONNECT_FOUR_PLAYER_X : PLAYERS.CONNECT_FOUR_PLAYER_O;
-    targetElement.innerHTML = playerMark;
+
+    // if it is an AI's turn, cellsToAnimate will be empty and there will be no drop animation
+    if (cellsToAnimate.length > 0) {
+      _animateConnectFourDrop(cellsToAnimate, playerMark);
+      // TO DO
+      // animation is abit disturbing for every situation
+      // how about not displaying any animation when the user clicked on the target cell instead of the coresponding column?
+    } else {
+      targetElement.innerHTML = playerMark;
+    }
   } else {
     targetElement.textContent = player;
     const cssClass = player === PLAYER_X ? CSS_CLASS_NAMES.PLAYER_X_COLOR : CSS_CLASS_NAMES.PLAYER_O_COLOR;

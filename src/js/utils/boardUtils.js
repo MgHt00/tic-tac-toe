@@ -198,17 +198,18 @@ export function flipPlayer() {
   setCurrentPlayer(newPlayer);
 }
 
-// Checks if a move at a given row and column is valid for Connect Four.
-export function isValidConnectFourMove(gameBoard, row, col) {
-  if (gameBoard[row][col] !== null) {
-    return false;
+// This is used to determine where a piece should be placed when a column is clicked.
+export function findLowestAvailableRowInColumn(gameBoard, col) {
+  if (!gameBoard || !gameBoard[0] || col < 0 || col >= gameBoard[0].length) { // !gameBoard[0] checks whether gameBoard is an empty array.
+    return -1; // Invalid input
   }
-  // If it's the bottom-most row (last row), it's always a valid move.
-  if (row === gameBoard.length - 1) {
-    return true;
+  const maxRow = gameBoard.length - 1;
+  for (let row = maxRow; row >= 0; row--) {
+    if (gameBoard[row][col] === null) {
+      return row; // This is the lowest empty spot
+    }
   }
-  // Otherwise, the move is valid if the square directly below is filled.
-  return gameBoard[row + 1][col] !== null;
+  return -1; // Column is full
 }
 
 // Checks if all squares on the board are filled.

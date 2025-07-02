@@ -29,7 +29,7 @@ import {
   disableBoardInteractions as _disableBoardInteractions,
   enableBoardInteractions as _enableBoardInteractions,
   flipPlayer as _flipPlayer,
-  isValidConnectFourMove as _isValidConnectFourMove,
+  findLowestAvailableRowInColumn as _findLowestAvailableRowInColumn,
   areAllSquaresFilled as _areAllSquaresFilled,
   accumulateScore as _accumulateScore,
  } from "../utils/boardUtils.js";
@@ -75,6 +75,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   let _boundMouseOverHandler = null;
   let _boundMouseOutHandler = null;
   let _boundMouseClickHandler = null;
+  let _currentlyHighlightedElement = null;
  
   function resetGameBoard({ resetScore = false, resetStartingPlayer = false }) {
     blackoutScreen();
@@ -266,19 +267,30 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
       return;
     }
 
-    if (_isSquareFilled(targetElement)) {
-      console.info("Square is already filled");
-      return; 
-    }
-
     const currentGame = getCurrentGame();
+    const gameBoard = getGameBoard(currentGame);
+    let moveTargetElement = targetElement;
+    let row = parseInt(targetElement.dataset.row, 10);
+    let col = parseInt(targetElement.dataset.col, 10);
 
-    // For Connect Four, validate the move before proceeding.
     if (currentGame === GAME.CONNECT_FOUR) {
-      const row = parseInt(targetElement.dataset.row, 10);
-      const col = parseInt(targetElement.dataset.col, 10);
-      if (!_isValidConnectFourMove(getGameBoard(currentGame), row, col)) {
-        return; // Invalid move, do nothing.
+      const availableRow = _findLowestAvailableRowInColumn(gameBoard, col);
+
+      if (availableRow === -1) {
+        console.info("Column is full.");
+        return; // Column is full, invalid move.
+      }
+      row = availableRow;
+
+      const correctElementId = `${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`;
+      moveTargetElement = document.getElementById(correctElementId);
+    } 
+    
+    else { // Tic-Tac-Toe
+      // Validate move against the game state.
+      if (gameBoard[row][col] !== null) {
+        console.info("Square is already filled.");
+        return;
       }
     }
 
@@ -287,14 +299,14 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     let validMoveMade = true;
 
     setGameInProgressState(true);
-    updateGameBoardState(targetElement, playerMakingMove, currentGame);
+    updateGameBoardState(moveTargetElement, playerMakingMove, currentGame);
 
     if (currentGame === GAME.TIC_TAC_TOE) {
-      gameEnded = _processTicTacToeMove(targetElement, playerMakingMove, currentGame);
+      gameEnded = _processTicTacToeMove(moveTargetElement, playerMakingMove, currentGame);
     }
     
     if (currentGame === GAME.CONNECT_FOUR) {
-      gameEnded = _processConnectFourMove(targetElement, playerMakingMove, currentGame);
+      gameEnded = _processConnectFourMove(moveTargetElement, playerMakingMove, currentGame);
     }
 
     // If the game ended due to a win in the game-specific logic, return.
@@ -356,26 +368,62 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
     _boundMouseOverHandler = (event) => {
       const target = event.target;
-      if (target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(target)) { // Only highlight if game not over and square not filled
-        const currentGame = getCurrentGame();
-        let isValidHover = false;
-
-        if (currentGame === GAME.TIC_TAC_TOE) {
-          isValidHover = true;
-        } else if (currentGame === GAME.CONNECT_FOUR) {
-          const row = parseInt(target.dataset.row, 10);
-          const col = parseInt(target.dataset.col, 10);
-          isValidHover = _isValidConnectFourMove(getGameBoard(currentGame), row, col);
-        }
-        if (isValidHover) addHighlight(target);
+      if (!target.matches(_matchingID) || isGameOverState()) {
+        return;
       }
-    }
+
+      const currentGame = getCurrentGame();
+      let newElementToHighlight = null;
+
+      // Determine which element should be highlighted based on game and cursor position
+      if (currentGame === GAME.TIC_TAC_TOE) {
+        if (!_isSquareFilled(target)) {
+          newElementToHighlight = target;
+        }
+      } else if (currentGame === GAME.CONNECT_FOUR) {
+        const col = parseInt(target.dataset.col, 10);
+        const gameBoard = getGameBoard(currentGame);
+        const availableRow = _findLowestAvailableRowInColumn(gameBoard, col);
+
+        if (availableRow !== -1) {
+          const correctElementId = `${INTERACTIONS.CF_SQUARES_ID_INITIAL}${availableRow}-${col}`;
+          newElementToHighlight = document.getElementById(correctElementId);
+        }
+      }
+
+      // If the element to be highlighted hasn't changed, do nothing.
+      if (newElementToHighlight === _currentlyHighlightedElement) {
+        return;
+      }
+
+      // If there was a previously highlighted element, remove its highlight.
+      if (_currentlyHighlightedElement) {
+        removeHighlight(_currentlyHighlightedElement);
+      }
+
+      // If there's a new valid element to highlight, apply the highlight.
+      if (newElementToHighlight) {
+        addHighlight(newElementToHighlight);
+      }
+
+      // Update the state to remember the currently highlighted element.
+      _currentlyHighlightedElement = newElementToHighlight;
+    };
 
     _boundMouseOutHandler = (event) => {
-      if (event.target.matches(_matchingID)) {
-        removeHighlight(event.target);
+      const target = event.target;
+      const gameBoardElement = getCurrentGame() === GAME.TIC_TAC_TOE ? selectors.TTTBoard : selectors.CFBoard;
+
+      // If the mouse leaves the game board area, clear any existing highlight.
+      if (target.matches(_matchingID) && !gameBoardElement.contains(event.relatedTarget)) { //le004
+        // `event.relatedTarget`: This is the new element the cursor is moving over *after* leaving the previous element.
+        // `gameBoardElement.contains(...)`: This method checks if the new element (`relatedTarget`) is a child of the main game board.
+        if (_currentlyHighlightedElement) {
+          removeHighlight(_currentlyHighlightedElement);
+          _currentlyHighlightedElement = null;
+        }
       }
-    }
+    };
 
     gameBoard.addEventListener("mouseover", _boundMouseOverHandler);
     gameBoard.addEventListener("mouseout", _boundMouseOutHandler);

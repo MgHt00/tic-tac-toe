@@ -29,7 +29,7 @@ import {
   disableBoardInteractions as _disableBoardInteractions,
   enableBoardInteractions as _enableBoardInteractions,
   flipPlayer as _flipPlayer,
-  isValidConnectFourSquare as _isValidConnectFourSquare,
+  isValidConnectFourMove as _isValidConnectFourMove,
   areAllSquaresFilled as _areAllSquaresFilled,
   accumulateScore as _accumulateScore,
  } from "../utils/boardUtils.js";
@@ -246,11 +246,6 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
 
   // Processes a player's move for Connect Four
   function _processConnectFourMove(targetElement, playerMakingMove, currentGame) {
-    if (!_isValidConnectFourSquare(targetElement)) {
-      //console.info("Connect Four move invalid: square below is empty.");
-      return null;
-    }
-
     fillAndDecorateSquare(targetElement, playerMakingMove, currentGame);
 
     // Check for win using the player's move
@@ -258,10 +253,10 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     const col = parseInt(targetElement.dataset.col, 10);
     const winningBoardCombination = _checkConnectFourWinCondition(getGameBoard(currentGame), row, col, playerMakingMove);
     if (winningBoardCombination) {
-      _handleWin(playerMakingMove, winningBoardCombination, currentGame);
-      return true; // game ended
+      _handleWin(playerMakingMove, winningBoardCombination);
+      return true; // Game ended
     }
-    return false; // game continues
+    return false; // Game continues
   }
 
   // Handles a click event on a square of the game board.
@@ -277,6 +272,16 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
 
     const currentGame = getCurrentGame();
+
+    // For Connect Four, validate the move before proceeding.
+    if (currentGame === GAME.CONNECT_FOUR) {
+      const row = parseInt(targetElement.dataset.row, 10);
+      const col = parseInt(targetElement.dataset.col, 10);
+      if (!_isValidConnectFourMove(getGameBoard(currentGame), row, col)) {
+        return; // Invalid move, do nothing.
+      }
+    }
+
     const playerMakingMove = getCurrentPlayer();
     let gameEnded = false;
     let validMoveMade = true;
@@ -289,12 +294,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
     
     if (currentGame === GAME.CONNECT_FOUR) {
-      const connectFourResult = _processConnectFourMove(targetElement, playerMakingMove, currentGame);
-      if (connectFourResult === null) { // If the move was invalid (e.g., C4 piece dropped in air), don't proceed to next turn.
-        validMoveMade = false;
-      } else {
-        gameEnded = connectFourResult;
-      }
+      gameEnded = _processConnectFourMove(targetElement, playerMakingMove, currentGame);
     }
 
     // If the game ended due to a win in the game-specific logic, return.
@@ -355,8 +355,19 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     };
 
     _boundMouseOverHandler = (event) => {
-      if (event.target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(event.target) && _isValidConnectFourSquare(event.target)) { // Only highlight if game not over and square not filled
-        addHighlight(event.target);
+      const target = event.target;
+      if (target.matches(_matchingID) && !isGameOverState() && !_isSquareFilled(target)) { // Only highlight if game not over and square not filled
+        const currentGame = getCurrentGame();
+        let isValidHover = false;
+
+        if (currentGame === GAME.TIC_TAC_TOE) {
+          isValidHover = true;
+        } else if (currentGame === GAME.CONNECT_FOUR) {
+          const row = parseInt(target.dataset.row, 10);
+          const col = parseInt(target.dataset.col, 10);
+          isValidHover = _isValidConnectFourMove(getGameBoard(currentGame), row, col);
+        }
+        if (isValidHover) addHighlight(target);
       }
     }
 

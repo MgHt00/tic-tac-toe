@@ -1,8 +1,8 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
-import { PLAYERS, INTERACTIONS, GAME, BOARD_CONSTANTS } from "../constants/appConstants.js";
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js"; // Import BOARD_CONSTANTS
+import { PLAYERS, INTERACTIONS, GAME } from "../constants/appConstants.js";
+import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 
 import { 
   getCurrentGame, 
@@ -198,21 +198,17 @@ export function flipPlayer() {
   setCurrentPlayer(newPlayer);
 }
 
-// Checks whether the square is the bottom-most or below is filled. For Connect Four board
-export function isValidConnectFourSquare(targetElement) {
-  // This check is only relevant for Connect Four.
-  if (getCurrentGame() !== GAME.CONNECT_FOUR) return true;
-
-  const row = parseInt(targetElement.dataset.row, 10);
-  const col = parseInt(targetElement.dataset.col, 10);
-
-  // If it's the bottom-most row, it's always a valid move.
-  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) {
+// Checks if a move at a given row and column is valid for Connect Four.
+export function isValidConnectFourMove(gameBoard, row, col) {
+  if (gameBoard[row][col] !== null) {
+    return false;
+  }
+  // If it's the bottom-most row (last row), it's always a valid move.
+  if (row === gameBoard.length - 1) {
     return true;
   }
   // Otherwise, the move is valid if the square directly below is filled.
-  const elementBelow = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row + 1}-${col}`);
-  return !!(elementBelow && isSquareFilled(elementBelow));
+  return gameBoard[row + 1][col] !== null;
 }
 
 // Checks if all squares on the board are filled.

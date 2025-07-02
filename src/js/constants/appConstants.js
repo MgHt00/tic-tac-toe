@@ -19,11 +19,6 @@ export const STATE_KEYS = {
   PLAYER_O_SCORE: 'playerOScore',
 };
 
-// Constants related to board structure/dimensions
-export const BOARD_CONSTANTS = {
-  CONNECT_FOUR_MAX_ROW_INDEX: 5, // Top row is 0, bottom row is 5
-}
-
 export const GAME = {
   TIC_TAC_TOE: "Tic-Tac-Toe",
   CONNECT_FOUR: "Connect Four",

@@ -3,12 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>tic-tac-toe with the minimax algorithm</title>
+  <title>tic-tac-toe and connect-four with the minimax algorithm</title>
   <link rel="stylesheet" href="src/css/index.css">
 </head>
 <body>
+  <div id="game-switch-wrapper" class="position-absolute top-0 end-0 d-flex justify-content-center">
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+      <input type="radio" class="btn-check" name="btnradio" id="tic-tac-toe-radio-input" autocomplete="off" checked>
+      <label id="switch-tic-tac-toe-button" class="btn btn-sm btn-outline-secondary" for="tic-tac-toe-radio-input">Tic Tac Toe</label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="connect-four-radio-input" autocomplete="off">
+      <label id="switch-connect-four-button" class="btn btn-sm btn-outline-secondary" for="connect-four-radio-input">Connect Four</label>
+    </div>
+  </div>
   <div id="main-container" class="d-flex flex-column justify-content-center align-items-center h-100">
-    <div id="game-title" class="w-100 p-1"><h3>Tic Tac Toe</h3></div>
+    <div id="game-title" class="w-100 p-1"></div>
     <div id="game-settings" class="w-100">
       <div class="d-flex">
         <label for="game-settings-difficulty-range" class="form-label">Opponent:&nbsp;</label>
@@ -17,35 +26,92 @@
       <input type="range" id="game-settings-difficulty-range" min="0" max="0" value="1" class="form-range">
     </div>
     <div id="game-scores" class="d-flex w-100 justify-content-evenly">
-      <div id="player-x"></div>
+      <div class="d-flex justify-content-center align-items-center player-x" id="player-x"></div>
       <div id="player-x-score">0</div>
       <div id="player-score-divider">:</div>
-      <div id="player-o"></div>
+      <div class="d-flex justify-content-center align-items-center player-o" id="player-o"></div>
       <div id="player-o-score">0</div>
     </div>
     <div id="game-info">Start game or select player</div>
-    <div id="game-wrapper" class="d-flex align-items-center justify-content-center">
+    <div id="game-wrapper" class="d-flex flex-column align-items-center justify-content-center">
       <div id="tic-tac-toe-board" class="d-flex flex-wrap">
-        <div id="square-1-1" class="d-flex justify-content-center align-items-center"></div>
-        <div id="square-1-2" class="d-flex justify-content-center align-items-center"></div>
-        <div id="square-1-3" class="d-flex justify-content-center align-items-center"></div>
-        <div id="square-2-1" class="d-flex justify-content-center align-items-center"></div>
-        <div id="square-2-2" class="d-flex justify-content-center align-items-center"></div>
-        <div id="square-2-3" class="d-flex justify-content-center align-items-center"></div>
-        <div id="square-3-1" class="d-flex justify-content-center align-items-center"></div>
-        <div id="square-3-2" class="d-flex justify-content-center align-items-center"></div>
-        <div id="square-3-3" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-0-0" data-row="0" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-0-1" data-row="0" data-col="1" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-0-2" data-row="0" data-col="2" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-1-0" data-row="1" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-1-1" data-row="1" data-col="1" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-1-2" data-row="1" data-col="2" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-2-0" data-row="2" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-2-1" data-row="2" data-col="1" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-2-2" data-row="2" data-col="2" class="d-flex justify-content-center align-items-center"></div>
+      </div>
+
+      <div id="connect-four-board" class="d-flex flex-wrap visually-hidden">
+        <div id="square-CF-0-0" data-row="0" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-0-1" data-row="0" data-col="1" class="d-flex justify-content-center align-items-center"><!--<div class="player-x"></div>--></div>
+        <div id="square-CF-0-2" data-row="0" data-col="2" class="d-flex justify-content-center align-items-center"><!--<div class="player-o"></div>--></div>
+        <div id="square-CF-0-3" data-row="0" data-col="3" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-0-4" data-row="0" data-col="4" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-0-5" data-row="0" data-col="5" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-0-6" data-row="0" data-col="6" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-1-0" data-row="1" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-1-1" data-row="1" data-col="1" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-1-2" data-row="1" data-col="2" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-1-3" data-row="1" data-col="3" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-1-4" data-row="1" data-col="4" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-1-5" data-row="1" data-col="5" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-1-6" data-row="1" data-col="6" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-2-0" data-row="2" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-2-1" data-row="2" data-col="1" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-2-2" data-row="2" data-col="2" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-2-3" data-row="2" data-col="3" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-2-4" data-row="2" data-col="4" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-2-5" data-row="2" data-col="5" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-2-6" data-row="2" data-col="6" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-3-0" data-row="3" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-3-1" data-row="3" data-col="1" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-3-2" data-row="3" data-col="2" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-3-3" data-row="3" data-col="3" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-3-4" data-row="3" data-col="4" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-3-5" data-row="3" data-col="5" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-3-6" data-row="3" data-col="6" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-4-0" data-row="4" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-4-1" data-row="4" data-col="1" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-4-2" data-row="4" data-col="2" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-4-3" data-row="4" data-col="3" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-4-4" data-row="4" data-col="4" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-4-5" data-row="4" data-col="5" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-4-6" data-row="4" data-col="6" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-5-0" data-row="5" data-col="0" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-5-1" data-row="5" data-col="1" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-5-2" data-row="5" data-col="2" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-5-3" data-row="5" data-col="3" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-5-4" data-row="5" data-col="4" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-5-5" data-row="5" data-col="5" class="d-flex justify-content-center align-items-center"></div>
+        <div id="square-CF-5-6" data-row="5" data-col="6" class="d-flex justify-content-center align-items-center"></div>
       </div>
     </div>
     <div id="game-restart-button-wrapper">
-      <button id="restart-button" type="button" class="btn btn-outline-primary">Restart</button>
+      <button id="restart-button" type="button" class="btn btn-outline-primary">New Game</button>
     </div>
   </div>
 
-  <div id="overlay" class="invisible"></div>
-  <div id="loading-wrapper" class="invisible">
+  <div id="overlay"></div> <!-- Made visible by default -->
+  <div id="loading-wrapper"> <!-- Made visible by default -->
     <div class="spinner-grow" role="status">
       <span class="invisible">Loading...</span>
+    </div>
+  </div>
+  <div id="confirmation-alert-wrapper" class="invisible">
+    <div class="alert alert-primary d-flex flex-column" role="alert">
+      <div>
+        <h5 class="confirmation-alert-heading">Sure?</h5>
+        This will reset the game.
+      </div>
+      <div id="confirmation-alert-buttons" class="d-flex justify-content-center">
+        <button id="confirmation-alert-ok" type="button" class="btn btn-primary btn-sm">OK</button>
+        <button id="confirmation-alert-cancel" type="button" class="btn btn-primary btn-sm">Cancel</button>
+      </div>
     </div>
   </div>
   <script type="module" src="src/js/index.js"></script>

@@ -1,4 +1,4 @@
-import { GAME, INTERACTIONS } from "../constants/appConstants.js";
+import { GAME } from "../constants/appConstants.js";
 import { getEmptySquares, getValidConnectFourMoves, checkWinCondition, checkConnectFourWinCondition, constructVirtualGameBoard, getValidMoves, getConnectFourSquareElement } from "../utils/boardUtils.js";
 import { generateRandomNumber } from "../utils/mathHelpers.js";
 import { minimaxMove } from "./minimax.js";
@@ -80,14 +80,17 @@ export function getAILevel0Move(gameBoard, currentGame) {
 }
 
 /**
- * AI Level 1:
- * 1. Checks if AI can win in the next move.
- * 2. Checks if opponent can win in the next move, and blocks them.
- * 3. Otherwise, picks a random empty square.
+ * Determines the move for AI Level 1 ("Smart").
+ * This strategy follows a simple hierarchy:
+ * 1. Checks for an immediate winning move for the AI.
+ * 2. If no winning move is found, it checks for an immediate winning move for the opponent and blocks it.
+ * 3. If neither of the above, it makes a random valid move.
+ *
  * @param {Array<Array<string|null>>} gameBoard - The current game board state.
  * @param {string} aiPlayer - The symbol of the AI player (e.g., 'X' or 'O').
  * @param {string} opponentPlayer - The symbol of the opponent player.
- * @returns {{row: number, col: number} | null} Coordinates for the AI's move, or null.
+ * @param {string} currentGame - The current game being played (e.g., 'Tic-Tac-Toe' or 'Connect Four').
+ * @returns {{row: number, col: number} | null} Coordinates for the AI's move, or null if no moves are possible.
  */
 export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer, currentGame) {
   const strategicMoveResult = _findImmediateStrategicMove(gameBoard, aiPlayer, opponentPlayer, currentGame);
@@ -113,6 +116,21 @@ export function getAILevel1Move(gameBoard, aiPlayer, opponentPlayer, currentGame
   return { row, col };
 }
 
+/**
+ * Determines the move for AI Level 2 ("Brilliant").
+ * This strategy enhances Level 1 by incorporating the Minimax algorithm for long-term planning.
+ * 1. It first performs a quick check for immediate winning or blocking moves, just like Level 1.
+ *    This is an optimization to avoid running the more complex Minimax algorithm unnecessarily.
+ * 2. If no immediate move is found, it employs the Minimax algorithm to find the optimal move
+ *    by looking several steps ahead.
+ * 3. As a fallback, if Minimax doesn't return a move, it defaults to a random move.
+ *
+ * @param {Array<Array<string|null>>} gameBoard - The current game board state.
+ * @param {string} aiPlayer - The symbol of the AI player (e.g., 'X' or 'O').
+ * @param {string} opponentPlayer - The symbol of the opponent player.
+ * @param {string} currentGame - The current game being played (e.g., 'Tic-Tac-Toe' or 'Connect Four').
+ * @returns {{row: number, col: number} | null} Coordinates for the AI's move, or null if no moves are possible.
+ */
 export function getAILevel2Move(gameBoard, aiPlayer, opponentPlayer, currentGame) {
   // First, check for any immediate winning or blocking moves.
   const strategicMoveResult = _findImmediateStrategicMove(gameBoard, aiPlayer, opponentPlayer, currentGame);

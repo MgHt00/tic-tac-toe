@@ -4,24 +4,18 @@ import {
   getCurrentGame,
   setCurrentGame,
   getStartingPlayer,
-  setStartingPlayer,
   getCurrentPlayer,
   setCurrentPlayer,
   getGameBoard,
   isGameOverState,
   setGameOverState,
-  getWinner,
   setWinner,
-  isGameInProgressState,
   setGameInProgressState,
   getOpponentLevel,
   getPlayerXScore,
-  setPlayerXScore,
-  getPlayerOScore,
-  setPlayerOScore } from "../services/globalDataManager.js";
+  getPlayerOScore } from "../services/globalDataManager.js";
 import { selectors } from "../services/selectors.js";
 import { PLAYERS, INTERACTIONS, GAME } from "../constants/appConstants.js";
-import { CSS_CLASS_NAMES} from "../constants/cssClassNames.js";
 import { 
   checkWinCondition as _checkWinCondition,
   checkConnectFourWinCondition as _checkConnectFourWinCondition,

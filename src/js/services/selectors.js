@@ -18,15 +18,6 @@ export const selectors = {
   
   TTTBoard: document.querySelector(`#${ELEMENT_IDS.TTT_BOARD}`),
   CFBoard: document.querySelector(`#${ELEMENT_IDS.CF_BOARD}`),
-  /*Square_1_1: document.querySelector(`#${ELEMENT_IDS.SQUARE_1_1}`),
-  Square_1_2: document.querySelector(`#${ELEMENT_IDS.SQUARE_1_2}`),
-  Square_1_3: document.querySelector(`#${ELEMENT_IDS.SQUARE_1_3}`),
-  Square_2_1: document.querySelector(`#${ELEMENT_IDS.SQUARE_2_1}`),
-  Square_2_2: document.querySelector(`#${ELEMENT_IDS.SQUARE_2_2}`),
-  Square_2_3: document.querySelector(`#${ELEMENT_IDS.SQUARE_2_3}`),
-  Square_3_1: document.querySelector(`#${ELEMENT_IDS.SQUARE_3_1}`),
-  Square_3_2: document.querySelector(`#${ELEMENT_IDS.SQUARE_3_2}`),
-  Square_3_3: document.querySelector(`#${ELEMENT_IDS.SQUARE_3_3}`),*/
 
   restartButton: document.querySelector(`#${ELEMENT_IDS.RESTART_BUTTON}`),
   switchTTTButton: document.querySelector(`#${ELEMENT_IDS.SWITCH_TTT_BUTTON}`),

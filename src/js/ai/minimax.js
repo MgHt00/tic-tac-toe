@@ -1,4 +1,4 @@
-import { GAME } from "../constants/appConstants.js";
+import { GAME, INTERACTIONS } from "../constants/appConstants.js";
 import { 
   checkWinCondition, 
   checkConnectFourWinCondition, 
@@ -44,9 +44,7 @@ function _minimax(param, depth, isMaximizingPlayer, alpha, beta) {
 
   const { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame } = param;
 
-  // Add a depth limit for Connect Four to prevent performance issues (which can seem like an infinite loop).
-  // A depth of 5 is a good balance of strength and speed. Tic-Tac-Toe is simple enough to search to the end.
-  if (currentGame === GAME.CONNECT_FOUR && depth > 4) {
+  if (currentGame === GAME.CONNECT_FOUR && depth > INTERACTIONS.MINIMAX_DEPTH) {
     return 0; // Return a neutral score because the search depth is reached.
   }
 
@@ -60,11 +58,15 @@ function _minimax(param, depth, isMaximizingPlayer, alpha, beta) {
     let bestScore = -Infinity;
     for (const [row, col] of validMoves) {
       gameBoard[row][col] = aiPlayerSymbol; // AI makes a move
+
       const newParam = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
       const currentScore = _minimax(newParam, depth + 1, false, alpha, beta); // It's now minimizer's turn
+      
       gameBoard[row][col] = null; // Undo the move
+
       bestScore = Math.max(bestScore, currentScore);
       alpha = Math.max(alpha, bestScore);
+
       if (beta <= alpha) {
         break; // Beta cutoff: Minimizer has a better option, so Maximizer won't choose this path.
       }
@@ -74,11 +76,15 @@ function _minimax(param, depth, isMaximizingPlayer, alpha, beta) {
     let bestScore = Infinity;
     for (const [row, col] of validMoves) {
       gameBoard[row][col] = opponentPlayerSymbol; // Opponent
+
       const newParam = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
       const currentScore = _minimax(newParam, depth + 1, true, alpha, beta); // It's now maximizer's turn
+
       gameBoard[row][col] = null; // Undo the move
+
       bestScore = Math.min(bestScore, currentScore);
       beta = Math.min(beta, bestScore);
+
       if (beta <= alpha) {
         break; // Alpha cutoff: Maximizer has a better option, so Minimizer won't choose this path.
       }
@@ -103,7 +109,8 @@ export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol, 
   }
 
   // Optimization: On the first move of the game, pick a strategic or random-but-fast move.
-  const totalSquares = currentGame === GAME.TIC_TAC_TOE ? 9 : 42;
+  // Dynamically calculate the total number of squares (rows * cols) to avoid hardcoded "magic numbers" (9 and 42).
+  const totalSquares = gameBoard.length * gameBoard[0].length;
   
   if (getEmptySquares(gameBoard).length === totalSquares) {
     if (currentGame === GAME.TIC_TAC_TOE) {

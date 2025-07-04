@@ -1,12 +1,10 @@
 import { selectors } from "../services/selectors.js";
-import { globals } from "../services/globals.js";
-import { STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
+import { WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
 import { PLAYERS, INTERACTIONS, GAME } from "../constants/appConstants.js";
 import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 
 import { 
   getCurrentGame, 
-  setCurrentGame, 
   getCurrentPlayer, 
   setCurrentPlayer, 
   setPlayerXScore, 

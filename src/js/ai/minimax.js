@@ -1,4 +1,4 @@
-import { GAME } from "../constants/appConstants.js";
+import { GAME, INTERACTIONS } from "../constants/appConstants.js";
 import { 
   checkWinCondition, 
   checkConnectFourWinCondition, 
@@ -44,9 +44,7 @@ function _minimax(param, depth, isMaximizingPlayer, alpha, beta) {
 
   const { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame } = param;
 
-  // Add a depth limit for Connect Four to prevent performance issues (which can seem like an infinite loop).
-  // A depth of 5 is a good balance of strength and speed. Tic-Tac-Toe is simple enough to search to the end.
-  if (currentGame === GAME.CONNECT_FOUR && depth > 4) {
+  if (currentGame === GAME.CONNECT_FOUR && depth > INTERACTIONS.MINIMAX_DEPTH) {
     return 0; // Return a neutral score because the search depth is reached.
   }
 

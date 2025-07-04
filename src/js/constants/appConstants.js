@@ -49,6 +49,7 @@ export const INTERACTIONS = {
   PLAYER_TURN: 'Turn',
   PLAYER_WIN: 'wins!',
   PLAYER_DRAW: 'Game is a draw!',
+  MINIMAX_DEPTH: 5,
 };
 
 export const WIN_LINE_DIRECTIONS = {

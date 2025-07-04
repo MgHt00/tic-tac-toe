@@ -231,16 +231,15 @@ async function _animateConnectFourDrop(cellsToAnimate, playerMark) {
 }
 
 // Fills a square with the player's mark and applies appropriate styling.
-export function fillAndDecorateSquare(targetElement, player, currentGame, cellsToAnimate = []) {
+export function fillAndDecorateSquare(targetElement, player, currentGame, cellsToAnimate = [], wasDestinationCellClicked = true) {
   if (currentGame === GAME.CONNECT_FOUR) {
     const playerMark = player === PLAYER_X ? PLAYERS.CONNECT_FOUR_PLAYER_X : PLAYERS.CONNECT_FOUR_PLAYER_O;
 
-    // if it is an AI's turn, cellsToAnimate will be empty and there will be no drop animation
-    if (cellsToAnimate.length > 0) {
+    // In Connect Four, run the drop animation only if the player clicked a cell
+    // above the target destination. If they click the exact destination cell,
+    // or if it's an AI move, place the piece instantly for better responsiveness.
+    if (cellsToAnimate.length > 0  && !wasDestinationCellClicked) {
       _animateConnectFourDrop(cellsToAnimate, playerMark);
-      // TO DO
-      // animation is abit disturbing for every situation
-      // how about not displaying any animation when the user clicked on the target cell instead of the coresponding column?
     } else {
       targetElement.innerHTML = playerMark;
     }

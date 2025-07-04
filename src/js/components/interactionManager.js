@@ -247,8 +247,8 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
   }
 
   // Processes a player's move for Connect Four
-  function _processConnectFourMove(targetElement, playerMakingMove, currentGame, cellsToAnimate) {
-    fillAndDecorateSquare(targetElement, playerMakingMove, currentGame, cellsToAnimate);
+  function _processConnectFourMove(targetElement, playerMakingMove, currentGame, cellsToAnimate, wasDestinationCellClicked) {
+    fillAndDecorateSquare(targetElement, playerMakingMove, currentGame, cellsToAnimate, wasDestinationCellClicked);
 
     // Check for win using the player's move
     const row = parseInt(targetElement.dataset.row, 10);
@@ -274,20 +274,24 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     let row = parseInt(targetElement.dataset.row, 10);
     let col = parseInt(targetElement.dataset.col, 10);
     let cellsToAnimate = [];
+    let wasDestinationCellClicked;
 
     if (currentGame === GAME.CONNECT_FOUR) {
       const availableRow = _findLowestAvailableRowInColumn(gameBoard, col);
+      
+      // Determine if the user clicked the exact destination cell for the piece.
+      // `availableRow` is the calculated landing spot, while `row` is from the user's click.
+      wasDestinationCellClicked = availableRow === row;
 
       if (availableRow === -1) {
         console.info("Column is full.");
         return; // Column is full, invalid move.
       }
       row = availableRow;
-
+      
       const correctElementId = `${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row}-${col}`;
       moveTargetElement = document.getElementById(correctElementId);
       cellsToAnimate = _getAnimatableCells(row, col);
-      console.info("cellsToAnimate:", cellsToAnimate);
     } 
     
     else { // Tic-Tac-Toe
@@ -310,7 +314,7 @@ export function interactionManager(getAILevel0Move, getAILevel1Move, getAILevel2
     }
     
     if (currentGame === GAME.CONNECT_FOUR) {
-      gameEnded = _processConnectFourMove(moveTargetElement, playerMakingMove, currentGame, cellsToAnimate);
+      gameEnded = _processConnectFourMove(moveTargetElement, playerMakingMove, currentGame, cellsToAnimate, wasDestinationCellClicked);
     }
 
     // If the game ended due to a win in the game-specific logic, return.

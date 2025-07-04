@@ -3,14 +3,6 @@ export const CSS_CLASS_NAMES = {
   VISUALLY_HIDDEN: "visually-hidden",
   HIGHLIGHT : "highlight",
 
-  // IMPORTANT: The keys for winning line classes (e.g., X_WIN_ROW, O_WIN_COLUMN)
-  // follow a specific pattern: `${PLAYER_SYMBOL}_WIN_${DIRECTION}`.
-
-  // This pattern is used in `interactionManager.js` to dynamically construct these keys
-  // using `PLAYERS` constants (X, O) and `WIN_LINE_DIRECTIONS` from `appConstants.js`.
-  
-  // If you change this naming convention here, you MUST update the logic
-  // in `interactionManager.js` that generates these keys.
   X_WIN_ROW: "x-winning-square-row", 
   X_WIN_COLUMN: "x-winning-square-column", 
   X_WIN_DIAGONAL_MAIN: "x-winning-square-diagonal-main", // Top-left to bottom-right (e.g., \)

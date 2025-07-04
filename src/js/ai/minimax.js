@@ -58,11 +58,15 @@ function _minimax(param, depth, isMaximizingPlayer, alpha, beta) {
     let bestScore = -Infinity;
     for (const [row, col] of validMoves) {
       gameBoard[row][col] = aiPlayerSymbol; // AI makes a move
+
       const newParam = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
       const currentScore = _minimax(newParam, depth + 1, false, alpha, beta); // It's now minimizer's turn
+      
       gameBoard[row][col] = null; // Undo the move
+
       bestScore = Math.max(bestScore, currentScore);
       alpha = Math.max(alpha, bestScore);
+
       if (beta <= alpha) {
         break; // Beta cutoff: Minimizer has a better option, so Maximizer won't choose this path.
       }
@@ -72,11 +76,15 @@ function _minimax(param, depth, isMaximizingPlayer, alpha, beta) {
     let bestScore = Infinity;
     for (const [row, col] of validMoves) {
       gameBoard[row][col] = opponentPlayerSymbol; // Opponent
+
       const newParam = { gameBoard, aiPlayerSymbol, opponentPlayerSymbol, currentGame, row, col };
       const currentScore = _minimax(newParam, depth + 1, true, alpha, beta); // It's now maximizer's turn
+
       gameBoard[row][col] = null; // Undo the move
+
       bestScore = Math.min(bestScore, currentScore);
       beta = Math.min(beta, bestScore);
+
       if (beta <= alpha) {
         break; // Alpha cutoff: Maximizer has a better option, so Minimizer won't choose this path.
       }

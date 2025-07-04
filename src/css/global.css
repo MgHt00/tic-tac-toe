@@ -36,17 +36,6 @@
   --half-opacity: 0.5;
 }
 
-/*@layer debug {
-  :root {
-    --debug-background: rgba(240, 248, 255, 0.35);
-    --debug-background: none;
-  }
-
-  #main-container > div {
-    background: var(--debug-background);
-  }
-}*/
-
 body {
   height: var(--body-height, 100vh);
   width: var(--body-width, 260px);

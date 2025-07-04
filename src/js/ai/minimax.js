@@ -101,7 +101,8 @@ export function minimaxMove(initialBoard, aiPlayerSymbol, opponentPlayerSymbol, 
   }
 
   // Optimization: On the first move of the game, pick a strategic or random-but-fast move.
-  const totalSquares = currentGame === GAME.TIC_TAC_TOE ? 9 : 42;
+  // Dynamically calculate the total number of squares (rows * cols) to avoid hardcoded "magic numbers" (9 and 42).
+  const totalSquares = gameBoard.length * gameBoard[0].length;
   
   if (getEmptySquares(gameBoard).length === totalSquares) {
     if (currentGame === GAME.TIC_TAC_TOE) {

@@ -1,8 +1,8 @@
 import { selectors } from "../services/selectors.js";
 import { globals } from "../services/globals.js";
 import { STATE_KEYS, WIN_LINE_DIRECTIONS } from "../constants/appConstants.js";
-import { PLAYERS, INTERACTIONS, GAME, BOARD_CONSTANTS } from "../constants/appConstants.js";
-import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js"; // Import BOARD_CONSTANTS
+import { PLAYERS, INTERACTIONS, GAME } from "../constants/appConstants.js";
+import { CSS_CLASS_NAMES } from "../constants/cssClassNames.js";
 
 import { 
   getCurrentGame, 
@@ -198,21 +198,32 @@ export function flipPlayer() {
   setCurrentPlayer(newPlayer);
 }
 
-// Checks whether the square is the bottom-most or below is filled. For Connect Four board
-export function isValidConnectFourSquare(targetElement) {
-  // This check is only relevant for Connect Four.
-  if (getCurrentGame() !== GAME.CONNECT_FOUR) return true;
-
-  const row = parseInt(targetElement.dataset.row, 10);
-  const col = parseInt(targetElement.dataset.col, 10);
-
-  // If it's the bottom-most row, it's always a valid move.
-  if (row === BOARD_CONSTANTS.CONNECT_FOUR_MAX_ROW_INDEX) {
-    return true;
+// This is used to determine where a piece should be placed when a column is clicked.
+export function findLowestAvailableRowInColumn(gameBoard, col) {
+  if (!gameBoard || !gameBoard[0] || col < 0 || col >= gameBoard[0].length) { // !gameBoard[0] checks whether gameBoard is an empty array.
+    return -1; // Invalid input
   }
-  // Otherwise, the move is valid if the square directly below is filled.
-  const elementBelow = document.getElementById(`${INTERACTIONS.CF_SQUARES_ID_INITIAL}${row + 1}-${col}`);
-  return !!(elementBelow && isSquareFilled(elementBelow));
+  const maxRow = gameBoard.length - 1;
+  for (let row = maxRow; row >= 0; row--) {
+    if (gameBoard[row][col] === null) {
+      return row; // This is the lowest empty spot
+    }
+  }
+  return -1; // Column is full
+}
+
+/**
+ * Generates a top-to-bottom path of cell coordinates for the drop animation.
+ * @param {number} row - The final row of the piece.
+ * @param {number} col - The column of the piece.
+ * @returns {Array<[number, number]>} An array of [row, col] coordinates.
+ */
+export function getAnimatableCells(row, col) {
+  let animatableCells = [];
+  for (let r = 0; r <= row; r++) {
+    animatableCells.push([r, col]);
+  }
+  return animatableCells;
 }
 
 // Checks if all squares on the board are filled.

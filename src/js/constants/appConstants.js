@@ -19,11 +19,6 @@ export const STATE_KEYS = {
   PLAYER_O_SCORE: 'playerOScore',
 };
 
-// Constants related to board structure/dimensions
-export const BOARD_CONSTANTS = {
-  CONNECT_FOUR_MAX_ROW_INDEX: 5, // Top row is 0, bottom row is 5
-}
-
 export const GAME = {
   TIC_TAC_TOE: "Tic-Tac-Toe",
   CONNECT_FOUR: "Connect Four",
@@ -47,6 +42,7 @@ export const INTERACTIONS = {
   AI_THINKING_TIME_MS: 500,
   GAME_RESET_TIME_MS: 100,
   GAME_CHANGE_TIME_MS: 1000,
+  CIRCLE_DROP_TIME_MS: 65,
   SQUARES_GENERAL_ID: '[id|="square"]',
   SQUARES_ID_INITIAL: 'square-',
   CF_SQUARES_ID_INITIAL: 'square-CF-',
